@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_marginVertical="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/menu_icon"
+            android:layout_width="@dimen/menu_icon"
+            android:layout_height="@dimen/menu_icon"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:src="@drawable/ic_menu_manage"
+            android:tint="@color/white" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/menu_icon"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/menu_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bilan"
+                android:textColor="@color/unthem600"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menu_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="Détails de la semaine courante"
+                android:textColor="@color/white"
+                android:textSize="12dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
