@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_order"
+        android:orderInCategory="100"
+        android:title="Order"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_shuffle"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_menu_gallery"
+        android:iconTint="@color/white"
+        android:title="Shuffle"
+        app:showAsAction="never" />
+
+</menu>
