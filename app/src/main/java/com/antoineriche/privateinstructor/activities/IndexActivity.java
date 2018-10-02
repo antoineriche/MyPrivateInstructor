@@ -1,11 +1,13 @@
 package com.antoineriche.privateinstructor.activities;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -155,7 +157,7 @@ public class IndexActivity extends AppCompatActivity
                 pFragment = ToImplementFragment.newInstance("Calendar");
                 break;
             case R.id.nav_pupil:
-                pFragment = ToImplementFragment.newInstance("Pupil");
+                pFragment = AbstractFragmentList.PupilListFragment.newInstance();
                 break;
             case R.id.nav_course:
                 pFragment = AbstractFragmentList.CourseListFragment.newInstance();
@@ -197,5 +199,18 @@ public class IndexActivity extends AppCompatActivity
     @Override
     public SQLiteDatabase getDatabase() {
         return mDatabase;
+    }
+
+    @Override
+    public void addItem(Class pActivity) {
+        startActivity(new Intent(this, pActivity));
+    }
+
+    @Override
+    public void seeItemDetails(Class pActivity, Bundle pBundle) {
+        Intent intent = new Intent(this, pActivity);
+        intent.putExtras(pBundle);
+        startActivity(intent);
+        Log.e("seeItemDetails", pBundle.toString());
     }
 }

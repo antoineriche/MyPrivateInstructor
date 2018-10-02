@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class MyDatabase extends SQLiteOpenHelper {
 
-    public static final int VERSION = 1;
+    public static final int VERSION = 3;
     public static final String DB_NAME = "private-instructor";
 
     public MyDatabase(Context context, SQLiteDatabase.CursorFactory factory) {
@@ -18,12 +18,14 @@ public class MyDatabase extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         Log.d(getClass().getSimpleName(), "onCreate");
         sqLiteDatabase.execSQL(new CourseTable().getCreationString());
+        sqLiteDatabase.execSQL(new PupilTable().getCreationString());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if(newVersion != oldVersion) {
+        if(newVersion > oldVersion) {
             Log.d(getClass().getSimpleName(), "onUpgrade");
+            sqLiteDatabase.execSQL(new PupilTable().getCreationString());
         }
     }
 
