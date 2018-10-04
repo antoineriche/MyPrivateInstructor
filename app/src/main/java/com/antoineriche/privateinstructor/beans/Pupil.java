@@ -1,5 +1,9 @@
 package com.antoineriche.privateinstructor.beans;
 
+import android.database.Cursor;
+
+import com.antoineriche.privateinstructor.database.PupilTable;
+
 public class Pupil {
 
     public static final int GENDER_MALE = 0;
@@ -43,6 +47,19 @@ public class Pupil {
         this.frequency = frequency;
         this.address = address;
         this.hourlyPrice = hourlyPrice;
+    }
+
+    public Pupil(Cursor c) {
+        this(c.getString(PupilTable.NUM_COL_FIRSTNAME), c.getString(PupilTable.NUM_COL_LASTNAME), c.getInt(PupilTable.NUM_COL_CLASSLEVEL),
+                c.getInt(PupilTable.NUM_COL_PAYMENT_TYPE), c.getInt(PupilTable.NUM_COL_GENDER), c.getInt(PupilTable.NUM_COL_FREQUENCY),
+                c.getString(PupilTable.NUM_COL_ADDRESS), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
+
+        this.id = c.getInt(PupilTable.NUM_COL_ID);
+        this.sinceDate = c.getLong(PupilTable.NUM_COL_DATE_SINCE);
+        this.phone = c.getString(PupilTable.NUM_COL_PHONE);
+        this.parentPhone = c.getString(PupilTable.NUM_COL_PARENT_PHONE);
+        this.imgPath = c.getString(PupilTable.NUM_COL_IMG_PATH);
+        this.state = c.getInt(PupilTable.NUM_COL_STATE);
     }
 
     public int getId() {

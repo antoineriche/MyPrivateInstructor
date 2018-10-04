@@ -28,15 +28,15 @@ import com.antoineriche.privateinstructor.database.MyDatabase;
 
 import java.util.Locale;
 
-public class IndexActivity extends AppCompatActivity
+public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        ToImplementFragment.ToImplementFragmentInteractionListener, AbstractFragmentList.FragmentListListener {
+        AbstractFragmentList.FragmentListListener {
 
     private DrawerLayout mDrawer;
     private Toolbar mToolbar;
     private NavigationView mNavView;
-    private SQLiteDatabase mDatabase;
-    private MyDatabase mMyDB;
+//    private SQLiteDatabase mDatabase;
+//    private MyDatabase mMyDB;
 
 
     @Override
@@ -56,8 +56,13 @@ public class IndexActivity extends AppCompatActivity
         mNavView.setNavigationItemSelectedListener(this);
         initMenu(mNavView.getMenu());
 
-        mMyDB = new MyDatabase(getApplicationContext(), null);
-        mDatabase = mMyDB.getReadableDatabase();
+//        mMyDB = new MyDatabase(getApplicationContext(), null);
+//        mDatabase = mMyDB.getReadableDatabase();
+    }
+
+    @Override
+    protected boolean isDatabaseWritable() {
+        return false;
     }
 
     private void initMenu(Menu pMenu) {
@@ -120,11 +125,11 @@ public class IndexActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mMyDB.close();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        mMyDB.close();
+//    }
 
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,17 +194,10 @@ public class IndexActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onFragmentInteraction(String pSection) {
-        Toast.makeText(this,
-                String.format(Locale.FRANCE, "I'm affraid the fragment said right...\n%s is still not implemented", pSection),
-                Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public SQLiteDatabase getDatabase() {
-        return mDatabase;
-    }
+//    @Override
+//    public SQLiteDatabase getDatabase() {
+//        return mDatabase;
+//    }
 
     @Override
     public void addItem(Class pActivity) {

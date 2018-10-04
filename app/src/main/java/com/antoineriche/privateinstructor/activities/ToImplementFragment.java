@@ -20,8 +20,6 @@ public class ToImplementFragment extends Fragment {
 
     private String mSection;
 
-    private ToImplementFragmentInteractionListener mListener;
-
     public ToImplementFragment() {
     }
 
@@ -46,43 +44,6 @@ public class ToImplementFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_to_implement, container, false);
         ((TextView) view.findViewById(R.id.tv_section_to_implement)).setText(String.format(Locale.FRANCE, "%s is not implemeted yet", mSection));
-        view.findViewById(R.id.fab_return).setOnClickListener(v -> onButtonPressed());
-
-
-        ((TextView) view.findViewById(R.id.tv_section_to_implement)).append(
-                String.format(Locale.FRANCE, "\n%d courses",
-                        CourseTable.getAllCourses(mListener.getDatabase()).size())
-        );
-
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed() {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(mSection);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof ToImplementFragmentInteractionListener) {
-            mListener = (ToImplementFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    public interface ToImplementFragmentInteractionListener {
-        void onFragmentInteraction(String pSection);
-        SQLiteDatabase getDatabase();
     }
 }

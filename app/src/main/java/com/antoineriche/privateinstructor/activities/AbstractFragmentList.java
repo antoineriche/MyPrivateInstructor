@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -19,9 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.R;
+import com.antoineriche.privateinstructor.activities.pupils.PupilActivity;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.CourseTable;
@@ -47,21 +46,26 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        retrieveItems(mListener.getDatabase());
         setUpListView();
     }
 
-    protected abstract void retrieveItems(SQLiteDatabase database);
+    protected abstract List getItemsFromDB(SQLiteDatabase database);
 
-    private void setUpListView(){
+    private void setUpListView() {
         ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, mListItem);
         setListAdapter(adapter);
         getListView().setOnItemClickListener(this);
     }
 
+    private void refreshListData() {
+        mListItem.clear();
+        mListItem.addAll(getItemsFromDB(mListener.getDatabase()));
+        ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_shuffle){
+        if (item.getItemId() == R.id.action_shuffle) {
             Collections.shuffle(mListItem);
             ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
         }
@@ -85,7 +89,13 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         return view;
     }
 
-    protected abstract Class <? extends Activity> getAddingActivity();
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshListData();
+    }
+
+    protected abstract Class<? extends Activity> getAddingActivity();
 
     @Override
     public void onAttach(Context context) {
@@ -97,26 +107,25 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         }
     }
 
-    public List getItems(){
-        return mListItem;
-    };
-
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    public List getItems() {
+        return mListItem;
+    }
 
 
 
     public interface FragmentListListener {
         SQLiteDatabase getDatabase();
+
         void addItem(Class pActivity);
+
         void seeItemDetails(Class pActivity, Bundle pBundle);
     }
-
-
 
     public static class CourseListFragment extends AbstractFragmentList {
 
@@ -130,7 +139,7 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             Bundle args = new Bundle();
-            args.putInt(CourseActivity.ARG_COURSE_ID, getItems().get(position).getId());
+            args.putLong(CourseActivity.ARG_COURSE_ID, getItems().get(position).getId());
             mListener.seeItemDetails(CourseActivity.class, args);
         }
 
@@ -147,12 +156,13 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         }
 
         @Override
-        protected Class <? extends Activity> getAddingActivity() {
+        protected Class<? extends Activity> getAddingActivity() {
             return CourseActivity.class;
         }
 
-        protected void retrieveItems(SQLiteDatabase database){
-            getItems().addAll(CourseTable.getAllCourses(database));
+        @Override
+        protected List<Course> getItemsFromDB(SQLiteDatabase database) {
+            return CourseTable.getAllCourses(database);
         }
 
         @Override
@@ -160,7 +170,6 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
             return ((List<Course>) super.getItems());
         }
     }
-
 
     public static class PupilListFragment extends AbstractFragmentList {
 
@@ -174,7 +183,7 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             Bundle args = new Bundle();
-            args.putInt(PupilActivity.ARG_PUPIL_ID, getItems().get(position).getId());
+            args.putLong(PupilActivity.ARG_PUPIL_ID, getItems().get(position).getId());
             mListener.seeItemDetails(PupilActivity.class, args);
         }
 
@@ -191,12 +200,13 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         }
 
         @Override
-        protected Class <? extends Activity> getAddingActivity() {
+        protected Class<? extends Activity> getAddingActivity() {
             return PupilActivity.class;
         }
 
-        protected void retrieveItems(SQLiteDatabase database){
-            getItems().addAll(PupilTable.getAllPupils(database));
+        @Override
+        protected List<Pupil> getItemsFromDB(SQLiteDatabase database) {
+            return PupilTable.getAllPupils(database);
         }
 
         @Override
