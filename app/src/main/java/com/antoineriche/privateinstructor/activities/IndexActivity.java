@@ -1,11 +1,8 @@
 package com.antoineriche.privateinstructor.activities;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
@@ -13,20 +10,15 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.database.CourseTable;
-import com.antoineriche.privateinstructor.database.MyDatabase;
-
-import java.util.Locale;
+import com.antoineriche.privateinstructor.activities.item.AbstractDatabaseActivity;
+import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -35,8 +27,6 @@ public class IndexActivity extends AbstractDatabaseActivity
     private DrawerLayout mDrawer;
     private Toolbar mToolbar;
     private NavigationView mNavView;
-//    private SQLiteDatabase mDatabase;
-//    private MyDatabase mMyDB;
 
 
     @Override
@@ -55,9 +45,6 @@ public class IndexActivity extends AbstractDatabaseActivity
         mNavView = (NavigationView) findViewById(R.id.nav_view);
         mNavView.setNavigationItemSelectedListener(this);
         initMenu(mNavView.getMenu());
-
-//        mMyDB = new MyDatabase(getApplicationContext(), null);
-//        mDatabase = mMyDB.getReadableDatabase();
     }
 
     @Override
@@ -125,11 +112,6 @@ public class IndexActivity extends AbstractDatabaseActivity
         }
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        mMyDB.close();
-//    }
 
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
@@ -193,11 +175,6 @@ public class IndexActivity extends AbstractDatabaseActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-//    @Override
-//    public SQLiteDatabase getDatabase() {
-//        return mDatabase;
-//    }
 
     @Override
     public void addItem(Class pActivity) {

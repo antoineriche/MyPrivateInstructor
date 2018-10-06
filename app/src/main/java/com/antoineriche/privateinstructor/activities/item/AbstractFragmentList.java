@@ -1,4 +1,4 @@
-package com.antoineriche.privateinstructor.activities;
+package com.antoineriche.privateinstructor.activities.item;
 
 
 import android.app.Activity;
@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.activities.pupils.PupilActivity;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.CourseTable;
@@ -47,9 +46,12 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setUpListView();
+        getActivity().setTitle(title());
     }
 
     protected abstract List getItemsFromDB(SQLiteDatabase database);
+
+    protected abstract String title();
 
     private void setUpListView() {
         ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, mListItem);
@@ -62,6 +64,7 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         mListItem.addAll(getItemsFromDB(mListener.getDatabase()));
         ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -139,8 +142,8 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             Bundle args = new Bundle();
-            args.putLong(CourseActivity.ARG_COURSE_ID, getItems().get(position).getId());
-            mListener.seeItemDetails(CourseActivity.class, args);
+            args.putLong(AbstractItemActivity.ARG_ITEM_ID, getItems().get(position).getId());
+            mListener.seeItemDetails(AbstractItemActivity.CourseActivity.class, args);
         }
 
         @Override
@@ -157,12 +160,17 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
 
         @Override
         protected Class<? extends Activity> getAddingActivity() {
-            return CourseActivity.class;
+            return AbstractItemActivity.CourseActivity.class;
         }
 
         @Override
         protected List<Course> getItemsFromDB(SQLiteDatabase database) {
             return CourseTable.getAllCourses(database);
+        }
+
+        @Override
+        protected String title() {
+            return "Mes cours";
         }
 
         @Override
@@ -183,8 +191,8 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             Bundle args = new Bundle();
-            args.putLong(PupilActivity.ARG_PUPIL_ID, getItems().get(position).getId());
-            mListener.seeItemDetails(PupilActivity.class, args);
+            args.putLong(AbstractItemActivity.ARG_ITEM_ID, getItems().get(position).getId());
+            mListener.seeItemDetails(AbstractItemActivity.PupilActivity.class, args);
         }
 
         @Override
@@ -201,12 +209,17 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
 
         @Override
         protected Class<? extends Activity> getAddingActivity() {
-            return PupilActivity.class;
+            return AbstractItemActivity.PupilActivity.class;
         }
 
         @Override
         protected List<Pupil> getItemsFromDB(SQLiteDatabase database) {
             return PupilTable.getAllPupils(database);
+        }
+
+        @Override
+        protected String title() {
+            return "Mes élèves";
         }
 
         @Override

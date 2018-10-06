@@ -1,4 +1,4 @@
-package com.antoineriche.privateinstructor.activities;
+package com.antoineriche.privateinstructor.activities.item;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;

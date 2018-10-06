@@ -1,8 +1,24 @@
 package com.antoineriche.privateinstructor.beans;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.antoineriche.privateinstructor.database.PupilTable;
+
+import java.util.Date;
+
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_ADDRESS;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_CLASSLEVEL;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_DATE_SINCE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_FREQUENCY;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_GENDER;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_HOURLY_PRICE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_IMG_PATH;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_LASTNAME;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_PARENT_PHONE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_PAYMENT_TYPE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_PHONE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_STATE;
 
 public class Pupil {
 
@@ -19,7 +35,7 @@ public class Pupil {
     public static final int ACTIVE = 0;
     public static final int DESACTIVE = 1;
 
-    protected int id;
+    protected long id;
     protected String firstname, lastname;
     // classe
     protected int classLevel;
@@ -54,7 +70,7 @@ public class Pupil {
                 c.getInt(PupilTable.NUM_COL_PAYMENT_TYPE), c.getInt(PupilTable.NUM_COL_GENDER), c.getInt(PupilTable.NUM_COL_FREQUENCY),
                 c.getString(PupilTable.NUM_COL_ADDRESS), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
 
-        this.id = c.getInt(PupilTable.NUM_COL_ID);
+        this.id = c.getLong(PupilTable.NUM_COL_ID);
         this.sinceDate = c.getLong(PupilTable.NUM_COL_DATE_SINCE);
         this.phone = c.getString(PupilTable.NUM_COL_PHONE);
         this.parentPhone = c.getString(PupilTable.NUM_COL_PARENT_PHONE);
@@ -62,11 +78,11 @@ public class Pupil {
         this.state = c.getInt(PupilTable.NUM_COL_STATE);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -172,6 +188,24 @@ public class Pupil {
 
     public void setImgPath(String imgPath) {
         this.imgPath = imgPath;
+    }
+
+    public ContentValues toContentValues(){
+        ContentValues values = new ContentValues();
+        values.put(PupilTable.COL_FIRSTNAME, this.firstname);
+        values.put(COL_LASTNAME, this.lastname);
+        values.put(COL_GENDER, this.gender);
+        values.put(COL_CLASSLEVEL, this.classLevel);
+        values.put(COL_PAYMENT_TYPE, this.paymentType);
+        values.put(COL_FREQUENCY, this.frequency);
+        values.put(COL_ADDRESS, this.address);
+        values.put(COL_HOURLY_PRICE, this.hourlyPrice);
+        values.put(COL_DATE_SINCE, this.sinceDate);
+        values.put(COL_PHONE, this.phone);
+        values.put(COL_PARENT_PHONE, this.parentPhone);
+        values.put(COL_IMG_PATH, this.imgPath);
+        values.put(COL_STATE, this.state);
+        return values;
     }
 
     @Override

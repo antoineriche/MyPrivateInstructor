@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.pupils.PupilDetailsFragment"
+    tools:context=".activities.item.pupil.PupilDetailsFragment"
     android:orientation="vertical">
 
 
@@ -27,14 +27,15 @@
     </android.support.v7.widget.CardView>
 
     <TextView
-        android:id="@+id/tv_pupil_firstname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello_blank_fragment" />
+        android:labelFor="@+id/et_pupil_first_name"
+        android:text="First name" />
 
     <EditText
-        android:id="@+id/et_pupil_firstname"
+        android:id="@+id/et_pupil_first_name"
         android:layout_width="match_parent"
+        android:inputType="textAutoCorrect|textAutoComplete|textCapWords"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>

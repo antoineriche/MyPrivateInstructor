@@ -1,45 +1,25 @@
-package com.antoineriche.privateinstructor.activities.pupils;
+package com.antoineriche.privateinstructor.activities.item;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.activities.AbstractDatabaseFragment;
-import com.antoineriche.privateinstructor.beans.Pupil;
-import com.antoineriche.privateinstructor.database.PupilTable;
 
-import java.util.Locale;
+public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment {
 
-public class PupilFormFragment extends AbstractDatabaseFragment {
-
-    private long mPupilId;
-    private boolean isEditing;
+    //FIXME
+    protected long mItemId = -1;
+    private boolean isEditing = false;
     private FormListener mFormListener;
-
-    public PupilFormFragment() {
-    }
-
-    public static PupilFormFragment newInstance(long pPupilId) {
-        PupilFormFragment fragment = new PupilFormFragment();
-        Bundle args = new Bundle();
-        args.putLong(PupilActivity.ARG_PUPIL_ID, pPupilId);
-        args.putBoolean(PupilActivity.ARG_PUPIL_EDITION, true);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,15 +27,15 @@ public class PupilFormFragment extends AbstractDatabaseFragment {
         setHasOptionsMenu(true);
 
         if (getArguments() != null) {
-            mPupilId = getArguments().getLong(PupilActivity.ARG_PUPIL_ID);
-            isEditing = getArguments().getBoolean(PupilActivity.ARG_PUPIL_EDITION, false);
+            mItemId = getArguments().getLong(AbstractItemActivity.ARG_ITEM_ID, -1);
+            isEditing = getArguments().getBoolean(AbstractItemActivity.ARG_ITEM_EDITION, false);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.pupil_fragment_form, container, false);
+        return inflater.inflate(layout(), container, false);
     }
 
     @Override
@@ -63,8 +43,10 @@ public class PupilFormFragment extends AbstractDatabaseFragment {
         super.onActivityCreated(savedInstanceState);
 
         if(isEditing){
-            Pupil pupil = PupilTable.getPupilWithId(mListener.getDatabase(), mPupilId);
-            ((EditText) getView().findViewById(R.id.et_pupil_firstname)).setText(pupil.getFirstname());
+            Object item = getItemFromDB(mListener.getDatabase(), mItemId);
+            fillViewWithItem(getView(), item);
+        } else {
+            cleanView(getView());
         }
     }
 
@@ -95,23 +77,40 @@ public class PupilFormFragment extends AbstractDatabaseFragment {
 
         if (item.getItemId() == R.id.action_cancel) {
             if(isEditing){
-                mFormListener.backToDetails(mPupilId);
+                mFormListener.backToDetails(mItemId);
             } else {
                 mFormListener.cancel();
             }
         } else if (item.getItemId() == R.id.action_save) {
-            Pupil p = PupilTable.getPupilWithId(mListener.getDatabase(), mPupilId);
-            p.setFirstname(((EditText)getView().findViewById(R.id.et_pupil_firstname)).getText().toString());
-            mFormListener.saveItem(mPupilId, p);
+            try{
+                Object newItem = extractItemFromView(getView());
+                if (isEditing) {
+                    mFormListener.updateItem(mItemId, newItem);
+                } else {
+                    mFormListener.saveItem(newItem);
+                }
+            } catch(Exception e) {
+                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
 
         return true;
     }
 
+    protected abstract Object extractItemFromView(View view) throws IllegalArgumentException;
+    protected abstract void fillViewWithItem(View view, Object item);
+    protected abstract void cleanView(View view);
+    protected abstract Object getItemFromDB(SQLiteDatabase database, long mItemId);
+    protected abstract int layout();
+
+    protected boolean isEditing(){
+        return this.isEditing;
+    }
 
     public interface FormListener {
         void cancel();
         void backToDetails(long mItemId);
-        void saveItem(long mItemId, Pupil pPupil);
+        void updateItem(long mItemId, Object pNewItem);
+        void saveItem(Object pNewItem);
     }
 }

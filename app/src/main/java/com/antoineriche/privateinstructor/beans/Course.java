@@ -1,5 +1,18 @@
 package com.antoineriche.privateinstructor.beans;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import com.antoineriche.privateinstructor.database.CourseTable;
+
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_CHAPTER;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_COMMENT;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_DATE;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_DURATION;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_MONEY;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_PUPIL_ID;
+import static com.antoineriche.privateinstructor.database.CourseTable.COL_STATE;
+
 public class Course {
 
     //Statics
@@ -13,16 +26,18 @@ public class Course {
     public static final int DURATION_2H = 120;
 
     // Variables
-    protected int id;
-    protected int pupilID;
+    protected long id;
+    protected long pupilID;             //
     protected long date;
-    protected int duration;
+    protected int duration;             //
     protected int state;
-    protected double money;
-    protected String chapter;
-    protected String comment;
+    protected double money;             //
+    protected String chapter;           //
+    protected String comment;           //
+    protected Pupil pupil;              //
 
-    public Course(){}
+    public Course() {
+    }
 
     public Course(long date, int duration, int state, double money) {
         this.date = date;
@@ -31,31 +46,41 @@ public class Course {
         this.money = money;
     }
 
-    public Course(long date, int duration, int state, double money, String chapter, String comment, int pupilId) {
+    public Course(long date, int duration, int state, double money, String chapter, String comment, long pupilId) {
         this(date, duration, state, money);
+        this.pupilID = pupilId;
         this.chapter = chapter;
         this.comment = comment;
     }
 
-    public Course(int id, int pupilID, long date, int duration, int state, double money, String chapter, String comment) {
+    public Course(long id, long pupilID, long date, int duration, int state, double money, String chapter, String comment) {
         this(date, duration, state, money, chapter, comment, pupilID);
         this.id = id;
         this.pupilID = pupilID;
     }
 
-    public int getId() {
+    public Course(Cursor c) {
+        this(c.getLong(CourseTable.NUM_COL_ID), c.getLong(CourseTable.NUM_COL_PUPIL_ID),
+            c.getLong(CourseTable.NUM_COL_DATE), c.getInt(CourseTable.NUM_COL_DURATION),
+            c.getInt(CourseTable.NUM_COL_STATE), c.getDouble(CourseTable.NUM_COL_MONEY),
+            c.getString(CourseTable.NUM_COL_CHAPTER), c.getString(CourseTable.NUM_COL_COMMENT)
+        );
+        this.pupilID = c.getLong(CourseTable.NUM_COL_PUPIL_ID);
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public int getPupilID() {
+    public long getPupilID() {
         return pupilID;
     }
 
-    public void setPupilID(int pupilID) {
+    public void setPupilID(long pupilID) {
         this.pupilID = pupilID;
     }
 
@@ -105,6 +130,26 @@ public class Course {
 
     public void setMoney(double money) {
         this.money = money;
+    }
+
+    public Pupil getPupil(){
+        return this.pupil;
+    }
+
+    public void setPupil(Pupil pPupil){
+        this.pupil = pPupil;
+    }
+
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(COL_DATE, this.date);
+        values.put(COL_DURATION, this.duration);
+        values.put(COL_STATE, this.state);
+        values.put(COL_MONEY, this.money);
+        values.put(COL_CHAPTER, this.chapter);
+        values.put(COL_COMMENT, this.comment);
+        values.put(COL_PUPIL_ID, this.pupilID);
+        return values;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.antoineriche.privateinstructor.activities;
+package com.antoineriche.privateinstructor.activities.item;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;

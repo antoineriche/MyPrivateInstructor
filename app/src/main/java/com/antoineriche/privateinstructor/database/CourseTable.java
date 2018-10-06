@@ -4,10 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Pupil;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,28 +19,28 @@ public class CourseTable extends MyDatabaseTable {
     private static final String TABLE_NAME = "courses_table";
 
     private static final String COL_ID = "ID";
-    private static final int NUM_COL_ID = 0;
+    public static final int NUM_COL_ID = 0;
 
-    private static final String COL_PUPIL_ID = "PUPIL_ID";
-    private static final int NUM_COL_PUPIL_ID = 1;
+    public static final String COL_PUPIL_ID = "PUPIL_ID";
+    public static final int NUM_COL_PUPIL_ID = 1;
 
-    private static final String COL_DATE = "DATE";
-    private static final int NUM_COL_DATE = 2;
+    public static final String COL_DATE = "DATE";
+    public static final int NUM_COL_DATE = 2;
 
-    private static final String COL_DURATION = "DURATION";
-    private static final int NUM_COL_DURATION = 3;
+    public static final String COL_DURATION = "DURATION";
+    public static final int NUM_COL_DURATION = 3;
 
-    private static final String COL_STATE = "STATE";
-    private static final int NUM_COL_STATE = 4;
+    public static final String COL_STATE = "STATE";
+    public static final int NUM_COL_STATE = 4;
 
-    private static final String COL_MONEY = "MONEY";
-    private static final int NUM_COL_MONEY = 5;
+    public static final String COL_MONEY = "MONEY";
+    public static final int NUM_COL_MONEY = 5;
 
-    private static final String COL_CHAPTER = "CHAPTER";
-    private static final int NUM_COL_CHAPTER= 6;
+    public static final String COL_CHAPTER = "CHAPTER";
+    public static final int NUM_COL_CHAPTER= 6;
 
-    private static final String COL_COMMENT = "COMMENT";
-    private static final int NUM_COL_COMMENT = 7;
+    public static final String COL_COMMENT = "COMMENT";
+    public static final int NUM_COL_COMMENT = 7;
 
 
     private static final String[] FIELDS = new String[]{COL_ID, COL_PUPIL_ID, COL_DATE,
@@ -57,40 +60,52 @@ public class CourseTable extends MyDatabaseTable {
     }
 
     public static long insertCourse(SQLiteDatabase pSQLDatabase, Course course) {
-        ContentValues values = new ContentValues();
-        values.put(COL_DATE, course.getDate());
-        values.put(COL_DURATION, course.getDuration());
-        values.put(COL_STATE, course.getState());
-        values.put(COL_MONEY, course.getMoney());
-        values.put(COL_CHAPTER, course.getChapter());
-        values.put(COL_COMMENT, course.getComment());
-        values.put(COL_PUPIL_ID, course.getPupilID());
-        return pSQLDatabase.insert(TABLE_NAME, null, values);
+        return pSQLDatabase.insert(TABLE_NAME, null, course.toContentValues());
+    }
+
+    public static int updateCourse(SQLiteDatabase pSQLDatabase, long id, Course course){
+        return pSQLDatabase.update(TABLE_NAME, course.toContentValues(), COL_ID + " = " + id, null);
+    }
+
+    public static Course getCourseWithId(SQLiteDatabase pSQLDatabase, long id) {
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_ID + " = " + id, null, null, null, null);
+        return cursorToCourse(c, pSQLDatabase);
     }
 
     public static List<Course> getAllCourses(SQLiteDatabase pSQLDatabase){
         Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, null, null, null, null, COL_DATE + " DESC");
-        return cursorToListCourses(c);
+        return cursorToListCourses(c, pSQLDatabase);
     }
 
-    private static List<Course> cursorToListCourses(Cursor c) {
+    public static boolean removeCourseWithID(SQLiteDatabase pSQLDatabase, long id) {
+        return pSQLDatabase.delete(TABLE_NAME, COL_ID + " = " + id, null) == 1;
+    }
+
+    private static Course cursorToCourse(Cursor c, SQLiteDatabase pDatabase) {
+        Course course = null;
+
+        if (c.getCount() > 0) {
+            c.moveToFirst();
+            course = new Course(c);
+            course.setPupil(PupilTable.getPupilWithId(pDatabase, course.getPupilID()));
+            c.close();
+        }
+
+        return course;
+    }
+
+    private static List<Course> cursorToListCourses(Cursor c, SQLiteDatabase pDatabase) {
         List<Course> list = new ArrayList<>();
         if (c.getCount() > 0) {
 
             c.moveToFirst();
 
             while (!c.isAfterLast()) {
-                Course course = new Course();
-                course.setId(c.getInt(NUM_COL_ID));
-                course.setDate(c.getLong(NUM_COL_DATE));
-                course.setDuration(c.getInt(NUM_COL_DURATION));
-                course.setState(c.getInt(NUM_COL_STATE));
-                course.setMoney(c.getDouble(NUM_COL_MONEY));
-                course.setChapter(c.getString(NUM_COL_CHAPTER));
-                course.setComment(c.getString(NUM_COL_COMMENT));
-                course.setPupilID(c.getInt(NUM_COL_PUPIL_ID));
-
-                list.add(course);
+                Course course = new Course(c);
+                Pupil p = PupilTable.getPupilWithId(pDatabase, course.getPupilID());
+                Log.e("CourseTable", "Pupil with id '" + course.getPupilID() + "' is " + p);
+                course.setPupil(PupilTable.getPupilWithId(pDatabase, course.getPupilID()));
+                list.add(new Course(c));
                 c.moveToNext();
             }
 

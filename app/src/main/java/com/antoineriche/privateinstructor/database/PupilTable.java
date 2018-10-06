@@ -1,14 +1,11 @@
 package com.antoineriche.privateinstructor.database;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Pupil;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,43 +16,43 @@ public class PupilTable extends MyDatabaseTable {
     private static final String COL_ID = "ID";
     public static final int NUM_COL_ID = 0;
 
-    private static final String COL_FIRSTNAME = "FIRST_NAME";
+    public static final String COL_FIRSTNAME = "FIRST_NAME";
     public static final int NUM_COL_FIRSTNAME = 1;
 
-    private static final String COL_LASTNAME = "LAST_NAME";
+    public static final String COL_LASTNAME = "LAST_NAME";
     public static final int NUM_COL_LASTNAME = 2;
 
-    private static final String COL_GENDER = "GENDER";
+    public static final String COL_GENDER = "GENDER";
     public static final int NUM_COL_GENDER = 3;
 
-    private static final String COL_CLASSLEVEL = "CLASS_LEVEL";
+    public static final String COL_CLASSLEVEL = "CLASS_LEVEL";
     public static final int NUM_COL_CLASSLEVEL = 4;
 
-    private static final String COL_PAYMENT_TYPE = "PAYMENT_TYPE";
+    public static final String COL_PAYMENT_TYPE = "PAYMENT_TYPE";
     public static final int NUM_COL_PAYMENT_TYPE = 5;
 
-    private static final String COL_FREQUENCY = "FREQUENCY";
+    public static final String COL_FREQUENCY = "FREQUENCY";
     public static final int NUM_COL_FREQUENCY = 6;
 
-    private static final String COL_ADDRESS = "ADDRESS";
+    public static final String COL_ADDRESS = "ADDRESS";
     public static final int NUM_COL_ADDRESS = 7;
 
-    private static final String COL_HOURLY_PRICE = "HOURLY_PRICE";
+    public static final String COL_HOURLY_PRICE = "HOURLY_PRICE";
     public static final int NUM_COL_HOURLY_PRICE = 8;
 
-    private static final String COL_DATE_SINCE = "SINCE";
+    public static final String COL_DATE_SINCE = "SINCE";
     public static final int NUM_COL_DATE_SINCE = 9;
 
-    private static final String COL_PHONE = "PHONE";
+    public static final String COL_PHONE = "PHONE";
     public static final int NUM_COL_PHONE = 10;
 
-    private static final String COL_PARENT_PHONE = "PARENT_PHONE";
+    public static final String COL_PARENT_PHONE = "PARENT_PHONE";
     public static final int NUM_COL_PARENT_PHONE = 11;
 
-    private static final String COL_IMG_PATH = "IMG_PATH";
+    public static final String COL_IMG_PATH = "IMG_PATH";
     public static final int NUM_COL_IMG_PATH = 12;
 
-    private static final String COL_STATE = "STATE";
+    public static final String COL_STATE = "STATE";
     public static final int NUM_COL_STATE = 13;
 
 
@@ -82,41 +79,12 @@ public class PupilTable extends MyDatabaseTable {
     }
 
     public static long insertPupil(SQLiteDatabase pSQLDatabase, Pupil pupil) {
-        ContentValues values = new ContentValues();
-        values.put(COL_FIRSTNAME, pupil.getFirstname());
-        values.put(COL_LASTNAME, pupil.getLastname());
-        values.put(COL_GENDER, pupil.getGender());
-        values.put(COL_CLASSLEVEL, pupil.getClassLevel());
-        values.put(COL_PAYMENT_TYPE, pupil.getParentPhone());
-        values.put(COL_FREQUENCY, pupil.getFrequency());
-        values.put(COL_ADDRESS, pupil.getAddress());
-        values.put(COL_HOURLY_PRICE, pupil.getHourlyPrice());
-        values.put(COL_DATE_SINCE, new Date().getTime());
-        values.put(COL_PHONE, pupil.getPhone());
-        values.put(COL_PARENT_PHONE, pupil.getParentPhone());
-        values.put(COL_IMG_PATH, pupil.getImgPath());
-        values.put(COL_STATE, pupil.getState());
-        return pSQLDatabase.insert(TABLE_NAME, null, values);
+        pupil.setSinceDate(System.currentTimeMillis());
+        return pSQLDatabase.insert(TABLE_NAME, null, pupil.toContentValues());
     }
 
-    //TODO in pupil method
     public static int updatePupil(SQLiteDatabase pSQLDatabase, long id, Pupil pupil){
-        ContentValues values = new ContentValues();
-        values.put(COL_FIRSTNAME, pupil.getFirstname());
-        values.put(COL_LASTNAME, pupil.getLastname());
-        values.put(COL_GENDER, pupil.getGender());
-        values.put(COL_CLASSLEVEL, pupil.getClassLevel());
-        values.put(COL_PAYMENT_TYPE, pupil.getParentPhone());
-        values.put(COL_FREQUENCY, pupil.getFrequency());
-        values.put(COL_ADDRESS, pupil.getAddress());
-        values.put(COL_HOURLY_PRICE, pupil.getHourlyPrice());
-        values.put(COL_DATE_SINCE, new Date().getTime());
-        values.put(COL_PHONE, pupil.getPhone());
-        values.put(COL_PARENT_PHONE, pupil.getParentPhone());
-        values.put(COL_IMG_PATH, pupil.getImgPath());
-        values.put(COL_STATE, pupil.getState());
-
-        return pSQLDatabase.update(TABLE_NAME, values, COL_ID + " = " + id, null);
+        return pSQLDatabase.update(TABLE_NAME, pupil.toContentValues(), COL_ID + " = " + id, null);
     }
 
     public static Pupil getPupilWithId(SQLiteDatabase pSQLDatabase, long id) {
