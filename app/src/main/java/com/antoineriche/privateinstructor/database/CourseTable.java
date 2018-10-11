@@ -102,8 +102,6 @@ public class CourseTable extends MyDatabaseTable {
 
             while (!c.isAfterLast()) {
                 Course course = new Course(c);
-                Pupil p = PupilTable.getPupilWithId(pDatabase, course.getPupilID());
-                Log.e("CourseTable", "Pupil with id '" + course.getPupilID() + "' is " + p);
                 course.setPupil(PupilTable.getPupilWithId(pDatabase, course.getPupilID()));
                 list.add(new Course(c));
                 c.moveToNext();

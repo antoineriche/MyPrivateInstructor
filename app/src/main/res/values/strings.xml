@@ -22,4 +22,14 @@
     <string name="unknown_date">Unknown date</string>
     <string name="unknown_hour">Unknown hour</string>
 
+    <string-array name="pupil_class_levels">
+        <item>Sixième</item>
+        <item>Cinquième</item>
+        <item>Quatrième</item>
+        <item>Troisième</item>
+        <item>Seconde</item>
+        <item>Première</item>
+        <item>Terminale</item>
+    </string-array>
+
 </resources>

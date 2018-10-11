@@ -20,7 +20,9 @@ public class Course {
     public static final int VALIDATED = 1;
     public static final int WAITING_FOT_VALIDATION = 2;
     public static final int CANCELED = 3;
+
     public static final int ALL_COURSES = 3;
+
     public static final int DURATION_1H30 = 90;
     public static final int DURATION_1H = 60;
     public static final int DURATION_2H = 120;

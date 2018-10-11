@@ -6,6 +6,7 @@ import android.database.Cursor;
 import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.util.Date;
+import java.util.Locale;
 
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_ADDRESS;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_CLASSLEVEL;
@@ -27,7 +28,7 @@ public class Pupil {
 
     public static final int REGULAR = 0;
     public static final int OCCASIONALY = 1;
-    public static final int TEMPORALY = 2;
+    public static final int TEMPORARILY = 2;
 
     public static final int AGENCY = 0;
     public static final int BLACK = 1;
@@ -206,6 +207,10 @@ public class Pupil {
         values.put(COL_IMG_PATH, this.imgPath);
         values.put(COL_STATE, this.state);
         return values;
+    }
+
+    public String getFullName(){
+        return String.format(Locale.FRANCE, "%s %s", this.firstname, this.lastname);
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.antoineriche.privateinstructor.activities.item;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -112,5 +115,11 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
         void backToDetails(long mItemId);
         void updateItem(long mItemId, Object pNewItem);
         void saveItem(Object pNewItem);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        Log.e("onRequestPermissionResult abstract", permissions.toString());
+        Log.e("onRequestPermissionResult abstract", "rCode: " + requestCode);
     }
 }

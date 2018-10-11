@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
@@ -33,56 +36,13 @@ import java.util.List;
 public abstract class AbstractFragmentList extends ListFragment implements AdapterView.OnItemClickListener {
 
     protected FragmentListListener mListener;
-    private List mListItem;
+    private List mListItems;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mListItem = new ArrayList();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setUpListView();
-        getActivity().setTitle(title());
-    }
-
-    protected abstract List getItemsFromDB(SQLiteDatabase database);
-
-    protected abstract String title();
-
-    private void setUpListView() {
-        ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, mListItem);
-        setListAdapter(adapter);
-        getListView().setOnItemClickListener(this);
-    }
-
-    private void refreshListData() {
-        mListItem.clear();
-        mListItem.addAll(getItemsFromDB(mListener.getDatabase()));
-        ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_shuffle) {
-            Collections.shuffle(mListItem);
-            ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-        }
-        return true;
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.list_menu, menu);
-        Drawable drawable = menu.findItem(R.id.action_shuffle).getIcon();
-
-        drawable = DrawableCompat.wrap(drawable);
-        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
+        mListItems = new ArrayList();
     }
 
     @Override
@@ -95,10 +55,33 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
     @Override
     public void onResume() {
         super.onResume();
-        refreshListData();
+        new GetList(this.mListener).execute();
     }
 
-    protected abstract Class<? extends Activity> getAddingActivity();
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setUpListView();
+        getActivity().setTitle(title());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_shuffle) {
+            Collections.shuffle(mListItems);
+            ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.list_menu, menu);
+        Drawable drawable = menu.findItem(R.id.action_shuffle).getIcon();
+
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -117,7 +100,72 @@ public abstract class AbstractFragmentList extends ListFragment implements Adapt
     }
 
     public List getItems() {
-        return mListItem;
+        return mListItems;
+    }
+
+    private void setUpListView() {
+        ArrayAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, mListItems);
+        setListAdapter(adapter);
+        getListView().setOnItemClickListener(this);
+    }
+
+    private void refreshList(List pList){
+        this.mListItems.clear();
+        this.mListItems.addAll(pList);
+        ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+    }
+
+    private void startGettingItems(){
+        ((TextView) getView().findViewById(R.id.tv_progress_label)).setText("Récupération des nachos");
+    }
+
+    private void itemsRetrieved(List pList){
+        getView().findViewById(R.id.ll_list_progress).setVisibility(View.GONE);
+        refreshList(pList);
+    }
+
+    protected abstract Class<? extends Activity> getAddingActivity();
+    protected abstract List getItemsFromDB(SQLiteDatabase database);
+    protected abstract String title();
+
+
+
+    //FIXME make it static
+    public class GetList extends AsyncTask<Void, Integer, List>{
+
+        private FragmentListListener mListener;
+
+        GetList(FragmentListListener pListener){
+            this.mListener = pListener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            startGettingItems();
+        }
+
+        @Override
+        protected List doInBackground(Void... params) {
+            return getItemsFromDB(mListener.getDatabase());
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+
+        @Override
+        protected void onPostExecute(List list) {
+            super.onPostExecute(list);
+            itemsRetrieved(list);
+        }
+
     }
 
 

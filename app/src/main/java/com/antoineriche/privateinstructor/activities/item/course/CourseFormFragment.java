@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,6 +29,7 @@ import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -76,7 +76,7 @@ public class CourseFormFragment extends AbstractFormItemFragment implements Date
         if (mItemId != -1) {
             c = getItemFromDB(mListener.getDatabase(), mItemId);
         } else {
-            c = new Course(System.currentTimeMillis(), 60, Course.FORESEEN, 13, "Conversions", "RAS", 24);
+            c = new Course();
         }
 
         if(getString(R.string.unknown_date).contentEquals(((TextView) view.findViewById(R.id.tv_course_date)).getText())){
@@ -85,6 +85,7 @@ public class CourseFormFragment extends AbstractFormItemFragment implements Date
             throw new IllegalArgumentException("Invalid hour");
         } else {
             c.setDate(mCalendar.getTimeInMillis());
+            c.setState(new Date().after(new Date(c.getDate())) ? Course.WAITING_FOT_VALIDATION : Course.FORESEEN);
         }
 
         // MONEY
@@ -150,7 +151,7 @@ public class CourseFormFragment extends AbstractFormItemFragment implements Date
         }
 
         boolean detailsVisible = !TextUtils.isEmpty(course.getComment()) || !TextUtils.isEmpty(course.getChapter());
-        getView().findViewById(R.id.cv_course_comment).setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.cv_course_comment).setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -158,10 +159,10 @@ public class CourseFormFragment extends AbstractFormItemFragment implements Date
         ((EditText) view.findViewById(R.id.et_course_money)).setText(null);
         ((EditText) view.findViewById(R.id.et_course_chapter)).setText(null);
         ((EditText) view.findViewById(R.id.et_course_comment)).setText(null);
-        ((TextView)getView().findViewById(R.id.tv_course_date)).setText(getString(R.string.unknown_date));
-        ((TextView)getView().findViewById(R.id.tv_course_hour)).setText(getString(R.string.unknown_hour));
+        ((TextView) view.findViewById(R.id.tv_course_date)).setText(getString(R.string.unknown_date));
+        ((TextView) view.findViewById(R.id.tv_course_hour)).setText(getString(R.string.unknown_hour));
         ((RadioButton) view.findViewById(R.id.rb_course_duration_60)).setChecked(true);
-        getView().findViewById(R.id.cv_course_comment).setVisibility(View.GONE);
+        view.findViewById(R.id.cv_course_comment).setVisibility(View.GONE);
     }
 
     @Override

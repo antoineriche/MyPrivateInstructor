@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activities.item.pupil.PupilDetailsFragment"
     android:orientation="vertical">
 
@@ -11,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="150dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/side_nav_bar">
@@ -22,20 +23,258 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-        </LinearLayout>
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_pupil_load_pix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@drawable/baseline_create_black_48" />
+
+        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/et_pupil_first_name"
-        android:text="First name" />
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/et_pupil_first_name"
-        android:layout_width="match_parent"
-        android:inputType="textAutoCorrect|textAutoComplete|textCapWords"
-        android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--NAME AND CLASS-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:padding="@dimen/fab_margin">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/fab_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/rg_pupil_gender"
+                        android:text="Gender"/>
+
+                    <RadioGroup
+                        android:id="@+id/rg_pupil_gender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_gender_male"
+                            android:checked="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Male"/>
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_gender_female"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Female"/>
+
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_first_name"
+                        android:text="Prénom"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_first_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text|textCapWords"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_last_name"
+                        android:text="Nom"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_last_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text|textCapWords"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/spinner_class_level"
+                        android:text="Classe"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_class_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <!--COORDINATES-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:padding="@dimen/fab_margin">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/fab_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_address"
+                        android:text="Addresse"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_address"
+                        android:layout_width="match_parent"
+                        android:inputType="textMultiLine"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_phone"
+                        android:text="Téléphone"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number|phone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_parent_phone"
+                        android:text="Téléphone parent"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_parent_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number|phone" />
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <!--MONEY-->
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:padding="@dimen/fab_margin">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/fab_margin">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/et_pupil_hourly_price"
+                        android:text="Tarif horaire"/>
+
+                    <EditText
+                        android:id="@+id/et_pupil_hourly_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/rg_course_duration"
+                        android:text="Type de rémunération" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_pupil_payment_type"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_payment_black"
+                            android:checked="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Black"/>
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_payment_agency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Agence"/>
+
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:labelFor="@+id/rg_course_duration"
+                        android:text="Fréquence des cours" />
+
+                    <RadioGroup
+                        android:id="@+id/rg_pupil_course_frequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_frequency_regular"
+                            android:checked="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Rég."/>
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_frequency_occasionally"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Occas."/>
+
+                        <RadioButton
+                            android:id="@+id/rb_pupil_frequency_temporarily"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Temp."/>
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

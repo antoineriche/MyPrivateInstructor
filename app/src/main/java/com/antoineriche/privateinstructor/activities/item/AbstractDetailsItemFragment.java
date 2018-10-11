@@ -44,6 +44,8 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
 
         Object item = getItemFromDB(mListener.getDatabase(), mItemId);
         fillViewWithItem(getView(), item);
+
+        setTitle(title(item));
     }
 
     @Override
@@ -100,6 +102,10 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
     protected abstract boolean deleteItemFromDB(SQLiteDatabase pDatabase, long pId);
     protected abstract int layout();
     protected abstract void fillViewWithItem(View pView, Object pItem);
+    protected abstract String title(Object pItem);
+    private void setTitle(String pTitle){
+        getActivity().setTitle(pTitle);
+    }
 
     public interface DetailsListener {
         void itemDeleted();

@@ -13,10 +13,34 @@
         android:background="@color/them700"
         android:text="No data"/>
 
+    <RelativeLayout
+        android:id="@+id/ll_list_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/them700">
+
+        <TextView android:id="@+id/tv_progress_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/unthemAccent"
+            android:layout_toLeftOf="@+id/pb_list_loading"
+            android:layout_centerVertical="true"
+            android:text="coucou"/>
+
+        <ProgressBar
+            android:id="@+id/pb_list_loading"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="5dp"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+
     <ListView android:id="@id/android:list"
+        android:layout_below="@+id/ll_list_progress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         android:drawSelectorOnTop="false"/>
 
     <android.support.design.widget.FloatingActionButton
