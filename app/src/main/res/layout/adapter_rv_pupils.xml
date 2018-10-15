@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_pupil_cell"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/lv_inter_margin">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:background="@drawable/selector_card_view">
+
+            <ImageView
+                android:id="@+id/iv_pupil_pix"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_marginEnd="@dimen/horizontal_lv_margin"
+                android:scaleType="centerCrop"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/man"/>
+
+            <LinearLayout
+                android:layout_toEndOf="@+id/iv_pupil_pix"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_pupil_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dp"
+                    android:textColor="@color/black"
+                    android:text="Lucas Duffau"/>
+
+                <TextView
+                    android:id="@+id/tv_pupil_class_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:text="Seconde"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    android:weightSum="3">
+
+                    <TextView
+                        android:id="@+id/tv_action_go_to"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:textColor="@color/unthem600"
+                        android:gravity="center_vertical"
+                        android:textSize="14dp"
+                        android:text="Y ALLER"/>
+
+                    <TextView
+                        android:id="@+id/tv_action_call"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:textColor="@color/unthem600"
+                        android:gravity="center_vertical"
+                        android:textSize="14dp"
+                        android:text="APPELER"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

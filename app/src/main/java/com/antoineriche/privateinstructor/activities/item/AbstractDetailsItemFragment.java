@@ -1,7 +1,9 @@
 package com.antoineriche.privateinstructor.activities.item;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -14,10 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.R;
+import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.util.Locale;
 
-public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragment{
+public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragment {
 
     private long mItemId;
     private DetailsListener mDetailsListener;
@@ -44,8 +47,6 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
 
         Object item = getItemFromDB(mListener.getDatabase(), mItemId);
         fillViewWithItem(getView(), item);
-
-        setTitle(title(item));
     }
 
     @Override
@@ -67,14 +68,6 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.details_item, menu);
-
-//        Drawable drawable = menu.findItem(R.id.action_edit).getIcon();
-//        drawable = DrawableCompat.wrap(drawable);
-//        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
-//
-//        drawable = menu.findItem(R.id.action_delete).getIcon();
-//        drawable = DrawableCompat.wrap(drawable);
-//        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
     }
 
     @Override
@@ -82,7 +75,7 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
         super.onOptionsItemSelected(item);
 
         if (item.getItemId() == R.id.action_delete) {
-            deleteItem(mListener.getDatabase(), mItemId);
+            openDeletionDialog(mListener.getDatabase(), mItemId).show();
         } else if (item.getItemId() == R.id.action_edit) {
             mDetailsListener.editItem(mItemId);
         }
@@ -91,6 +84,7 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
     }
 
     private void deleteItem(SQLiteDatabase pDatabase, long pId){
+
         if(deleteItemFromDB(pDatabase, pId)){
             mDetailsListener.itemDeleted();
         } else {
@@ -98,14 +92,23 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
         }
     }
 
+    private AlertDialog.Builder openDeletionDialog(SQLiteDatabase pDatabase, long pId){
+        Drawable drawable = getContext().getDrawable(R.drawable.baseline_warning_white_48);
+        drawable.setTint(getContext().getColor(R.color.unthem500));
+        return new AlertDialog.Builder(getContext())
+                .setIcon(drawable)
+                .setTitle("Attention")
+                .setMessage(deletionDialogMessage())
+                .setNegativeButton("Non", null)
+                .setPositiveButton("Oui", (dialog, which) -> deleteItem(pDatabase, pId));
+    }
+
+
     protected abstract Object getItemFromDB(SQLiteDatabase pDatabase, long pId);
     protected abstract boolean deleteItemFromDB(SQLiteDatabase pDatabase, long pId);
     protected abstract int layout();
     protected abstract void fillViewWithItem(View pView, Object pItem);
-    protected abstract String title(Object pItem);
-    private void setTitle(String pTitle){
-        getActivity().setTitle(pTitle);
-    }
+    protected abstract String deletionDialogMessage();
 
     public interface DetailsListener {
         void itemDeleted();

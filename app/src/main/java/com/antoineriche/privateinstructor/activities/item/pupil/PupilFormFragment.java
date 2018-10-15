@@ -17,8 +17,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -36,27 +36,38 @@ import android.widget.Toast;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractFormItemFragment;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
-import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Location;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.PupilTable;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+
 public class PupilFormFragment extends AbstractFormItemFragment {
 
-    private static final int MINIMAL_NAME_LENGTH = 3;
-    private static final int RESULT_LOAD_IMAGE = 99;
-    private static final int RESULT_PIC_CROP = 97;
-    private static final String PATH_PHOTOS_FOLDER = String.format(Locale.FRANCE, "/%s/pupils/photos/", "PrivateInstructor");
+    private static int REQUEST_CODE_PLACE_AUTOCOMPLETE = 95;
+    private static final int REQUEST_CODE_LOAD_IMAGE = 99;
+    private static final int REQUEST_CODE_PIC_CROP = 97;
     private static final int PERMISSION_EXTERNAL_STORAGE = 87;
 
+    private static final int MINIMAL_NAME_LENGTH = 3;
+    private static final String PATH_PHOTOS_FOLDER = String.format(Locale.FRANCE, "/%s/pupils/photos/", "PrivateInstructor");
+
     private boolean imgChanged = false;
+    private Place mPlace = null;
 
     public PupilFormFragment() {
     }
@@ -87,7 +98,7 @@ public class PupilFormFragment extends AbstractFormItemFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == getActivity().RESULT_OK && null != data) {
+        if (requestCode == REQUEST_CODE_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
 
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -104,11 +115,11 @@ public class PupilFormFragment extends AbstractFormItemFragment {
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
             // start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, RESULT_PIC_CROP);
+            startActivityForResult(cropIntent, REQUEST_CODE_PIC_CROP);
 
         }
 
-        if (requestCode == RESULT_PIC_CROP && resultCode == getActivity().RESULT_OK && null != data) {
+        else if (requestCode == REQUEST_CODE_PIC_CROP && resultCode == getActivity().RESULT_OK && null != data) {
 
             if (data != null) {
 
@@ -118,18 +129,79 @@ public class PupilFormFragment extends AbstractFormItemFragment {
 
                 imgChanged = true;
                 ((ImageView) getView().findViewById(R.id.iv_pupil_pix)).setImageBitmap(selectedBitmap);
+            }
+        }
 
-//                try {
-//                    mPupil.setImgPath( copyPicture(selectedBitmap, mPupil.getId()));
-//                } catch (IOException e) {
-//                    Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
-//                }
-//
-
-//                ((ImageView) mContentView.findViewById(R.id.avatar)).setImageBitmap(selectedBitmap);
+        else if (requestCode == REQUEST_CODE_PLACE_AUTOCOMPLETE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(getActivity(), data);
+                TextView tvAddress = getView().findViewById(R.id.tv_pupil_address);
+                if(tvAddress != null){
+                    tvAddress.setText(place.getAddress());
+                }
+                mPlace = place;
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(getActivity(), data);
+                Log.e(getClass().getSimpleName(), status.getStatusMessage());
+                mPlace = null;
+            } else if (resultCode == RESULT_CANCELED) {
+                Log.e(getClass().getSimpleName(), "Error");
+                mPlace = null;
             }
         }
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.findViewById(R.id.fab_pupil_load_pix).setOnClickListener(v -> {
+
+            if (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSION_EXTERNAL_STORAGE);
+            } else {
+                startActivityForResult(
+                        new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                        REQUEST_CODE_LOAD_IMAGE);
+            }
+        });
+
+        view.findViewById(R.id.fab_address).setOnClickListener(v -> {
+            Intent intent =
+                    null;
+            try {
+                intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                        .setFilter(new AutocompleteFilter.Builder().setCountry("FR").build())
+                        .build(getActivity());
+            } catch (GooglePlayServicesRepairableException e) {
+                Log.e("PupilFormFragment", "GooglePlayServicesRepairableException", e);
+            } catch (GooglePlayServicesNotAvailableException e) {
+                Log.e("PupilFormFragment", "GooglePlayServicesNotAvailableException", e);
+            }
+
+            startActivityForResult(intent, REQUEST_CODE_PLACE_AUTOCOMPLETE);
+    });
+
+//    SupportPlaceAutocompleteFragment autocompleteFragment =
+//            ((SupportPlaceAutocompleteFragment)getChildFragmentManager().findFragmentById(R.id.place_autocomplete_fragment));
+//
+//        autocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("FR").build());
+//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+//        @Override
+//        public void onPlaceSelected(Place place) {
+//            Log.e("PlaceAutocomplete", "onPlaceSelected");
+//            mAddress = place.getAddress().toString();
+//        }
+//
+//        @Override
+//        public void onError(Status status) {
+//            Log.e("PlaceAutocomplete", "onError");
+//            mAddress = null;
+//        }
+//    });
+}
 
     @Override
     protected Pupil extractItemFromView(View view) throws IllegalArgumentException {
@@ -161,8 +233,10 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         p.setClassLevel(((Spinner) view.findViewById(R.id.spinner_class_level)).getSelectedItemPosition());
 
         // Coordinates
-        //TODO check address validation
-        p.setAddress(((EditText) view.findViewById(R.id.et_pupil_address)).getText().toString());
+        if(mPlace != null){
+            p.setLocation(new Location(mPlace));
+        }
+
         //TODO check phone validation
         p.setPhone(((EditText) view.findViewById(R.id.et_pupil_phone)).getText().toString());
         //TODO check phone validation
@@ -194,7 +268,7 @@ public class PupilFormFragment extends AbstractFormItemFragment {
                 p.setFrequency(Pupil.TEMPORARILY);
                 break;
             case R.id.rb_pupil_frequency_occasionally:
-                p.setFrequency(Pupil.OCCASIONALY);
+                p.setFrequency(Pupil.OCCASIONALLY);
                 break;
             case R.id.rb_pupil_frequency_regular:
                 p.setFrequency(Pupil.REGULAR);
@@ -218,6 +292,8 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         }
 
         if(imgChanged){
+            if(!TextUtils.isEmpty(p.getImgPath())){ new File(p.getImgPath()).delete(); }
+
             Bitmap pupilPix = ((BitmapDrawable) ((ImageView) getView().findViewById(R.id.iv_pupil_pix)).getDrawable()).getBitmap();
             p.setImgPath(copyPicture(pupilPix));
         }
@@ -230,7 +306,7 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         Pupil pupil = (Pupil) item;
 
         if(TextUtils.isEmpty(pupil.getImgPath()) || !new File(pupil.getImgPath()).exists()) {
-           Drawable pImg = pupil.getGender() == Pupil.GENDER_MALE ?
+            Drawable pImg = pupil.getGender() == Pupil.GENDER_MALE ?
                     ContextCompat.getDrawable(getActivity(), R.drawable.man) :
                     ContextCompat.getDrawable(getActivity(), R.drawable.woman);
 
@@ -242,12 +318,13 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         ((EditText) pView.findViewById(R.id.et_pupil_first_name)).setText(pupil.getFirstname());
         ((EditText) pView.findViewById(R.id.et_pupil_last_name)).setText(pupil.getLastname());
 
-        ((EditText) pView.findViewById(R.id.et_pupil_address)).setText(pupil.getAddress());
+        ((TextView) pView.findViewById(R.id.tv_pupil_address)).setText(
+                pupil.getLocation() != null ? pupil.getLocation().getAddress() : "unknown location");
         ((EditText) pView.findViewById(R.id.et_pupil_phone)).setText(pupil.getPhone());
         ((EditText) pView.findViewById(R.id.et_pupil_parent_phone)).setText(pupil.getParentPhone());
 
         ((EditText) pView.findViewById(R.id.et_pupil_hourly_price)).setText(
-                String.format(Locale.FRANCE, "%.2f", (pupil.getHourlyPrice())).replace(",", "."));
+                pupil.getFriendlyHourlyPrice().replace(",", "."));
 
         ((RadioButton) pView.findViewById(R.id.rb_pupil_gender_female)).setChecked(pupil.getGender() == Pupil.GENDER_FEMALE);
         ((RadioButton) pView.findViewById(R.id.rb_pupil_gender_male)).setChecked(pupil.getGender() == Pupil.GENDER_MALE);
@@ -255,25 +332,11 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         ((RadioButton) pView.findViewById(R.id.rb_pupil_payment_agency)).setChecked(pupil.getPaymentType() == Pupil.AGENCY);
         ((RadioButton) pView.findViewById(R.id.rb_pupil_payment_black)).setChecked(pupil.getPaymentType() == Pupil.BLACK);
 
-        ((RadioButton) pView.findViewById(R.id.rb_pupil_frequency_occasionally)).setChecked(pupil.getFrequency() == Pupil.OCCASIONALY);
+        ((RadioButton) pView.findViewById(R.id.rb_pupil_frequency_occasionally)).setChecked(pupil.getFrequency() == Pupil.OCCASIONALLY);
         ((RadioButton) pView.findViewById(R.id.rb_pupil_frequency_regular)).setChecked(pupil.getFrequency() == Pupil.REGULAR);
         ((RadioButton) pView.findViewById(R.id.rb_pupil_frequency_temporarily)).setChecked(pupil.getFrequency() == Pupil.TEMPORARILY);
 
         ((Spinner) pView.findViewById(R.id.spinner_class_level)).setSelection(pupil.getClassLevel());
-
-        pView.findViewById(R.id.fab_pupil_load_pix).setOnClickListener(v -> {
-
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSION_EXTERNAL_STORAGE);
-            } else {
-                startActivityForResult(
-                        new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                        RESULT_LOAD_IMAGE);
-            }
-        });
     }
 
     @Override
@@ -284,7 +347,10 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         ((EditText) view.findViewById(R.id.et_pupil_first_name)).setText(null);
         ((EditText) view.findViewById(R.id.et_pupil_last_name)).setText(null);
 
-        ((EditText) view.findViewById(R.id.et_pupil_address)).setText(null);
+        //FIXME
+        mPlace = null;
+        ((TextView) view.findViewById(R.id.tv_pupil_address)).setText(null);
+
         ((EditText) view.findViewById(R.id.et_pupil_phone)).setText(null);
         ((EditText) view.findViewById(R.id.et_pupil_parent_phone)).setText(null);
 
@@ -304,7 +370,6 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         return R.layout.pupil_form;
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -315,7 +380,7 @@ public class PupilFormFragment extends AbstractFormItemFragment {
                     // permission was granted, yay! Do the thing
                     startActivityForResult(
                             new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                            RESULT_LOAD_IMAGE);
+                            REQUEST_CODE_LOAD_IMAGE);
                 } else {
                     // permission denied, boo!
                 }
@@ -350,7 +415,7 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         File dst = new File(Environment.getExternalStorageDirectory() + PATH_PHOTOS_FOLDER);
 
         if(!dst.exists() && !dst.mkdirs()){
-          Toast.makeText(getActivity(), "External storage access denied", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "External storage access denied", Toast.LENGTH_SHORT).show();
         }
 
         else {

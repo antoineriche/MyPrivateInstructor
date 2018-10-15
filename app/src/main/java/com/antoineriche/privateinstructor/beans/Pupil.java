@@ -1,33 +1,36 @@
 package com.antoineriche.privateinstructor.beans;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 
+import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.PupilTable;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.List;
 import java.util.Locale;
 
-import static com.antoineriche.privateinstructor.database.PupilTable.COL_ADDRESS;
-import static com.antoineriche.privateinstructor.database.PupilTable.COL_CLASSLEVEL;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_CLASS_LEVEL;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_DATE_SINCE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_FREQUENCY;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_GENDER;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_HOURLY_PRICE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_IMG_PATH;
-import static com.antoineriche.privateinstructor.database.PupilTable.COL_LASTNAME;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_LAST_NAME;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_LOCATION_ID;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PARENT_PHONE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PAYMENT_TYPE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PHONE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_STATE;
 
-public class Pupil {
+public class Pupil implements Serializable {
 
     public static final int GENDER_MALE = 0;
     public static final int GENDER_FEMALE = 1;
 
     public static final int REGULAR = 0;
-    public static final int OCCASIONALY = 1;
+    public static final int OCCASIONALLY = 1;
     public static final int TEMPORARILY = 2;
 
     public static final int AGENCY = 0;
@@ -45,31 +48,34 @@ public class Pupil {
     protected int gender;
     protected int frequency;
     protected int state;
-    protected String address;
+    protected long locationId;
+    protected Location location;
     protected double hourlyPrice;
     protected long sinceDate;
     protected String phone, parentPhone;
     //Image
     protected String imgPath;
 
+    protected List<Course> mCourses;
+
     public Pupil() {
     }
 
-    public Pupil(String firstname, String lastname, int classLevel, int paymentType, int gender, int frequency, String address, double hourlyPrice) {
+    public Pupil(String firstname, String lastname, int classLevel, int paymentType, int gender, int frequency, long locationId, double hourlyPrice) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.classLevel = classLevel;
         this.paymentType = paymentType;
         this.gender = gender;
         this.frequency = frequency;
-        this.address = address;
         this.hourlyPrice = hourlyPrice;
+        this.locationId = locationId;
     }
 
     public Pupil(Cursor c) {
-        this(c.getString(PupilTable.NUM_COL_FIRSTNAME), c.getString(PupilTable.NUM_COL_LASTNAME), c.getInt(PupilTable.NUM_COL_CLASSLEVEL),
+        this(c.getString(PupilTable.NUM_COL_FIRST_NAME), c.getString(PupilTable.NUM_COL_LAST_NAME), c.getInt(PupilTable.NUM_COL_CLASS_LEVEL),
                 c.getInt(PupilTable.NUM_COL_PAYMENT_TYPE), c.getInt(PupilTable.NUM_COL_GENDER), c.getInt(PupilTable.NUM_COL_FREQUENCY),
-                c.getString(PupilTable.NUM_COL_ADDRESS), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
+                c.getLong(PupilTable.NUM_COL_LOCATION_ID), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
 
         this.id = c.getLong(PupilTable.NUM_COL_ID);
         this.sinceDate = c.getLong(PupilTable.NUM_COL_DATE_SINCE);
@@ -143,12 +149,12 @@ public class Pupil {
         this.state = state;
     }
 
-    public String getAddress() {
-        return address;
+    public long getLocationId() {
+        return locationId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLocationId(long pLocationId) {
+        this.locationId = pLocationId;
     }
 
     public double getHourlyPrice() {
@@ -191,15 +197,31 @@ public class Pupil {
         this.imgPath = imgPath;
     }
 
+    public List<Course> getCourses() {
+        return mCourses;
+    }
+
+    public void setCourses(List<Course> pCourses) {
+        this.mCourses = pCourses;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public ContentValues toContentValues(){
         ContentValues values = new ContentValues();
-        values.put(PupilTable.COL_FIRSTNAME, this.firstname);
-        values.put(COL_LASTNAME, this.lastname);
+        values.put(PupilTable.COL_FIRST_NAME, this.firstname);
+        values.put(COL_LAST_NAME, this.lastname);
         values.put(COL_GENDER, this.gender);
-        values.put(COL_CLASSLEVEL, this.classLevel);
+        values.put(COL_CLASS_LEVEL, this.classLevel);
         values.put(COL_PAYMENT_TYPE, this.paymentType);
         values.put(COL_FREQUENCY, this.frequency);
-        values.put(COL_ADDRESS, this.address);
+        values.put(COL_LOCATION_ID, this.locationId);
         values.put(COL_HOURLY_PRICE, this.hourlyPrice);
         values.put(COL_DATE_SINCE, this.sinceDate);
         values.put(COL_PHONE, this.phone);
@@ -213,6 +235,22 @@ public class Pupil {
         return String.format(Locale.FRANCE, "%s %s", this.firstname, this.lastname);
     }
 
+    public String getFriendlyFrequency(Context context){
+        return context.getResources().getStringArray(R.array.pupil_course_frequency)[this.getFrequency()];
+    }
+
+    public String getFriendlyPaymentType(Context context){
+        return context.getResources().getStringArray(R.array.pupil_payment_type)[this.getPaymentType()];
+    }
+
+    public String getFriendlyClassLevel(Context context){
+        return context.getResources().getStringArray(R.array.pupil_class_levels)[this.getClassLevel()];
+    }
+
+    public String getFriendlyHourlyPrice(){
+        return String.format(Locale.FRANCE, "%.02f", this.getHourlyPrice());
+    }
+
     @Override
     public String toString() {
         return "Pupil{" +
@@ -224,7 +262,7 @@ public class Pupil {
                 ", gender=" + gender +
                 ", frequency=" + frequency +
                 ", state=" + state +
-                ", address='" + address + '\'' +
+                ", locationId=" + locationId +
                 ", hourlyPrice=" + hourlyPrice +
                 ", sinceDate=" + sinceDate +
                 ", phone='" + phone + '\'' +

@@ -1,16 +1,12 @@
 package com.antoineriche.privateinstructor.database;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.beans.Pupil;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -55,8 +51,8 @@ public class CourseTable extends MyDatabaseTable {
     }
 
     @Override
-    protected String getDeletionString() {
-        return String.format(Locale.FRANCE, "DROP TABLE %s;", TABLE_NAME);
+    protected String getTableName() {
+        return TABLE_NAME;
     }
 
     public static long insertCourse(SQLiteDatabase pSQLDatabase, Course course) {
@@ -72,8 +68,37 @@ public class CourseTable extends MyDatabaseTable {
         return cursorToCourse(c, pSQLDatabase);
     }
 
+    public static List<Course> getCoursesForPupil(SQLiteDatabase pSQLDatabase, long pupilId) {
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_PUPIL_ID + " = " + pupilId, null, null, null, null);
+        return cursorToListCourses(c, pSQLDatabase);
+    }
+
+    public static List<Course> getCoursesForWeekOffset(SQLiteDatabase pSQLDatabase, int pWeekOffset) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.WEEK_OF_YEAR, pWeekOffset);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        long startDate = calendar.getTimeInMillis();
+
+        calendar.add(Calendar.DAY_OF_YEAR, 6);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        long endDate = calendar.getTimeInMillis();
+
+        String filterString = String.format(Locale.FRANCE, "%s BETWEEN '%d' AND '%d'", COL_DATE, startDate, endDate);
+        String orderString = String.format(Locale.FRANCE, "%s ASC", COL_DATE);
+
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString , null, null, null, orderString);
+        return cursorToListCourses(c, pSQLDatabase);
+    }
+
     public static List<Course> getAllCourses(SQLiteDatabase pSQLDatabase){
-        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, null, null, null, null, COL_DATE + " DESC");
+        String orderString = String.format(Locale.FRANCE, "%s DESC", COL_DATE);
+
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, null, null, null, null, orderString);
         return cursorToListCourses(c, pSQLDatabase);
     }
 
@@ -103,7 +128,7 @@ public class CourseTable extends MyDatabaseTable {
             while (!c.isAfterLast()) {
                 Course course = new Course(c);
                 course.setPupil(PupilTable.getPupilWithId(pDatabase, course.getPupilID()));
-                list.add(new Course(c));
+                list.add(course);
                 c.moveToNext();
             }
 

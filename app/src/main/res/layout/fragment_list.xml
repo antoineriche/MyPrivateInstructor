@@ -11,6 +11,7 @@
         android:textColor="@color/unthemAccent"
         android:gravity="center"
         android:background="@color/them700"
+        android:visibility="gone"
         android:text="No data"/>
 
     <RelativeLayout
@@ -36,12 +37,18 @@
 
     </RelativeLayout>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_list_item"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+        android:layout_height="match_parent"/>
 
     <ListView android:id="@id/android:list"
         android:layout_below="@+id/ll_list_progress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:drawSelectorOnTop="false"/>
+        android:drawSelectorOnTop="false"
+        android:visibility="gone"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add"

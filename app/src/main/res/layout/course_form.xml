@@ -190,7 +190,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Chapitre"
-                    android:inputType="textAutoComplete|textAutoCorrect|textCapSentences|textMultiLine" />
+                    android:maxLines="1"
+                    android:inputType="textAutoComplete|textAutoCorrect|textCapSentences" />
 
                 <TextView
                     android:layout_width="match_parent"

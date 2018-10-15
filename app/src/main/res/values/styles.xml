@@ -6,8 +6,6 @@
         <item name="colorPrimary">@color/them700</item>
         <item name="colorPrimaryDark">@color/them900</item>
         <item name="colorAccent">@color/unthemAccent</item>
-
-        <!--<item name="android:actionMenuTextColor">@color/white</item>-->
         <item name="actionMenuTextColor">@color/white</item>
     </style>
 

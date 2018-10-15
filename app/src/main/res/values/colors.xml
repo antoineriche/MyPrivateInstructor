@@ -19,6 +19,8 @@
     <color name="them700">#0288d1</color>
     <color name="them800">#0277bd</color>
     <color name="them900">#01579b</color>
+    <color name="themPrimary">#03a9f4</color>
+    <color name="themPrimaryDark">#0288d1</color>
 
     <!-- Unthem -->
     <color name="unthem500">#ffc107</color>
@@ -28,4 +30,10 @@
     <color name="unthem100">#ffecb3</color>
     <color name="unthem50">#fff8e1</color>
     <color name="unthemAccent">#FFD740</color>
+
+    <!--VALIDATE AND CANCEL-->
+    <color name="green500">#4CAF50</color>
+    <color name="green800">#2E7D32</color>
+    <color name="red500">#f44336</color>
+    <color name="red800">#C62828</color>
 </resources>

@@ -1,9 +1,18 @@
 package com.antoineriche.privateinstructor.beans;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.widget.TextView;
 
+import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.CourseTable;
+
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import static com.antoineriche.privateinstructor.database.CourseTable.COL_CHAPTER;
 import static com.antoineriche.privateinstructor.database.CourseTable.COL_COMMENT;
@@ -13,15 +22,13 @@ import static com.antoineriche.privateinstructor.database.CourseTable.COL_MONEY;
 import static com.antoineriche.privateinstructor.database.CourseTable.COL_PUPIL_ID;
 import static com.antoineriche.privateinstructor.database.CourseTable.COL_STATE;
 
-public class Course {
+public class Course implements Serializable {
 
     //Statics
     public static final int FORESEEN = 0;
     public static final int VALIDATED = 1;
     public static final int WAITING_FOT_VALIDATION = 2;
     public static final int CANCELED = 3;
-
-    public static final int ALL_COURSES = 3;
 
     public static final int DURATION_1H30 = 90;
     public static final int DURATION_1H = 60;
@@ -63,9 +70,9 @@ public class Course {
 
     public Course(Cursor c) {
         this(c.getLong(CourseTable.NUM_COL_ID), c.getLong(CourseTable.NUM_COL_PUPIL_ID),
-            c.getLong(CourseTable.NUM_COL_DATE), c.getInt(CourseTable.NUM_COL_DURATION),
-            c.getInt(CourseTable.NUM_COL_STATE), c.getDouble(CourseTable.NUM_COL_MONEY),
-            c.getString(CourseTable.NUM_COL_CHAPTER), c.getString(CourseTable.NUM_COL_COMMENT)
+                c.getLong(CourseTable.NUM_COL_DATE), c.getInt(CourseTable.NUM_COL_DURATION),
+                c.getInt(CourseTable.NUM_COL_STATE), c.getDouble(CourseTable.NUM_COL_MONEY),
+                c.getString(CourseTable.NUM_COL_CHAPTER), c.getString(CourseTable.NUM_COL_COMMENT)
         );
         this.pupilID = c.getLong(CourseTable.NUM_COL_PUPIL_ID);
     }
@@ -142,6 +149,23 @@ public class Course {
         this.pupil = pPupil;
     }
 
+    public String getFriendlyTimeSlot() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH'h'mm", Locale.FRANCE);
+        String stHour = sdf.format(this.getDate());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(this.getDate());
+        calendar.add(Calendar.MINUTE, this.getDuration());
+        return String.format("%s - %s", stHour, sdf.format(calendar.getTime()));
+    }
+
+    public String getFriendlyDate(){
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd MMMM yyyy", Locale.FRANCE);
+
+        String stDate = sdf.format(this.getDate());
+        return stDate.substring(0, 1).toUpperCase().concat(stDate.substring(1));
+    }
+
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         values.put(COL_DATE, this.date);
@@ -152,6 +176,33 @@ public class Course {
         values.put(COL_COMMENT, this.comment);
         values.put(COL_PUPIL_ID, this.pupilID);
         return values;
+    }
+
+    public Drawable getStateIcon(Context context){
+        Drawable drawable;
+        switch(this.getState()){
+            case FORESEEN:
+                drawable = context.getDrawable(R.drawable.baseline_schedule_white_48);
+                drawable.setTint(context.getColor(R.color.themPrimaryDark));
+                break;
+            case WAITING_FOT_VALIDATION:
+                drawable = context.getDrawable(R.drawable.baseline_hourglass_empty_white_48);
+                drawable.setTint(context.getColor(R.color.themPrimaryDark));
+                break;
+            case VALIDATED:
+                drawable = context.getDrawable(R.drawable.baseline_check_circle_white_48);
+                drawable.setTint(context.getColor(R.color.green500));
+                break;
+            case CANCELED:
+                drawable = context.getDrawable(R.drawable.baseline_highlight_off_white_48);
+                drawable.setTint(context.getColor(R.color.red500));
+                break;
+            default:
+                drawable = context.getDrawable(R.drawable.baseline_hourglass_empty_white_48);
+                drawable.setTint(context.getColor(R.color.themPrimaryDark));
+                break;
+        }
+        return drawable;
     }
 
     @Override

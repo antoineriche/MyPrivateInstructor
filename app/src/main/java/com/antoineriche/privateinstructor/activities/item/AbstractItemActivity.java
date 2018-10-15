@@ -1,10 +1,16 @@
 package com.antoineriche.privateinstructor.activities.item;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.ToImplementFragment;
@@ -17,7 +23,10 @@ import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.database.PupilTable;
 
-public abstract class AbstractItemActivity extends AbstractDatabaseActivity implements AbstractFormItemFragment.FormListener,
+//FIXME pb de drawer
+
+public abstract class AbstractItemActivity extends AbstractDatabaseActivity
+        implements AbstractFormItemFragment.FormListener,
         AbstractDetailsItemFragment.DetailsListener {
 
     public static final String ARG_ITEM_ID = "item-id";
@@ -26,10 +35,27 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.item_activity);
+        setContentView(R.layout.activity_index);
 
         Fragment fragment = getFragmentFromBundle(getIntent().getExtras());
         loadFragment(fragment);
+
+        //API MAP AIzaSyBV1nVo1Mf6NWtf71O-tZW1YPDmakHSTKg
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                super.onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -68,9 +94,9 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity impl
         return fragment;
     }
 
-    private void loadFragment(Fragment pFragment) {
+    protected void loadFragment(Fragment pFragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fl_item_content, pFragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.flContent, pFragment).commit();
     }
 
     @Override
@@ -118,34 +144,6 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity impl
         args.putLong(ARG_ITEM_ID, pId);
         Fragment fragment = getFragmentFromBundle(args);
         loadFragment(fragment);
-    }
-
-    public static class PupilActivity extends AbstractItemActivity {
-
-        @Override
-        protected Fragment getEditionFragment(long pItemId) {
-            return PupilFormFragment.newInstance(pItemId);
-        }
-
-        @Override
-        protected Fragment getDetailsFragment(long pItemId) {
-            return PupilDetailsFragment.newInstance(pItemId);
-        }
-
-        @Override
-        protected Fragment getAddingFragment() {
-            return PupilFormFragment.newInstance();
-        }
-
-        @Override
-        protected long insertItemInDatabase(SQLiteDatabase pDatabase, Object pItem) {
-            return PupilTable.insertPupil(getDatabase(), (Pupil) pItem);
-        }
-
-        @Override
-        protected void updateItemInDatabase(SQLiteDatabase pDatabase, long mItemId, Object pItem) {
-            PupilTable.updatePupil(getDatabase(), mItemId, (Pupil) pItem);
-        }
     }
 
     public static class CourseActivity extends AbstractItemActivity {

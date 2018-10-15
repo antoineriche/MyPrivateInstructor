@@ -18,6 +18,10 @@
     <string name="action_edit">Modifier</string>
     <string name="action_comment">Commenter</string>
 
+    <!--Dialog-->
+    <string name="dialog_delete_pupil">"En supprimant cet élève, tous ses cours et ses devoirs seront perdus. Souhaitez-vous vraiment supprimer cet élève ?"</string>
+    <string name="dialog_delete_course">"Souhaitez-vous vraiment supprimer ce cours ?"</string>
+
 
     <string name="unknown_date">Unknown date</string>
     <string name="unknown_hour">Unknown hour</string>
@@ -31,5 +35,17 @@
         <item>Première</item>
         <item>Terminale</item>
     </string-array>
+
+    <string-array name="pupil_course_frequency">
+        <item>Régulier</item>
+        <item>Occasionnel</item>
+        <item>Temporaire</item>
+    </string-array>
+
+    <string-array name="pupil_payment_type">
+        <item>Agence</item>
+        <item>Black</item>
+    </string-array>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

@@ -6,4 +6,8 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="menu_icon">24dp</dimen>
+
+    <dimen name="horizontal_lv_margin">8dp</dimen>
+    <dimen name="vertical_lv_margin">8dp</dimen>
+    <dimen name="lv_inter_margin">3dp</dimen>
 </resources>
