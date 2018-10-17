@@ -34,7 +34,7 @@
             android:title="Manage" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Communicate" android:visible="false">
         <menu>
             <item
                 android:id="@+id/nav_share"

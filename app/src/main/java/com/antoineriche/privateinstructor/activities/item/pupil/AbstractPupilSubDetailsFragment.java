@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,7 +148,9 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
                         new SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(calendar.getTimeInMillis()));
 
                 courseHolder.tvChapter.setText(course.getChapter());
+                courseHolder.tvChapter.setVisibility(!TextUtils.isEmpty(course.getChapter()) ? View.VISIBLE : View.GONE);
                 courseHolder.tvComment.setText(course.getComment());
+                courseHolder.tvComment.setVisibility(!TextUtils.isEmpty(course.getComment()) ? View.VISIBLE : View.GONE);
                 courseHolder.ivICourseState.setImageDrawable(course.getStateIcon(getContext()));
             }
 
@@ -178,7 +180,6 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
     public static class PupilMapDetailsFragment extends AbstractPupilSubDetailsFragment
             implements OnMapReadyCallback {
 
-        private GoogleMap mGoogleMap;
         private static final LatLng DEFAULT_HOME = new LatLng(44.836260, -0.602890);
 
         public PupilMapDetailsFragment() {
@@ -213,13 +214,13 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            Log.e("MapDetails", "onMapReady");
             initMap(googleMap);
 
             List<Marker> markers = new ArrayList<>();
+            Pupil pupil = getPupil();
 
-            if (getPupil().getLocation() != null) {
-                markers.add(newMarker(googleMap, getPupil().getFullName(), getPupil().getLocation().getLatLng()));
+            if (pupil.getLocation() != null) {
+                markers.add(newMarker(googleMap, pupil.getFullName(), pupil.getLocation().getLatLng()));
             }
 
             //FIXME
@@ -228,17 +229,6 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
             }
 
             zoomMap(googleMap, markers);
-
-
-//            if(getPupil().getLocation() != null){
-//                LatLng pupilHome = getPupil().getLocation().getLatLng();
-//
-//                markers.add(mGoogleMap.addMarker(new MarkerOptions().position(pupilHome).title(getPupil().getFullName())));
-//
-
-
-//                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(pupilHome));
-//                mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(16f));
         }
 
         protected void initMap(GoogleMap googleMap) {
@@ -269,7 +259,9 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
                 cameraUpdate = CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), 15f);
             }
 
-            googleMap.animateCamera(cameraUpdate);
+            if(cameraUpdate != null) {
+                googleMap.animateCamera(cameraUpdate);
+            }
         }
 
     }

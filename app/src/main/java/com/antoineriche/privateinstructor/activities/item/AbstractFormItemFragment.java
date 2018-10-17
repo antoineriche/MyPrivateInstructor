@@ -1,12 +1,10 @@
 package com.antoineriche.privateinstructor.activities.item;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
 
 public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment {
@@ -23,6 +22,7 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
     protected long mItemId = -1;
     private boolean isEditing = false;
     private FormListener mFormListener;
+    private DatabaseItemListener mDbItemListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,12 +42,13 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView(view);
 
         if(isEditing){
             Object item = getItemFromDB(mListener.getDatabase(), mItemId);
-            fillViewWithItem(getView(), item);
+            fillViewWithItem(view, item);
         } else {
             cleanView(getView());
         }
@@ -61,12 +62,19 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
         } else {
             throw new RuntimeException(context.toString() + " must implement FormListener");
         }
+
+        if (context instanceof DatabaseItemListener) {
+            mDbItemListener = (DatabaseItemListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement DatabaseItemListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mFormListener = null;
+        mDbItemListener = null;
     }
 
     @Override
@@ -88,9 +96,9 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
             try{
                 Object newItem = extractItemFromView(getView());
                 if (isEditing) {
-                    mFormListener.updateItem(mItemId, newItem);
+                    mDbItemListener.updateItem(mItemId, newItem);
                 } else {
-                    mFormListener.saveItem(newItem);
+                    mDbItemListener.saveItem(newItem);
                 }
             } catch(Exception e) {
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -102,24 +110,13 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
 
     protected abstract Object extractItemFromView(View view) throws IllegalArgumentException;
     protected abstract void fillViewWithItem(View view, Object item);
+    protected abstract void initView(View view);
     protected abstract void cleanView(View view);
     protected abstract Object getItemFromDB(SQLiteDatabase database, long mItemId);
     protected abstract int layout();
 
-    protected boolean isEditing(){
-        return this.isEditing;
-    }
-
     public interface FormListener {
         void cancel();
         void backToDetails(long mItemId);
-        void updateItem(long mItemId, Object pNewItem);
-        void saveItem(Object pNewItem);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.e("onRequestPermissionResult abstract", permissions.toString());
-        Log.e("onRequestPermissionResult abstract", "rCode: " + requestCode);
     }
 }

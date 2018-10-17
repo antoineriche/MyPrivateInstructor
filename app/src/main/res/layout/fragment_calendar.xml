@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginVertical="@dimen/vertical_lv_margin"
+    android:layout_marginHorizontal="@dimen/horizontal_lv_margin">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cv_calendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.antoineriche.privateinstructor.customviews.MyCalendarView
+                android:id="@+id/mcv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cv_day_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cv_calendar"
+            android:layout_marginVertical="@dimen/vertical_lv_margin">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/themPrimaryDark"
+                    android:padding="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_day_details_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:text="Mercredi 3 octobre 2012"
+                        android:layout_toStartOf="@+id/iv_day_details_close"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"/>
+
+                    <ImageView
+                        android:id="@+id/iv_day_details_close"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/baseline_close_white_48"
+                        android:tint="@color/img_tint_selector"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"/>
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tv_day_details_no_course"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_lv_margin"
+                    android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+                    android:text="Pas de cours"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_day_details_courses"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/vertical_lv_margin"
+                    android:layout_marginHorizontal="@dimen/horizontal_lv_margin"/>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </RelativeLayout>
+
+</ScrollView>

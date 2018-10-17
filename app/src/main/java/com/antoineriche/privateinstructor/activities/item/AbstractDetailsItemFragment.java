@@ -2,7 +2,6 @@ package com.antoineriche.privateinstructor.activities.item;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,18 +11,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.database.PupilTable;
-
-import java.util.Locale;
 
 public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragment {
 
     private long mItemId;
     private DetailsListener mDetailsListener;
+    private DatabaseItemListener mDbItemListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,7 +41,7 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Object item = getItemFromDB(mListener.getDatabase(), mItemId);
+        Object item = mDbItemListener.getItemFromDb(mItemId);
         fillViewWithItem(getView(), item);
     }
 
@@ -57,12 +53,19 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
         } else {
             throw new RuntimeException(context.toString() + " must implement DetailsListener");
         }
+
+        if (context instanceof DatabaseItemListener) {
+            mDbItemListener = (DatabaseItemListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement DatabaseItemListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mDetailsListener = null;
+        mDbItemListener = null;
     }
 
     @Override
@@ -75,24 +78,15 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
         super.onOptionsItemSelected(item);
 
         if (item.getItemId() == R.id.action_delete) {
-            openDeletionDialog(mListener.getDatabase(), mItemId).show();
+            openDeletionDialog(mItemId).show();
         } else if (item.getItemId() == R.id.action_edit) {
-            mDetailsListener.editItem(mItemId);
+            mDetailsListener.setIdForEditFragment(mItemId);
         }
 
         return true;
     }
 
-    private void deleteItem(SQLiteDatabase pDatabase, long pId){
-
-        if(deleteItemFromDB(pDatabase, pId)){
-            mDetailsListener.itemDeleted();
-        } else {
-            Toast.makeText(getContext(), String.format(Locale.FRANCE, "Item (%d) could not be removed", pId), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private AlertDialog.Builder openDeletionDialog(SQLiteDatabase pDatabase, long pId){
+    private AlertDialog.Builder openDeletionDialog(long pId){
         Drawable drawable = getContext().getDrawable(R.drawable.baseline_warning_white_48);
         drawable.setTint(getContext().getColor(R.color.unthem500));
         return new AlertDialog.Builder(getContext())
@@ -100,19 +94,27 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
                 .setTitle("Attention")
                 .setMessage(deletionDialogMessage())
                 .setNegativeButton("Non", null)
-                .setPositiveButton("Oui", (dialog, which) -> deleteItem(pDatabase, pId));
+                .setPositiveButton("Oui", (dialog, which) -> mDbItemListener.removeItem(pId));
     }
 
-
-    protected abstract Object getItemFromDB(SQLiteDatabase pDatabase, long pId);
-    protected abstract boolean deleteItemFromDB(SQLiteDatabase pDatabase, long pId);
     protected abstract int layout();
     protected abstract void fillViewWithItem(View pView, Object pItem);
     protected abstract String deletionDialogMessage();
 
+    protected DatabaseItemListener getDbItemListener() {
+        return mDbItemListener;
+    }
+
+    protected Object getItem(){
+        return getDbItemListener().getItemFromDb(getItemId());
+    }
+
+    public long getItemId() {
+        return mItemId;
+    }
+
     public interface DetailsListener {
-        void itemDeleted();
-        void editItem(long mItemId);
+        void setIdForEditFragment(long mItemId);
     }
 
 }

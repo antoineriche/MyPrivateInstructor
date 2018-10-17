@@ -86,15 +86,6 @@ public class PupilFormFragment extends AbstractFormItemFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        List<String> classLevels = Arrays.asList(getResources().getStringArray(R.array.pupil_class_levels));
-        ArrayAdapter adapter =
-                new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, classLevels);
-        ((Spinner) getView().findViewById(R.id.spinner_class_level)).setAdapter(adapter);
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -116,10 +107,9 @@ public class PupilFormFragment extends AbstractFormItemFragment {
             cropIntent.putExtra("return-data", true);
             // start the activity - we handle returning in onActivityResult
             startActivityForResult(cropIntent, REQUEST_CODE_PIC_CROP);
-
         }
 
-        else if (requestCode == REQUEST_CODE_PIC_CROP && resultCode == getActivity().RESULT_OK && null != data) {
+        else if (requestCode == REQUEST_CODE_PIC_CROP && resultCode == RESULT_OK && null != data) {
 
             if (data != null) {
 
@@ -337,6 +327,13 @@ public class PupilFormFragment extends AbstractFormItemFragment {
         ((RadioButton) pView.findViewById(R.id.rb_pupil_frequency_temporarily)).setChecked(pupil.getFrequency() == Pupil.TEMPORARILY);
 
         ((Spinner) pView.findViewById(R.id.spinner_class_level)).setSelection(pupil.getClassLevel());
+    }
+
+    @Override
+    protected void initView(View view) {
+        List<String> classLevels = Arrays.asList(getResources().getStringArray(R.array.pupil_class_levels));
+        ArrayAdapter adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, classLevels);
+        ((Spinner) view.findViewById(R.id.spinner_class_level)).setAdapter(adapter);
     }
 
     @Override

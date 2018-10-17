@@ -154,6 +154,9 @@ public class IndexActivity extends AbstractDatabaseActivity
             case R.id.nav_course:
                 pFragment = CourseListFragment.newInstance();
                 break;
+            case R.id.nav_calendar:
+                pFragment = CalendarFragment.newInstance();
+                break;
             default:
                 pFragment = ToImplementFragment.newInstance("");
                 break;

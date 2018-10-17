@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_course_foreseen" android:title="À venir" />
+    <item android:id="@+id/action_course_waiting" android:title="En attente" />
+    <item android:id="@+id/action_course_validate" android:title="Validé" />
+    <item android:id="@+id/action_course_cancel" android:title="Annulé" />
+</menu>

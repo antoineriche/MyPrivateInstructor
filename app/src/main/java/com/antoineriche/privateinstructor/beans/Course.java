@@ -4,14 +4,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.utils.DateUtils;
+import com.antoineriche.privateinstructor.utils.StringUtils;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import static com.antoineriche.privateinstructor.database.CourseTable.COL_CHAPTER;
@@ -161,9 +163,7 @@ public class Course implements Serializable {
 
     public String getFriendlyDate(){
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd MMMM yyyy", Locale.FRANCE);
-
-        String stDate = sdf.format(this.getDate());
-        return stDate.substring(0, 1).toUpperCase().concat(stDate.substring(1));
+        return StringUtils.capitalizeFirstChar(sdf.format(this.getDate()));
     }
 
     public ContentValues toContentValues() {
@@ -203,6 +203,19 @@ public class Course implements Serializable {
                 break;
         }
         return drawable;
+    }
+
+    public boolean isTheGoodDay(Date pDate){
+        return isBetweenDates(DateUtils.getFirstSecond(pDate), DateUtils.getLastSecond(pDate));
+    }
+
+    public boolean isBetweenDates(Date pStartDate, Date pEndDate){
+        Date courseDate = new Date(this.date);
+        return courseDate.after(pStartDate) && courseDate.before(pEndDate);
+    }
+
+    public String getFriendlyStatus(Context context){
+        return context.getResources().getStringArray(R.array.course_states)[this.getState()];
     }
 
     @Override

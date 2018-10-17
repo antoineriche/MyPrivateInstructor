@@ -1,11 +1,13 @@
 package com.antoineriche.privateinstructor.activities.item.course;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +51,7 @@ public class CourseListFragment extends AbstractFragmentList {
 
     @Override
     protected Class<? extends Activity> getAddingActivity() {
-        return AbstractItemActivity.CourseActivity.class;
+        return CourseActivity.class;
     }
 
     @Override
@@ -72,12 +74,12 @@ public class CourseListFragment extends AbstractFragmentList {
         return ((List<Course>) super.getItems());
     }
 
-    public class RecyclerViewCourseAdapter extends RecyclerView.Adapter<RecyclerViewCourseAdapter.CourseViewHolder> {
+    class RecyclerViewCourseAdapter extends RecyclerView.Adapter<RecyclerViewCourseAdapter.CourseViewHolder> {
 
         private List<Course> mCourses;
         private FragmentListListener mListener;
 
-        RecyclerViewCourseAdapter(List<Course> mCourses, FragmentListListener mListener) {
+        public RecyclerViewCourseAdapter(List<Course> mCourses, FragmentListListener mListener) {
             this.mCourses = mCourses;
             this.mListener = mListener;
         }
@@ -101,13 +103,17 @@ public class CourseListFragment extends AbstractFragmentList {
                     new SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(calendar.getTimeInMillis()));
 
             courseHolder.tvChapter.setText(course.getPupil().getFullName());
-            courseHolder.tvComment.setText(course.getFriendlyTimeSlot());
+            courseHolder.tvComment.setText(course.getChapter());
+            courseHolder.tvComment.setVisibility(!TextUtils.isEmpty(course.getChapter()) ? View.VISIBLE : View.GONE);
+
             courseHolder.ivICourseState.setImageDrawable(course.getStateIcon(getContext()));
 
             courseHolder.cvCell.setOnClickListener(view -> {
                 Bundle args = new Bundle();
-                args.putLong(AbstractItemActivity.ARG_ITEM_ID, getItems().get(position).getId());
-                mListener.seeItemDetails(AbstractItemActivity.CourseActivity.class, args);
+                args.putLong(AbstractItemActivity.ARG_ITEM_ID, course.getId());
+                if(mListener != null) {
+                    mListener.seeItemDetails(CourseActivity.class, args);
+                }
             });
         }
 

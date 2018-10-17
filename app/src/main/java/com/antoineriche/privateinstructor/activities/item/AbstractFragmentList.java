@@ -20,16 +20,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.database.CourseTable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractFragmentList extends Fragment {

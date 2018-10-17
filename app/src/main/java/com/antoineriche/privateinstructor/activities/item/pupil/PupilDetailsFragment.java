@@ -1,7 +1,5 @@
 package com.antoineriche.privateinstructor.activities.item.pupil;
 
-import android.content.res.ColorStateList;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -20,8 +18,6 @@ import com.antoineriche.privateinstructor.activities.ToImplementFragment;
 import com.antoineriche.privateinstructor.activities.item.AbstractDetailsItemFragment;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.beans.Pupil;
-import com.antoineriche.privateinstructor.database.CourseTable;
-import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.io.File;
 
@@ -46,25 +42,6 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
         return fragment;
     }
 
-    @Override
-    protected Pupil getItemFromDB(SQLiteDatabase pDatabase, long pId) {
-        Pupil pupil = PupilTable.getPupilWithId(pDatabase, pId);
-        pupil.setCourses(CourseTable.getCoursesForPupil(pDatabase, pId));
-        return pupil;
-    }
-
-    @Override
-    protected boolean deleteItemFromDB(SQLiteDatabase pDatabase, long pId) {
-        Pupil p = getItemFromDB(pDatabase, pId);
-        if(!TextUtils.isEmpty(p.getImgPath()) && new File(p.getImgPath()).exists()){
-            if(new File(p.getImgPath()).delete()){
-                return PupilTable.removePupilWithID(pDatabase, pId);
-            }
-        } else {
-            return PupilTable.removePupilWithID(pDatabase, pId);
-        }
-        return false;
-    }
 
     @Override
     protected int layout() {
@@ -96,6 +73,11 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
         return getString(R.string.dialog_delete_pupil);
     }
 
+    @Override
+    protected Pupil getItem() {
+        return (Pupil) super.getItem();
+    }
+
     protected void loadFragment(Fragment pFragment) {
         FragmentManager fragmentManager = getChildFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fl_pupil_details, pFragment).commit();
@@ -103,30 +85,25 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
 
     private void setUpTabLayout(TabLayout pTabLayout, Pupil pupil){
         TabLayout.Tab tab;
-        ColorStateList myList;
-
-        int[][] states = new int[][] {new int[] { android.R.attr.state_selected}, new int[] {-android.R.attr.state_selected}};
-        int[] colors = new int[] {getContext().getColor(R.color.unthemAccent), getContext().getColor(R.color.white)};
-        myList = new ColorStateList(states, colors);
 
         tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.baseline_person_white_48, TAB_GENERAL, myList);
+        tab = setUpTab(tab, R.drawable.baseline_person_white_48, TAB_GENERAL);
         pTabLayout.addTab(tab);
 
         tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.baseline_public_white_48, TAB_MAP, myList);
+        tab = setUpTab(tab, R.drawable.baseline_public_white_48, TAB_MAP);
         pTabLayout.addTab(tab);
 
         tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.ic_book_open_page_variant_white_48dp, TAB_COURSES, myList);
+        tab = setUpTab(tab, R.drawable.ic_book_open_page_variant_white_48dp, TAB_COURSES);
         pTabLayout.addTab(tab);
 
         tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.ic_assignment_white_48dp, TAB_DEVOIRS, myList);
+        tab = setUpTab(tab, R.drawable.ic_assignment_white_48dp, TAB_DEVOIRS);
         pTabLayout.addTab(tab);
 
         tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.ic_trending_up_white_48dp, TAB_EVOLUTION, myList);
+        tab = setUpTab(tab, R.drawable.ic_trending_up_white_48dp, TAB_EVOLUTION);
         pTabLayout.addTab(tab);
 
         pTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -162,9 +139,9 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
         pTabLayout.getTabAt(0).select();
     }
 
-    private TabLayout.Tab setUpTab(TabLayout.Tab tab, int resDrawable, String pTag, ColorStateList pColorStateList){
+    private TabLayout.Tab setUpTab(TabLayout.Tab tab, int resDrawable, String pTag){
         Drawable drawable = ContextCompat.getDrawable(getContext(), resDrawable);
-        DrawableCompat.setTintList(drawable, pColorStateList);
+        DrawableCompat.setTintList(drawable, getResources().getColorStateList(R.color.img_tint_selector, null));
         tab.setIcon(drawable);
         tab.setTag(pTag);
         return tab;

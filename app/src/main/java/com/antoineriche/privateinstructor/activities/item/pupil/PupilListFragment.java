@@ -114,7 +114,7 @@ public class PupilListFragment extends AbstractFragmentList {
             pupilHolder.tvGoTo.setOnClickListener(view -> Toast.makeText(getContext(), "Aller chez " + pupil.getFullName(), Toast.LENGTH_SHORT).show());
             pupilHolder.cvCell.setOnClickListener(view -> {
                 Bundle args = new Bundle();
-                args.putLong(AbstractItemActivity.ARG_ITEM_ID, getItems().get(position).getId());
+                args.putLong(AbstractItemActivity.ARG_ITEM_ID, pupil.getId());
                 mListener.seeItemDetails(PupilActivity.class, args);
             });
         }

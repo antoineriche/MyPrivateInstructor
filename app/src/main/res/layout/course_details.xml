@@ -1,141 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_head"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/side_nav_bar">
+
+            <ImageView
+                android:src="@drawable/ic_book_open_page_variant_white_48dp"
+                android:tint="@color/unthemAccent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/tv_course_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:padding="5dp"
+                android:background="@color/them900"
+                android:text="BIG UP"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:alpha="0.9"/>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_course_pupil_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+        android:layout_marginTop="@dimen/vertical_lv_margin"
+        android:layout_below="@+id/cv_head">
 
-        <!--PUPIL-->
-        <android.support.v7.widget.CardView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:padding="@dimen/fab_margin">
+            android:layout_height="80dp"
+            android:padding="@dimen/lv_inter_margin">
+
+            <ImageView
+                android:id="@+id/iv_course_pupil_pix"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="@dimen/horizontal_lv_margin"
+                android:src="@drawable/woman"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/fab_margin">
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@+id/iv_course_pupil_pix"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tv_course_pupil_name"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Élève"/>
+                    android:textSize="16dp"
+                    android:textColor="@color/black"
+                    android:text="First name Last name"/>
 
                 <TextView
-                    android:id="@+id/tv_course_pupil"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:id="@+id/tv_course_pupil_class_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:text="Sixième"/>
 
             </LinearLayout>
 
-        </android.support.v7.widget.CardView>
+        </RelativeLayout>
 
-        <!--DATE-->
-        <android.support.v7.widget.CardView
+    </android.support.v7.widget.CardView>
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_course_money"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+        android:layout_marginVertical="@dimen/vertical_lv_margin"
+        android:layout_below="@+id/cv_course_pupil_details">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="@dimen/fab_margin">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date"/>
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/black"
+                    android:text="Statut"/>
 
                 <TextView
-                    android:id="@+id/tv_course_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tv_course_status"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hour"/>
+                    android:layout_alignParentEnd="true"
+                    android:text="En attente de validation"/>
 
-                <TextView
-                    android:id="@+id/tv_course_hour"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
 
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <!--MONEY-->
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin">
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="@dimen/fab_margin">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/et_course_money"
-                    android:text="Rémunération" />
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/black"
+
+                    android:text="Rémunération"/>
 
                 <TextView
                     android:id="@+id/tv_course_money"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="25,00"/>
 
-            </LinearLayout>
+            </RelativeLayout>
 
-        </android.support.v7.widget.CardView>
+        </LinearLayout>
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/cv_course_comment"
+    </android.support.v7.widget.CardView>
+
+    <!--COMMENT-->
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_course_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+        android:layout_below="@+id/cv_course_money">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="@dimen/fab_margin">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/et_course_chapter"
-                    android:text="Chapitre" />
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/black"
+                    android:text="Chapitre"/>
 
                 <TextView
                     android:id="@+id/tv_course_chapter"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Chapitre"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/fab_margin">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tv_label_comment"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/et_course_comment"
-                    android:text="Commentaire" />
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="@dimen/horizontal_lv_margin"
+                    android:layout_alignParentTop="true"
+                    android:text="Commentaire"/>
 
                 <TextView
                     android:id="@+id/tv_course_comment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_width="wrap_content"
+                    android:layout_toEndOf="@+id/tv_label_comment"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="RAS"/>
 
-            </LinearLayout>
+            </RelativeLayout>
 
-        </android.support.v7.widget.CardView>
+        </LinearLayout>
 
-    </LinearLayout>
+    </android.support.v7.widget.CardView>
 
-</ScrollView>
+</RelativeLayout>

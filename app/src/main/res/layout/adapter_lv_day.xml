@@ -51,6 +51,7 @@
                 android:id="@+id/tv_day_courses"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="2"
                 android:text="18h00 - 19h30 : Emile Roux"
                 android:textColor="@color/black"
                 android:textSize="15dp"/>

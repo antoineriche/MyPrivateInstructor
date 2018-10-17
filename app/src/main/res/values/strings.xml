@@ -26,6 +26,13 @@
     <string name="unknown_date">Unknown date</string>
     <string name="unknown_hour">Unknown hour</string>
 
+    <string-array name="course_states">
+        <item>À venir</item>
+        <item>Validé</item>
+        <item>En attente de validation</item>
+        <item>Annulé</item>
+    </string-array>
+
     <string-array name="pupil_class_levels">
         <item>Sixième</item>
         <item>Cinquième</item>

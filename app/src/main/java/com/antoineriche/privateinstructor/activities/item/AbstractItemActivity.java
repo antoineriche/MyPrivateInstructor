@@ -1,32 +1,20 @@
 package com.antoineriche.privateinstructor.activities.item;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
 
+import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.ToImplementFragment;
-import com.antoineriche.privateinstructor.activities.item.course.CourseDetailsFragment;
-import com.antoineriche.privateinstructor.activities.item.course.CourseFormFragment;
-import com.antoineriche.privateinstructor.activities.item.pupil.PupilDetailsFragment;
-import com.antoineriche.privateinstructor.activities.item.pupil.PupilFormFragment;
-import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.beans.Pupil;
-import com.antoineriche.privateinstructor.database.CourseTable;
-import com.antoineriche.privateinstructor.database.PupilTable;
 
 //FIXME pb de drawer
 
 public abstract class AbstractItemActivity extends AbstractDatabaseActivity
-        implements AbstractFormItemFragment.FormListener,
+        implements AbstractFormItemFragment.FormListener, DatabaseItemListener,
         AbstractDetailsItemFragment.DetailsListener {
 
     public static final String ARG_ITEM_ID = "item-id";
@@ -40,11 +28,10 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
         Fragment fragment = getFragmentFromBundle(getIntent().getExtras());
         loadFragment(fragment);
 
-        //API MAP AIzaSyBV1nVo1Mf6NWtf71O-tZW1YPDmakHSTKg
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle(null);
     }
 
     @Override
@@ -66,8 +53,9 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
     protected abstract Fragment getEditionFragment(long pItemId);
     protected abstract Fragment getDetailsFragment(long pItemId);
     protected abstract Fragment getAddingFragment();
-    protected abstract long insertItemInDatabase(SQLiteDatabase pDatabase, Object pItem);
-    protected abstract void updateItemInDatabase(SQLiteDatabase pDatabase, long mItemId, Object pItem);
+    protected abstract long insertItemInDatabase(Object pItem);
+    protected abstract void updateItemInDatabase(long mItemId, Object pItem);
+    protected abstract boolean removeItemFromDatabase(long mItemId);
 
     private Fragment getFragmentFromBundle(Bundle pBundle) {
         Fragment fragment;
@@ -99,13 +87,12 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
         fragmentManager.beginTransaction().replace(R.id.flContent, pFragment).commit();
     }
 
-    @Override
-    public void itemDeleted() {
-        finish();
-    }
 
+    /**
+     * DetailsListener
+     */
     @Override
-    public void editItem(long mItemId) {
+    public void setIdForEditFragment(long mItemId) {
         Bundle args = new Bundle();
         args.putLong(ARG_ITEM_ID, mItemId);
         args.putBoolean(ARG_ITEM_EDITION, true);
@@ -113,6 +100,10 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
         loadFragment(fragment);
     }
 
+
+    /**
+     * FormListener
+     */
     @Override
     public void backToDetails(long mItemId) {
         Bundle args = new Bundle();
@@ -126,9 +117,13 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
         finish();
     }
 
+
+    /**
+     * DatabaseItemListener
+     */
     @Override
     public void updateItem(long mItemId, Object pNewItem) {
-        updateItemInDatabase(getDatabase(), mItemId, pNewItem);
+        updateItemInDatabase(mItemId, pNewItem);
         Bundle args = new Bundle();
         args.putLong(ARG_ITEM_ID, mItemId);
         Fragment fragment = getFragmentFromBundle(args);
@@ -137,8 +132,7 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
 
     @Override
     public void saveItem(Object pNewItem) {
-        long pId = insertItemInDatabase(getDatabase(), pNewItem);
-        Log.e(getClass().getSimpleName(), "Item added");
+        long pId = insertItemInDatabase(pNewItem);
 
         Bundle args = new Bundle();
         args.putLong(ARG_ITEM_ID, pId);
@@ -146,31 +140,12 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
         loadFragment(fragment);
     }
 
-    public static class CourseActivity extends AbstractItemActivity {
-
-        @Override
-        protected Fragment getEditionFragment(long pItemId) {
-            return CourseFormFragment.newInstance(pItemId);
-        }
-
-        @Override
-        protected Fragment getDetailsFragment(long pItemId) {
-            return CourseDetailsFragment.newInstance(pItemId);
-        }
-
-        @Override
-        protected Fragment getAddingFragment() {
-            return CourseFormFragment.newInstance();
-        }
-
-        @Override
-        protected long insertItemInDatabase(SQLiteDatabase pDatabase, Object pItem) {
-            return CourseTable.insertCourse(getDatabase(), (Course) pItem);
-        }
-
-        @Override
-        protected void updateItemInDatabase(SQLiteDatabase pDatabase, long mItemId, Object pItem) {
-            CourseTable.updateCourse(getDatabase(), mItemId, (Course) pItem);
+    @Override
+    public void removeItem(long mItemId) {
+        if(removeItemFromDatabase(mItemId)) {
+            finish();
+        } else {
+            Log.e(getClass().getSimpleName(), "Error while removing");
         }
     }
 
