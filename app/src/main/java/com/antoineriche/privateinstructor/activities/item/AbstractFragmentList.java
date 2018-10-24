@@ -48,7 +48,7 @@ public abstract class AbstractFragmentList extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.fab_add).setOnClickListener(v -> mListener.addItem(getAddingActivity()));
+        view.findViewById(R.id.fab_add).setOnClickListener(v -> mListener.goToAddingActivity(getAddingActivity()));
     }
 
     @Override
@@ -179,9 +179,9 @@ public abstract class AbstractFragmentList extends Fragment {
     public interface FragmentListListener {
         SQLiteDatabase getDatabase();
 
-        void addItem(Class pActivity);
+        void goToAddingActivity(Class pActivity);
 
-        void seeItemDetails(Class pActivity, Bundle pBundle);
+        void goToDetailsActivity(Class pActivity, Bundle pBundle);
     }
 
 }

@@ -115,7 +115,7 @@ public class PupilListFragment extends AbstractFragmentList {
             pupilHolder.cvCell.setOnClickListener(view -> {
                 Bundle args = new Bundle();
                 args.putLong(AbstractItemActivity.ARG_ITEM_ID, pupil.getId());
-                mListener.seeItemDetails(PupilActivity.class, args);
+                mListener.goToDetailsActivity(PupilActivity.class, args);
             });
         }
 

@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +21,7 @@ import com.antoineriche.privateinstructor.activities.item.AbstractDatabaseActivi
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
+import com.antoineriche.privateinstructor.services.CourseCheckingService;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -48,6 +48,12 @@ public class IndexActivity extends AbstractDatabaseActivity
         mNavigationView.setNavigationItemSelectedListener(this);
         initMenu(mNavigationView.getMenu());
         onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startService(new Intent(this, CourseCheckingService.class));
     }
 
     @Override
@@ -118,24 +124,6 @@ public class IndexActivity extends AbstractDatabaseActivity
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.index, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -156,6 +144,9 @@ public class IndexActivity extends AbstractDatabaseActivity
                 break;
             case R.id.nav_calendar:
                 pFragment = CalendarFragment.newInstance();
+                break;
+            case R.id.nav_money:
+                pFragment = MoneyFragment.newInstance();
                 break;
             default:
                 pFragment = ToImplementFragment.newInstance("");
@@ -185,12 +176,12 @@ public class IndexActivity extends AbstractDatabaseActivity
     }
 
     @Override
-    public void addItem(Class pActivity) {
+    public void goToAddingActivity(Class pActivity) {
         startActivity(new Intent(this, pActivity));
     }
 
     @Override
-    public void seeItemDetails(Class pActivity, Bundle pBundle) {
+    public void goToDetailsActivity(Class pActivity, Bundle pBundle) {
         Intent intent = new Intent(this, pActivity);
         intent.putExtras(pBundle);
         startActivity(intent);

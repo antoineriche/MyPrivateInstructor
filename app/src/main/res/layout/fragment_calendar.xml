@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginVertical="@dimen/vertical_lv_margin"
     android:layout_marginHorizontal="@dimen/horizontal_lv_margin">
 
@@ -10,9 +10,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:id="@+id/cv_calendar_stats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="3dp"
+            android:weightSum="10">
+
+            <com.antoineriche.privateinstructor.customviews.ItemCounterView
+                android:id="@+id/icv_course"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                app:srcImg="@drawable/ic_book_open_page_variant_white_48dp"
+                android:layout_marginVertical="4dp"/>
+
+            <com.antoineriche.privateinstructor.customviews.ItemCounterView
+                android:id="@+id/icv_devoir"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                app:srcImg="@drawable/ic_assignment_white_48dp"
+                android:layout_marginVertical="4dp"
+                android:layout_marginHorizontal="@dimen/horizontal_lv_margin"/>
+
+            <com.antoineriche.privateinstructor.customviews.ItemCounterView
+                android:id="@+id/icv_money"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="4dp"
+                android:layout_weight="4"
+                app:srcImg="@drawable/baseline_euro_symbol_white_48"/>
+
+        </LinearLayout>
+
         <android.support.v7.widget.CardView
             android:id="@+id/cv_calendar"
+            android:layout_below="@+id/cv_calendar_stats"
             android:layout_width="match_parent"
+            android:layout_marginVertical="@dimen/vertical_lv_margin"
             android:layout_height="wrap_content">
 
             <com.antoineriche.privateinstructor.customviews.MyCalendarView
@@ -20,15 +57,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
-
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
             android:id="@+id/cv_day_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/cv_calendar"
-            android:layout_marginVertical="@dimen/vertical_lv_margin">
+            android:layout_below="@+id/cv_calendar">
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
+import com.antoineriche.privateinstructor.activities.AbstractDatabaseFragment;
 
 public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment {
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ItemCounterView">
+        <attr name="showIndicator" format="boolean"/>
+        <attr name="showDetails" format="boolean"/>
+        <attr name="srcImg" format="reference"/>
+    </declare-styleable>
+
+</resources>

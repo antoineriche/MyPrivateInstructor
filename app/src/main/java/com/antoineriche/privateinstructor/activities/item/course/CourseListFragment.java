@@ -1,7 +1,6 @@
 package com.antoineriche.privateinstructor.activities.item.course;
 
 import android.app.Activity;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
-import com.antoineriche.privateinstructor.activities.item.pupil.AbstractPupilSubDetailsFragment;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.database.CourseTable;
 
@@ -112,7 +110,7 @@ public class CourseListFragment extends AbstractFragmentList {
                 Bundle args = new Bundle();
                 args.putLong(AbstractItemActivity.ARG_ITEM_ID, course.getId());
                 if(mListener != null) {
-                    mListener.seeItemDetails(CourseActivity.class, args);
+                    mListener.goToDetailsActivity(CourseActivity.class, args);
                 }
             });
         }

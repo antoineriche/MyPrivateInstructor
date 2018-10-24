@@ -25,7 +25,9 @@ public abstract class AbstractDatabaseActivity extends AppCompatActivity impleme
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mMyDB.close();
+        if(mDatabase != null) {
+            mDatabase.close();
+        }
     }
 
     @Override

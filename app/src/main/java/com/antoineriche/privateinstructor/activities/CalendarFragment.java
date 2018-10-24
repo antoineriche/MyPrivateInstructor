@@ -1,37 +1,28 @@
 package com.antoineriche.privateinstructor.activities;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.antoineriche.privateinstructor.DatabaseListener;
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
-import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
-import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.customviews.ItemCounterView;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.customviews.MyCalendarView;
+import com.antoineriche.privateinstructor.utils.CourseUtils;
 import com.antoineriche.privateinstructor.utils.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -114,6 +105,19 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
             rv.setAdapter(new RecyclerViewDailyCourseAdapter(pCourses));
         }
+    }
+
+    @Override
+    public void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses) {
+        int courseCount = pCourses.size();
+        double monthCountMean = CourseTable.getMonthlyCourseCountMean(mDBListener.getDatabase());
+        ((ItemCounterView) getView().findViewById(R.id.icv_course)).setUpView(courseCount, monthCountMean);
+
+        double money = CourseUtils.extractMoneySum(pCourses);
+        double monthMoneyMean = CourseTable.getMonthlyMoneyMean(mDBListener.getDatabase());
+        ((ItemCounterView) getView().findViewById(R.id.icv_devoir)).setUpView(0, 2);
+
+        ((ItemCounterView) getView().findViewById(R.id.icv_money)).setUpView(money, monthMoneyMean);
     }
 
     public static class RecyclerViewDailyCourseAdapter extends RecyclerView.Adapter<RecyclerViewDailyCourseAdapter.CourseViewHolder> {

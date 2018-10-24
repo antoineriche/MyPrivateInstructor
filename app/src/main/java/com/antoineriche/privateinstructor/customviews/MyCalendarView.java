@@ -58,13 +58,10 @@ public class MyCalendarView extends LinearLayout {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MONTH, currentMonthOffset);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-        this.adapter.updateFirstDayOfMonth(calendar.getTime());
+        Date firstDayOfMonth = calendar.getTime();
+        this.adapter.updateFirstDayOfMonth(firstDayOfMonth);
 
         ((TextView) findViewById(R.id.tv_month_label)).setText(new SimpleDateFormat("MMMM yyyy", Locale.FRANCE).format(calendar.getTime()));
-    }
-
-    private void setDetailsVisible(boolean pVisible){
-        findViewById(R.id.ll_calendar_details).setVisibility(pVisible ? VISIBLE : GONE);
     }
 
     public void setListCourses(List<Course> courses){
@@ -75,28 +72,11 @@ public class MyCalendarView extends LinearLayout {
         this.adapter.addCalendarClickListener(pListener);
     }
 
-    public void hideDetails(){
-        setDetailsVisible(false);
-    }
-
-    public void showDetails(){
-        setDetailsVisible(true);
-    }
-
-    public boolean areDetailsVisible(){
-        return findViewById(R.id.ll_calendar_details).getVisibility() == VISIBLE;
-    }
-
     public void cleanSelection(){
         this.adapter.selectedDate = null;
         this.adapter.notifyDataSetChanged();
     }
 
-    public void updateCourseCount(long pCourseCount){
-        if(areDetailsVisible()) {
-            ((TextView) findViewById(R.id.tv_course_count)).setText(String.format(Locale.FRANCE, "%d cours", pCourseCount));
-        }
-    }
 
     /**
      * MyCalendarView adapter
@@ -147,10 +127,15 @@ public class MyCalendarView extends LinearLayout {
             this.firstDayOfMonth = pDate;
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(pDate);
+
             this.currentMonth = calendar.get(Calendar.MONTH);
             this.monthlyCourses = getMonthlyCourses(this.firstDayOfMonth);
-            updateCourseCount(this.monthlyCourses.size());
+//            updateCourseCount(this.monthlyCourses.size());
             notifyDataSetChanged();
+
+            if(this.mClickListener != null) {
+                this.mClickListener.monthChanged(this.firstDayOfMonth, this.monthlyCourses);
+            }
         }
         /**
          *
@@ -234,12 +219,12 @@ public class MyCalendarView extends LinearLayout {
         void setListCourses(List<Course> pCourses){
             this.courses = pCourses;
             this.monthlyCourses = getMonthlyCourses(this.firstDayOfMonth);
-            updateCourseCount(this.monthlyCourses.size());
             notifyDataSetChanged();
         }
 
         void addCalendarClickListener(MyCalendarClickListener mListener){
             this.mClickListener = mListener;
+            this.mClickListener.monthChanged(this.firstDayOfMonth, this.monthlyCourses);
         }
 
         private List<Course> getMonthlyCourses(Date pFirstDayOfMonth){
@@ -258,5 +243,6 @@ public class MyCalendarView extends LinearLayout {
      */
     public interface MyCalendarClickListener {
         void clickOnDay(Date pDate, List<Course> pCourses);
+        void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses);
     }
 }

@@ -3,6 +3,7 @@ package com.antoineriche.privateinstructor.activities;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.notifications.NotificationTest;
 
 import java.util.Locale;
 
@@ -51,5 +53,11 @@ public class ToImplementFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         ((TextView) getView().findViewById(R.id.tv_section_to_implement)).setText(String.format(Locale.FRANCE, "%s is not implemeted yet", mSection));
         getActivity().setTitle(getClass().getSimpleName());
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.findViewById(R.id.fab_return).setOnClickListener(v -> NotificationTest.create(getActivity()));
     }
 }

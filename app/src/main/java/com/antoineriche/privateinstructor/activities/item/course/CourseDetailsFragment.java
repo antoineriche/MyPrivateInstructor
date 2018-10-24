@@ -55,7 +55,8 @@ public class CourseDetailsFragment extends AbstractDetailsItemFragment {
         menu.findItem(R.id.action_course_cancel).setVisible(course.getState() != Course.CANCELED);
         menu.findItem(R.id.action_course_validate).setVisible(course.getState() != Course.VALIDATED);
         menu.findItem(R.id.action_course_waiting).setVisible(course.getState() != Course.WAITING_FOT_VALIDATION);
-        menu.findItem(R.id.action_course_foreseen).setVisible(course.getState() != Course.FORESEEN && new Date().before(new Date(course.getDate())));
+//        menu.findItem(R.id.action_course_foreseen).setVisible(course.getState() != Course.FORESEEN && new Date().before(new Date(course.getDate())));
+        menu.findItem(R.id.action_course_foreseen).setVisible(course.getState() != Course.FORESEEN);
     }
 
     @Override

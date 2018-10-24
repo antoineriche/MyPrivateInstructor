@@ -172,26 +172,9 @@ public class PupilFormFragment extends AbstractFormItemFragment {
             }
 
             startActivityForResult(intent, REQUEST_CODE_PLACE_AUTOCOMPLETE);
-    });
+        });
 
-//    SupportPlaceAutocompleteFragment autocompleteFragment =
-//            ((SupportPlaceAutocompleteFragment)getChildFragmentManager().findFragmentById(R.id.place_autocomplete_fragment));
-//
-//        autocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("FR").build());
-//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-//        @Override
-//        public void onPlaceSelected(Place place) {
-//            Log.e("PlaceAutocomplete", "onPlaceSelected");
-//            mAddress = place.getAddress().toString();
-//        }
-//
-//        @Override
-//        public void onError(Status status) {
-//            Log.e("PlaceAutocomplete", "onError");
-//            mAddress = null;
-//        }
-//    });
-}
+    }
 
     @Override
     protected Pupil extractItemFromView(View view) throws IllegalArgumentException {

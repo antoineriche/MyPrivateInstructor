@@ -2,11 +2,16 @@ package com.antoineriche.privateinstructor.database;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.utils.CourseUtils;
+import com.antoineriche.privateinstructor.utils.DateUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,7 +45,7 @@ public class CourseTable extends MyDatabaseTable {
 
 
     private static final String[] FIELDS = new String[]{COL_ID, COL_PUPIL_ID, COL_DATE,
-        COL_DURATION, COL_STATE, COL_MONEY, COL_CHAPTER, COL_COMMENT};
+            COL_DURATION, COL_STATE, COL_MONEY, COL_CHAPTER, COL_COMMENT};
 
     @Override
     protected String getCreationString() {
@@ -61,6 +66,10 @@ public class CourseTable extends MyDatabaseTable {
 
     public static int updateCourse(SQLiteDatabase pSQLDatabase, long id, Course course){
         return pSQLDatabase.update(TABLE_NAME, course.toContentValues(), COL_ID + " = " + id, null);
+    }
+
+    public static boolean removeCourseWithID(SQLiteDatabase pSQLDatabase, long id) {
+        return pSQLDatabase.delete(TABLE_NAME, COL_ID + " = " + id, null) == 1;
     }
 
     public static Course getCourseWithId(SQLiteDatabase pSQLDatabase, long id) {
@@ -97,13 +106,48 @@ public class CourseTable extends MyDatabaseTable {
 
     public static List<Course> getAllCourses(SQLiteDatabase pSQLDatabase){
         String orderString = String.format(Locale.FRANCE, "%s DESC", COL_DATE);
-
         Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, null, null, null, null, orderString);
         return cursorToListCourses(c, pSQLDatabase);
     }
 
-    public static boolean removeCourseWithID(SQLiteDatabase pSQLDatabase, long id) {
-        return pSQLDatabase.delete(TABLE_NAME, COL_ID + " = " + id, null) == 1;
+    public static List<Course> getCoursesWithState(SQLiteDatabase pSQLDatabase, int pCourseState){
+        String orderString = String.format(Locale.FRANCE, "%s ASC", COL_DATE);
+        String filterString = String.format(Locale.FRANCE, "%s = %d", COL_STATE, pCourseState);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString, null, null, null, orderString);
+        return cursorToListCourses(c, pSQLDatabase);
+    }
+
+    private static long getLastCourseDate(SQLiteDatabase pSQLDatabase){
+        String filterString = String.format(Locale.FRANCE, "%s=(SELECT MAX(%s) FROM %s WHERE %s != %d)", COL_DATE, COL_DATE, TABLE_NAME, COL_STATE, Course.CANCELED);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString , null, null, null, null);
+        c.moveToFirst();
+        return c.getLong(NUM_COL_DATE);
+    }
+
+    private static long getFirstCourseDate(SQLiteDatabase pSQLDatabase){
+        String filterString = String.format(Locale.FRANCE, "%s=(SELECT MIN(%s) FROM %s WHERE %s != %d)", COL_DATE, COL_DATE, TABLE_NAME, COL_STATE, Course.CANCELED);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString , null, null, null, null);
+        c.moveToFirst();
+        return c.getLong(NUM_COL_DATE);
+    }
+
+    public static Course getNextCourse(SQLiteDatabase pSQLDatabase){
+        String orderString = String.format(Locale.FRANCE, "%s ASC", COL_DATE);
+        String filterString = String.format(Locale.FRANCE, "%s=(SELECT MIN(%s) FROM %s WHERE %s = %d)", COL_DATE, COL_DATE, TABLE_NAME, COL_STATE, Course.FORESEEN);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString, null, null, null, orderString);
+        return cursorToCourse(c, pSQLDatabase);
+    }
+
+    public static double getMonthlyCourseCountMean(SQLiteDatabase pSQLDatabase){
+        long pStart = getFirstCourseDate(pSQLDatabase);
+        long pEnd = getLastCourseDate(pSQLDatabase);
+        return (double) getAllCourses(pSQLDatabase).size() / (double) DateUtils.getMonthCountBetweenDates(pStart, pEnd);
+    }
+
+    public static double getMonthlyMoneyMean(SQLiteDatabase pSQLDatabase){
+        long pStart = getFirstCourseDate(pSQLDatabase);
+        long pEnd = getLastCourseDate(pSQLDatabase);
+        return CourseUtils.extractMoneySum(getAllCourses(pSQLDatabase)) / (double) DateUtils.getMonthCountBetweenDates(pStart, pEnd);
     }
 
     private static Course cursorToCourse(Cursor c, SQLiteDatabase pDatabase) {

@@ -1,13 +1,13 @@
 package com.antoineriche.privateinstructor.activities;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,11 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.DatabaseListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.customviews.ItemCounterView;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.utils.CourseUtils;
+import com.antoineriche.privateinstructor.utils.DateUtils;
+import com.antoineriche.privateinstructor.utils.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,10 +29,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends AbstractDatabaseFragment {
 
-    DatabaseListener mDBListener;
     private int mCurrentWeekOffset = 0;
+    private CountDownTimer mCountDownNextCourse;
 
     public HomeFragment() {
     }
@@ -68,23 +72,33 @@ public class HomeFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         getActivity().setTitle("Accueil");
         setUpView(mCurrentWeekOffset);
-    }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof DatabaseListener) {
-            mDBListener = (DatabaseListener) context;
+        Course next = CourseTable.getNextCourse(mListener.getDatabase());
+        ItemCounterView icvCountDown = getView().findViewById(R.id.icv_count_down_course);
+        if(next != null) {
+            long remainingTime = next.getDate() - System.currentTimeMillis();
+            scheduleCountDown(remainingTime, icvCountDown);
         } else {
-            throw new RuntimeException(context.toString() + " must implement DatabaseListener");
+            icvCountDown.setUpView("-");
         }
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mDBListener = null;
+    public void onStart() {
+        super.onStart();
+        if(mCountDownNextCourse != null){
+            mCountDownNextCourse.start();
+        }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mCountDownNextCourse != null){
+            mCountDownNextCourse.cancel();
+        }
+    }
+
 
     private RecyclerView getRecyclerView(){
         return getView().findViewById(R.id.rv_list_day_week);
@@ -98,18 +112,34 @@ public class HomeFragment extends Fragment {
     }
 
     private void setUpView(int pWeekOffset){
-        List<Course> weekCourses = CourseTable.getCoursesForWeekOffset(mDBListener.getDatabase(), pWeekOffset);
+        List<Course> weekCourses = CourseTable.getCoursesForWeekOffset(mListener.getDatabase(), pWeekOffset);
         setUpRecyclerView(weekCourses);
 
         int courseCount = weekCourses.size();
-        ((TextView) getView().findViewById(R.id.tv_week_courses)).setText(String.format(Locale.FRANCE, "%d", courseCount));
+        ((ItemCounterView) getView().findViewById(R.id.icv_week_courses)).setUpView(String.valueOf(courseCount));
 
-        double money = weekCourses.stream().mapToDouble(c -> c.getMoney()).sum();
-        ((TextView) getView().findViewById(R.id.tv_week_money)).setText(String.format(Locale.FRANCE, "%.02f", money));
+        double money = CourseUtils.extractMoneySum(weekCourses);
+        ((ItemCounterView) getView().findViewById(R.id.icv_week_money)).setUpView(StringUtils.formatDouble(money));
 
         //TODO
         int devoirCount = 0;
-        ((TextView) getView().findViewById(R.id.tv_week_devoirs)).setText(String.format(Locale.FRANCE, "%d", devoirCount));
+        ((ItemCounterView) getView().findViewById(R.id.icv_week_devoirs)).setUpView(String.valueOf(devoirCount));
+    }
+
+    //FIXME AsyncTask
+    private void scheduleCountDown(long pMilliseconds, ItemCounterView pICVDisplay){
+        Log.e(getClass().getSimpleName(), "scheduleCountDown");
+        mCountDownNextCourse = new CountDownTimer(pMilliseconds, 1000) {
+            @Override
+            public void onTick(long milliseconds) {
+                pICVDisplay.setUpView(DateUtils.formatRemainingTime(milliseconds));
+            }
+
+            @Override
+            public void onFinish() {
+                pICVDisplay.setUpView("-");
+            }
+        };
     }
 
     private class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder> {

@@ -96,84 +96,57 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <!--FIXME make a custom view for card views-->
     <LinearLayout
         android:id="@+id/ll_week_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/them900"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginVertical="@dimen/vertical_lv_margin"
+        android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
+        android:weightSum="5">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.antoineriche.privateinstructor.customviews.ItemCounterView
+            android:id="@+id/icv_count_down_course"
+            android:layout_width="3dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:orientation="vertical">
+            android:layout_weight="2"
+            app:showDetails="false"
+            app:showIndicator="false"
+            android:layout_margin="4dp"
+            app:srcImg="@drawable/baseline_schedule_white_48" />
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:tint="@color/unthemAccent"
-                android:src="@drawable/ic_book_open_page_variant_white_48dp"/>
-
-            <TextView
-                android:id="@+id/tv_week_courses"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:text="4"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <com.antoineriche.privateinstructor.customviews.ItemCounterView
+            android:id="@+id/icv_week_courses"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            app:showIndicator="false"
+            app:showDetails="false"
+            android:layout_margin="4dp"
+            app:srcImg="@drawable/ic_book_open_page_variant_white_48dp"/>
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:tint="@color/unthemAccent"
-                android:src="@drawable/ic_assignment_white_48dp"/>
-
-            <TextView
-                android:id="@+id/tv_week_devoirs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:text="2"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+        <com.antoineriche.privateinstructor.customviews.ItemCounterView
+            android:id="@+id/icv_week_devoirs"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            app:showIndicator="false"
+            app:showDetails="false"
+            android:layout_margin="4dp"
+            app:srcImg="@drawable/ic_assignment_white_48dp"/>
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:tint="@color/unthemAccent"
-                android:src="@drawable/baseline_euro_symbol_white_48"/>
-
-            <TextView
-                android:id="@+id/tv_week_money"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:text="12"/>
-
-        </LinearLayout>
+        <com.antoineriche.privateinstructor.customviews.ItemCounterView
+            android:id="@+id/icv_week_money"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:showIndicator="false"
+            app:showDetails="false"
+            android:layout_margin="4dp"
+            app:srcImg="@drawable/baseline_euro_symbol_white_48"/>
 
     </LinearLayout>
-
 
 </RelativeLayout>

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.CourseTable;
@@ -166,6 +167,10 @@ public class Course implements Serializable {
         return StringUtils.capitalizeFirstChar(sdf.format(this.getDate()));
     }
 
+    public String getFormattedPrice(){
+        return StringUtils.formatDouble(this.money);
+    }
+
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         values.put(COL_DATE, this.date);
@@ -216,6 +221,10 @@ public class Course implements Serializable {
 
     public String getFriendlyStatus(Context context){
         return context.getResources().getStringArray(R.array.course_states)[this.getState()];
+    }
+
+    public long getEndDate(){
+        return this.date + this.duration * 60 * 1000;
     }
 
     @Override
