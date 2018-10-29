@@ -232,8 +232,8 @@ public class MyCalendarView extends LinearLayout {
             calendar.setTime(pFirstDayOfMonth);
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
             return this.courses.stream().filter(course -> course.isBetweenDates(
-                    DateUtils.getFirstSecond(this.firstDayOfMonth),
-                    DateUtils.getLastSecond(calendar.getTime())
+                    DateUtils.getFirstSecondOfTheDay(this.firstDayOfMonth),
+                    DateUtils.getLastSecondOfTheDay(calendar.getTime())
             )).collect(Collectors.toList());
         }
     }

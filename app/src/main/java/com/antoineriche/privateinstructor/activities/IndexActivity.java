@@ -10,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,11 +22,24 @@ import com.antoineriche.privateinstructor.activities.item.AbstractDatabaseActivi
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
+import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Location;
+import com.antoineriche.privateinstructor.beans.Pupil;
+import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.LocationTable;
+import com.antoineriche.privateinstructor.database.PupilTable;
 import com.antoineriche.privateinstructor.services.CourseCheckingService;
+import com.antoineriche.privateinstructor.services.FirebaseIntentService;
+import com.antoineriche.privateinstructor.services.SnapshotService;
+
+import java.util.List;
+import java.util.UUID;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         AbstractFragmentList.FragmentListListener {
+
+    private static final String TAG = IndexActivity.class.getSimpleName();
 
     Fragment mCurrentFragment;
     NavigationView mNavigationView;
@@ -54,6 +68,10 @@ public class IndexActivity extends AbstractDatabaseActivity
     protected void onResume() {
         super.onResume();
         startService(new Intent(this, CourseCheckingService.class));
+//        startService(new Intent(this, SnapshotService.class));
+        Intent intent = new Intent(this, FirebaseIntentService.class);
+        intent.putExtra(FirebaseIntentService.FIB_TASKS, new String[]{FirebaseIntentService.FIB_CHECK_SNAPSHOT, FirebaseIntentService.FIB_CHECK_SYNCHRONIZATION});
+        startService(intent);
     }
 
     @Override
@@ -99,17 +117,23 @@ public class IndexActivity extends AbstractDatabaseActivity
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[6].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[6].split(";")[1]);
 
+        actionView = pMenu.findItem(R.id.nav_snapshots).getActionView();
+        actionView.setEnabled(false);
+        ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.baseline_storage_white_48));
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[7].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[7].split(";")[1]);
+
         actionView = pMenu.findItem(R.id.nav_stats).getActionView();
         actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_equalizer_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[7].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[7].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[8].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[8].split(";")[1]);
 
         actionView = pMenu.findItem(R.id.nav_settings).getActionView();
         actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_menu_manage));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[8].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[8].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[9].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[9].split(";")[1]);
     }
 
     @Override
@@ -147,6 +171,12 @@ public class IndexActivity extends AbstractDatabaseActivity
                 break;
             case R.id.nav_money:
                 pFragment = MoneyFragment.newInstance();
+                break;
+            case R.id.nav_settings:
+                pFragment = SettingsFragment.newInstance();
+                break;
+            case R.id.nav_snapshots:
+                pFragment = SnapshotFragment.newInstance();
                 break;
             default:
                 pFragment = ToImplementFragment.newInstance("");

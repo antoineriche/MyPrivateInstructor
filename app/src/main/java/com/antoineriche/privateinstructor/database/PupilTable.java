@@ -2,6 +2,7 @@ package com.antoineriche.privateinstructor.database;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Location;
@@ -9,6 +10,7 @@ import com.antoineriche.privateinstructor.beans.Pupil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PupilTable extends MyDatabaseTable {
@@ -36,8 +38,8 @@ public class PupilTable extends MyDatabaseTable {
     public static final String COL_FREQUENCY = "FREQUENCY";
     public static final int NUM_COL_FREQUENCY = 6;
 
-    public static final String COL_LOCATION_ID = "LOCATION_ID";
-    public static final int NUM_COL_LOCATION_ID = 7;
+    public static final String COL_LOCATION_UUID = "LOCATION_UUID";
+    public static final int NUM_COL_LOCATION_UUID = 7;
 
     public static final String COL_HOURLY_PRICE = "HOURLY_PRICE";
     public static final int NUM_COL_HOURLY_PRICE = 8;
@@ -57,22 +59,34 @@ public class PupilTable extends MyDatabaseTable {
     public static final String COL_STATE = "STATE";
     public static final int NUM_COL_STATE = 13;
 
+    public static final String COL_UUID = "UUID";
+    public static final int NUM_COL_UUID = 14;
+
+
 
     private static final String[] FIELDS = new String[]{COL_ID, COL_FIRST_NAME, COL_LAST_NAME, COL_GENDER, COL_CLASS_LEVEL,
-            COL_PAYMENT_TYPE, COL_FREQUENCY, COL_LOCATION_ID, COL_HOURLY_PRICE, COL_DATE_SINCE, COL_PHONE,
-            COL_PARENT_PHONE, COL_IMG_PATH, COL_STATE};
+            COL_PAYMENT_TYPE, COL_FREQUENCY, COL_LOCATION_UUID, COL_HOURLY_PRICE, COL_DATE_SINCE, COL_PHONE,
+            COL_PARENT_PHONE, COL_IMG_PATH, COL_STATE, COL_UUID};
+
+    private static final String CREATION_STRING = "CREATE TABLE " + TABLE_NAME + " ("
+            + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_FIRST_NAME + " TEXT NOT NULL, "
+            + COL_LAST_NAME + " TEXT NOT NULL, "
+            + COL_GENDER + " INTEGER, " + COL_CLASS_LEVEL + " INTEGER, "
+            + COL_PAYMENT_TYPE + " INTEGER, " + COL_FREQUENCY + " INTEGER, "
+            + COL_LOCATION_UUID + " TEXT, " + COL_HOURLY_PRICE + " DOUBLE, "
+            + COL_DATE_SINCE + " LONG DEFAULT " + System.currentTimeMillis() + ", "
+            + COL_PHONE + " TEXT, " + COL_PARENT_PHONE + " TEXT, "
+            + COL_IMG_PATH + " TEXT, " + COL_STATE + " INTEGER DEFAULT " + Pupil.ACTIVE + ", "
+            + COL_UUID + " TEXT);";
+
+
+    public static String creat(String pName){
+        return CREATION_STRING.replace(TABLE_NAME, pName);
+    }
 
     @Override
     protected String getCreationString() {
-        return "CREATE TABLE " + TABLE_NAME + " ("
-                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COL_FIRST_NAME + " TEXT NOT NULL, "
-                + COL_LAST_NAME + " TEXT NOT NULL, "
-                + COL_GENDER + " INTEGER, " + COL_CLASS_LEVEL + " INTEGER, "
-                + COL_PAYMENT_TYPE + " INTEGER, " + COL_FREQUENCY + " INTEGER, "
-                + COL_LOCATION_ID + " LONG, " + COL_HOURLY_PRICE + " DOUBLE, "
-                + COL_DATE_SINCE + " LONG DEFAULT " + System.currentTimeMillis() + ", "
-                + COL_PHONE + " TEXT, " + COL_PARENT_PHONE + " TEXT, "
-                + COL_IMG_PATH + " TEXT, " + COL_STATE + " INTEGER DEFAULT " + Pupil.ACTIVE+ ");";
+        return CREATION_STRING;
     }
 
     @Override
@@ -83,7 +97,7 @@ public class PupilTable extends MyDatabaseTable {
     public static long insertPupil(SQLiteDatabase pSQLDatabase, Pupil pupil) {
         pupil.setSinceDate(System.currentTimeMillis());
         if(pupil.getLocation() != null){
-            pupil.setLocationId(LocationTable.insertLocation(pSQLDatabase, pupil.getLocation()));
+            pupil.setLocationUuid(LocationTable.insertLocation(pSQLDatabase, pupil.getLocation()));
         }
         return pSQLDatabase.insert(TABLE_NAME, null, pupil.toContentValues());
     }
@@ -93,9 +107,9 @@ public class PupilTable extends MyDatabaseTable {
         //Compare locations
         if(pupil.getLocation() != null){
             Location newLoc = pupil.getLocation();
-            Location oldLoc = LocationTable.getLocationWithId(pSQLDatabase, pupil.getLocationId());
+            Location oldLoc = LocationTable.getLocationWithUuid(pSQLDatabase, pupil.getLocationUuid());
             if(!Location.areEqual(newLoc, oldLoc)){
-                pupil.setLocationId(LocationTable.insertLocation(pSQLDatabase, newLoc));
+                pupil.setLocationUuid(LocationTable.insertLocation(pSQLDatabase, newLoc));
             }
         }
         return pSQLDatabase.update(TABLE_NAME, pupil.toContentValues(), COL_ID + " = " + id, null);
@@ -106,19 +120,29 @@ public class PupilTable extends MyDatabaseTable {
         return cursorToPupil(c, pSQLDatabase);
     }
 
+    public static Pupil getPupilWithId(SQLiteDatabase pSQLDatabase, String pUuid) {
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_UUID + " = '" + pUuid +  "'", null, null, null, null);
+        return cursorToPupil(c, pSQLDatabase);
+    }
+
     public static List<Pupil> getAllPupils(SQLiteDatabase pSQLDatabase){
         Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, null, null, null, null, COL_DATE_SINCE);
         return cursorToListPupils(c, pSQLDatabase);
     }
 
-    public static boolean removePupilWithID(SQLiteDatabase pSQLDatabase, long id) {
-        List<Long> coursesId = CourseTable.getCoursesForPupil(pSQLDatabase, id).stream().map(Course::getId).collect(Collectors.toList());
+    public static boolean removePupilWithUuid(SQLiteDatabase pSQLDatabase, String pUuid) {
+        List<Long> coursesId = CourseTable.getCoursesForPupil(pSQLDatabase, pUuid).stream().map(Course::getId).collect(Collectors.toList());
         for(long courseId : coursesId){
             CourseTable.removeCourseWithID(pSQLDatabase, courseId);
         }
         //TODO deal with location
         //TODO Remove devoir
-        return pSQLDatabase.delete(TABLE_NAME, COL_ID + " = " + id, null) == 1;
+        return pSQLDatabase.delete(TABLE_NAME, COL_LOCATION_UUID + " = " + pUuid, null) == 1;
+    }
+
+    public static void clearTable(SQLiteDatabase pSQLDatabase){
+        pSQLDatabase.execSQL("DROP TABLE " + TABLE_NAME);
+        pSQLDatabase.execSQL(CREATION_STRING);
     }
 
     private static Pupil cursorToPupil(Cursor c, SQLiteDatabase pSQLDatabase) {
@@ -127,7 +151,7 @@ public class PupilTable extends MyDatabaseTable {
         if (c.getCount() > 0) {
             c.moveToFirst();
             pupil = new Pupil(c);
-            pupil.setLocation(LocationTable.getLocationWithId(pSQLDatabase, pupil.getLocationId()));
+            pupil.setLocation(LocationTable.getLocationWithUuid(pSQLDatabase, pupil.getLocationUuid()));
             c.close();
         }
 
@@ -143,7 +167,7 @@ public class PupilTable extends MyDatabaseTable {
 
             while (!c.isAfterLast()) {
                 Pupil pupil = new Pupil(c);
-                pupil.setLocation(LocationTable.getLocationWithId(pSQLDatabase, pupil.getLocationId()));
+                pupil.setLocation(LocationTable.getLocationWithUuid(pSQLDatabase, pupil.getLocationUuid()));
                 list.add(pupil);
                 c.moveToNext();
             }

@@ -6,4 +6,10 @@
         <attr name="srcImg" format="reference"/>
     </declare-styleable>
 
+    <declare-styleable name="SwitchPreferences">
+        <attr name="preferencesLabel" format="string"/>
+        <attr name="preferencesDescription" format="string"/>
+        <attr name="preferences_key" format="reference"/>
+    </declare-styleable>
+
 </resources>

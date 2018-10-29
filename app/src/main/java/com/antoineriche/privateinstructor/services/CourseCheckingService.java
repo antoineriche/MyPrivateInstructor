@@ -10,15 +10,15 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.database.MyDatabase;
 import com.antoineriche.privateinstructor.notifications.CourseNotification;
 import com.antoineriche.privateinstructor.utils.DateUtils;
+import com.antoineriche.privateinstructor.utils.PreferencesUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,9 +43,7 @@ public class CourseCheckingService extends Service {
 
         // Schedule next course beginning notification
         Course course = getNextCourse();
-        if(course != null){
-            scheduleAlarmForNextCourse(course);
-        }
+        if(course != null){ scheduleAlarmForNextCourse(course); }
 
         stopSelf();
 
@@ -102,17 +100,30 @@ public class CourseCheckingService extends Service {
 
 
         // Schedule start notification
-        intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getDate(),
-                PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.BEGINNING_COURSE_CODE,
-                        intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
-        );
+        if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_beginning))) {
+            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getDate(),
+                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.BEGINNING_COURSE_CODE,
+                            intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
+            );
+        }
 
         // Schedule end notification
-        intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.END_COURSE_CODE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getEndDate(),
-                PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.END_COURSE_CODE,
-                        intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
-        );
+        if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_end))) {
+            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.END_COURSE_CODE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getEndDate(),
+                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.END_COURSE_CODE,
+                            intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
+            );
+        }
+
+//        // Hack
+//        if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_beginning))) {
+//            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
+//            alarmManager.set(AlarmManager.RTC_WAKEUP, new Date().getTime() + 3 * 1000,
+//                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.BEGINNING_COURSE_CODE,
+//                            intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
+//            );
+//        }
     }
 }

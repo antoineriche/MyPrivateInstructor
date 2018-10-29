@@ -4,12 +4,13 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 
 import com.antoineriche.privateinstructor.R;
+import com.antoineriche.privateinstructor.services.NotificationReceiver;
 
 public abstract class AbstractNotification {
 
@@ -21,6 +22,7 @@ public abstract class AbstractNotification {
     abstract int getChannelImportance();
     abstract int getNotificationId();
     abstract PendingIntent getPendingIntent(Context pContext);
+    abstract boolean isClickable();
     abstract boolean autoCancelable();
 
 
@@ -37,22 +39,32 @@ public abstract class AbstractNotification {
         }
     }
 
-    public void create(Context pContext) {
-        createNotificationChannel(pContext);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(pContext, getChannelName())
+    public NotificationCompat.Builder build(Context pContext){
+        return new NotificationCompat.Builder(pContext, getChannelName())
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getTitle())
                 .setContentText(getContent())
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(getContent()))
-                .setContentIntent(getPendingIntent(pContext))
+                .setContentIntent(isClickable() ? getPendingIntent(pContext) : null)
                 .setAutoCancel(autoCancelable())
                 .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
                 .setLights(0x81d4fa, 3000, 1500);
+    }
 
+    public void create(Context pContext) {
+        createNotificationChannel(pContext);
+        NotificationCompat.Builder builder = build(pContext);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(pContext);
         notificationManager.notify(getNotificationId(), builder.build());
+    }
+
+    PendingIntent getCancelNotificationIntent(Context pContext){
+        Intent intentAlarm = new Intent(pContext, NotificationReceiver.class);
+        intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, NotificationReceiver.CANCEL_NOTIFICATION);
+        intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_ID, getNotificationId());
+        return PendingIntent.getBroadcast(pContext, NotificationReceiver.CANCEL_NOTIFICATION,
+                intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
 }

@@ -65,7 +65,7 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
         TabLayout tabLayout = pView.findViewById(R.id.tl_pupil_details);
         setUpTabLayout(tabLayout, pupil);
 
-        ((TextView) pView.findViewById(R.id.tv_pupil_name)).setText(pupil.getFirstname());
+        ((TextView) pView.findViewById(R.id.tv_pupil_name)).setText(pupil.getFullName());
     }
 
     @Override

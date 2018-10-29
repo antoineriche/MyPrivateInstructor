@@ -77,7 +77,7 @@ public class CourseListFragment extends AbstractFragmentList {
         private List<Course> mCourses;
         private FragmentListListener mListener;
 
-        public RecyclerViewCourseAdapter(List<Course> mCourses, FragmentListListener mListener) {
+        RecyclerViewCourseAdapter(List<Course> mCourses, FragmentListListener mListener) {
             this.mCourses = mCourses;
             this.mListener = mListener;
         }

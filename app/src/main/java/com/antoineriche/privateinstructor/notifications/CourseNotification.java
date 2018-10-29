@@ -4,10 +4,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 
+import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.activities.item.course.CourseActivity;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.services.NotificationReceiver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +47,15 @@ public abstract class CourseNotification extends AbstractNotification {
         return true;
     }
 
+    @Override
+    PendingIntent getPendingIntent(Context pContext) { return null; }
+
+    @Override
+    boolean isClickable() {
+        return false;
+    }
+
+
     public static class BeginningCourseNotification extends CourseNotification {
 
         private Course course;
@@ -67,14 +79,6 @@ public abstract class CourseNotification extends AbstractNotification {
             return BEGINNING_COURSE_CODE;
         }
 
-        @Override
-        PendingIntent getPendingIntent(Context pContext) {
-            Intent launchIntent = new Intent(pContext, CourseActivity.class);
-            launchIntent.putExtra(AbstractItemActivity.ARG_ITEM_ID, course.getId());
-
-            return PendingIntent.getActivity(pContext, BEGINNING_COURSE_CODE,
-                    launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
     }
 
     public static class EndingCourseNotification extends CourseNotification {
@@ -101,12 +105,21 @@ public abstract class CourseNotification extends AbstractNotification {
         }
 
         @Override
-        PendingIntent getPendingIntent(Context pContext) {
+        public NotificationCompat.Builder build(Context pContext) {
+            NotificationCompat.Builder builder = super.build(pContext);
+            builder.addAction(R.drawable.baseline_create_black_48, "Compléter", getCompleteCoursePendingIntent(pContext));
+            builder.addAction(R.drawable.baseline_close_white_48, "Plus tard", getCancelNotificationIntent(pContext));
+            return builder;
+        }
+
+        private PendingIntent getCompleteCoursePendingIntent(Context pContext){
             Intent launchIntent = new Intent(pContext, CourseActivity.class);
             launchIntent.putExtra(AbstractItemActivity.ARG_ITEM_ID, course.getId());
-
+            launchIntent.putExtra(AbstractItemActivity.ARG_ITEM_EDITION, true);
+            launchIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, getNotificationId());
             return PendingIntent.getActivity(pContext, END_COURSE_CODE,
                     launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
+
     }
 }

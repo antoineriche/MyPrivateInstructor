@@ -16,6 +16,9 @@ import android.widget.Toast;
 import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.AbstractDatabaseFragment;
+import com.antoineriche.privateinstructor.beans.DatabaseItem;
+
+import java.util.UUID;
 
 public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment {
 
@@ -95,10 +98,11 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
             }
         } else if (item.getItemId() == R.id.action_save) {
             try{
-                Object newItem = extractItemFromView(getView());
+                DatabaseItem newItem = extractItemFromView(getView());
                 if (isEditing) {
                     mDbItemListener.updateItem(mItemId, newItem);
                 } else {
+                    newItem.setUuid(UUID.randomUUID().toString());
                     mDbItemListener.saveItem(newItem);
                 }
             } catch(Exception e) {
@@ -109,7 +113,7 @@ public abstract class AbstractFormItemFragment extends AbstractDatabaseFragment 
         return true;
     }
 
-    protected abstract Object extractItemFromView(View view) throws IllegalArgumentException;
+    protected abstract DatabaseItem extractItemFromView(View view) throws IllegalArgumentException;
     protected abstract void fillViewWithItem(View view, Object item);
     protected abstract void initView(View view);
     protected abstract void cleanView(View view);

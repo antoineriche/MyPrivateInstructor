@@ -11,6 +11,14 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--PREFERENCES-->
+    <string name="shared_preferences">PrivateInstructorSharedPreferences</string>
+    <string name="pref_course_beginning">pref_course_beginning</string>
+    <string name="pref_course_end">pref_course_end</string>
+    <string name="pref_enable_firebase_synchronization">pref_enable_firebase_synchronization</string>
+    <string name="pref_enable_firebase_snapshot">pref_enable_firebase_snapshot</string>
+    <string name="pref_firebase_snapshot_frequency">pref_firebase_snapshot_frequency</string>
+
     <string name="action_save">Enregistrer</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_settings">Settings</string>
@@ -21,6 +29,7 @@
     <!--Dialog-->
     <string name="dialog_delete_pupil">"En supprimant cet élève, tous ses cours et ses devoirs seront perdus. Souhaitez-vous vraiment supprimer cet élève ?"</string>
     <string name="dialog_delete_course">"Souhaitez-vous vraiment supprimer ce cours ?"</string>
+    <string name="dialog_update_database">"En changeant la base de données courantes, les données actuelles seront perdues. \nSouhaitez-vous faire une copie de votre base avant cette opération ?"</string>
 
 
     <string name="unknown_date">Unknown date</string>
@@ -54,5 +63,6 @@
         <item>Black</item>
     </string-array>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">MainActivity</string>
 
 </resources>

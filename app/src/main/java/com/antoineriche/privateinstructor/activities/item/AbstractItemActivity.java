@@ -3,6 +3,7 @@ package com.antoineriche.privateinstructor.activities.item;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import com.antoineriche.privateinstructor.DatabaseItemListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.ToImplementFragment;
+import com.antoineriche.privateinstructor.services.NotificationReceiver;
 
 //FIXME pb de drawer
 
@@ -78,6 +80,13 @@ public abstract class AbstractItemActivity extends AbstractDatabaseActivity
             } else {
                 fragment = ToImplementFragment.newInstance("Item");
             }
+
+            int notificationId = pBundle.getInt(NotificationReceiver.NOTIFICATION_ID, -1);
+            if(notificationId != -1){
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                notificationManager.cancel(notificationId);
+            }
+
         }
         return fragment;
     }

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.utils.CourseUtils;
 
 import java.util.Locale;
 
@@ -34,7 +35,7 @@ public class MoneyFragment extends AbstractDatabaseFragment {
 
         TextView tvMoney = view.findViewById(R.id.tv_money_total);
 
-        double money = CourseTable.getAllCourses(mListener.getDatabase()).stream().mapToDouble(c -> c.getMoney()).sum();
+        double money = CourseUtils.extractMoneySum(CourseTable.getAllCourses(mListener.getDatabase()));
         tvMoney.setText(String.format(Locale.FRANCE, "%.02f €", money));
     }
 }

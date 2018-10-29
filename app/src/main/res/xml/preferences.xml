@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Title 1">
+
+        <CheckBoxPreference
+            android:key="checkbox_preference"
+            android:title="item 1 title"
+            android:summary="item 1 description" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Title 2">
+
+        <EditTextPreference
+            android:key="edittext_preference"
+            android:title="item 2 title"
+            android:summary="item 2 description"
+            android:dialogTitle="item 2 dialog" />
+
+        <ListPreference
+            android:key="list_preference"
+            android:title="item 3 title"
+            android:summary="item 3 description"
+            android:entries="@array/course_states"
+            android:entryValues="@array/drawer_sections"
+            android:dialogTitle="item 3 dialog" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Title 3">
+
+        <!-- This PreferenceScreen tag serves as a screen break (similar to page break
+             in word processing). Like for other preference types, we assign a key
+             here so it is able to save and restore its instance state. -->
+        <PreferenceScreen
+            android:key="screen_preference"
+            android:title="Title 2"
+            android:summary="Summary 2">
+
+            <CheckBoxPreference
+                android:key="next_screen_checkbox_preference"
+                android:title="title 2"
+                android:summary="summary encore" />
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="Title 3"
+            android:summary="summary 3">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.android.com" />
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Title 4">
+
+        <CheckBoxPreference
+            android:key="parent_checkbox_preference"
+            android:title="title 4"
+            android:summary="summary 4" />
+
+        <!-- The visual style of a child is defined by this styled theme attribute. -->
+        <CheckBoxPreference
+            android:key="child_checkbox_preference"
+            android:dependency="parent_checkbox_preference"
+            android:layout="?android:attr/preferenceLayoutChild"
+            android:title="je sais pla"
+            android:summary="summary du bail" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

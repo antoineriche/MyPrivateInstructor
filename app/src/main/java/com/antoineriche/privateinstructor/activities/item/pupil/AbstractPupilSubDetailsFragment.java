@@ -76,7 +76,6 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
         @Override
         protected void fillView(View pView, Pupil pPupil) {
 
-            ((TextView) pView.findViewById(R.id.tv_pupil_last_name)).setText(pPupil.getLastname());
             ((TextView) pView.findViewById(R.id.tv_pupil_class_level)).setText(pPupil.getFriendlyClassLevel(getContext()));
 
             ((TextView) pView.findViewById(R.id.tv_pupil_hourly_price)).setText(

@@ -12,6 +12,7 @@
         <item android:id="@+id/nav_evolution" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_calendar" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_money" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
+        <item android:id="@+id/nav_snapshots" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_stats" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_settings" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
     </group>

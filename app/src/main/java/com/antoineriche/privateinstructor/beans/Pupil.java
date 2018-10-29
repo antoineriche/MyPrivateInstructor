@@ -6,10 +6,14 @@ import android.database.Cursor;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.PupilTable;
+import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_CLASS_LEVEL;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_DATE_SINCE;
@@ -18,13 +22,14 @@ import static com.antoineriche.privateinstructor.database.PupilTable.COL_GENDER;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_HOURLY_PRICE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_IMG_PATH;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_LAST_NAME;
-import static com.antoineriche.privateinstructor.database.PupilTable.COL_LOCATION_ID;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_LOCATION_UUID;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PARENT_PHONE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PAYMENT_TYPE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_PHONE;
 import static com.antoineriche.privateinstructor.database.PupilTable.COL_STATE;
+import static com.antoineriche.privateinstructor.database.PupilTable.COL_UUID;
 
-public class Pupil implements Serializable {
+public class Pupil implements Serializable, DatabaseItem {
 
     public static final int GENDER_MALE = 0;
     public static final int GENDER_FEMALE = 1;
@@ -48,11 +53,12 @@ public class Pupil implements Serializable {
     protected int gender;
     protected int frequency;
     protected int state;
-    protected long locationId;
+    protected String locationUuid;
     protected Location location;
     protected double hourlyPrice;
     protected long sinceDate;
     protected String phone, parentPhone;
+    protected String uuid;
     //Image
     protected String imgPath;
 
@@ -61,7 +67,12 @@ public class Pupil implements Serializable {
     public Pupil() {
     }
 
-    public Pupil(String firstname, String lastname, int classLevel, int paymentType, int gender, int frequency, long locationId, double hourlyPrice) {
+    //Use to retrieve and remove malformed data on Firebase
+    public Pupil(long pId) {
+        this.id = pId;
+    }
+
+    public Pupil(String firstname, String lastname, int classLevel, int paymentType, int gender, int frequency, String locationUuid, double hourlyPrice) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.classLevel = classLevel;
@@ -69,13 +80,13 @@ public class Pupil implements Serializable {
         this.gender = gender;
         this.frequency = frequency;
         this.hourlyPrice = hourlyPrice;
-        this.locationId = locationId;
+        this.locationUuid = locationUuid;
     }
 
     public Pupil(Cursor c) {
         this(c.getString(PupilTable.NUM_COL_FIRST_NAME), c.getString(PupilTable.NUM_COL_LAST_NAME), c.getInt(PupilTable.NUM_COL_CLASS_LEVEL),
                 c.getInt(PupilTable.NUM_COL_PAYMENT_TYPE), c.getInt(PupilTable.NUM_COL_GENDER), c.getInt(PupilTable.NUM_COL_FREQUENCY),
-                c.getLong(PupilTable.NUM_COL_LOCATION_ID), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
+                c.getString(PupilTable.NUM_COL_LOCATION_UUID), c.getDouble(PupilTable.NUM_COL_HOURLY_PRICE));
 
         this.id = c.getLong(PupilTable.NUM_COL_ID);
         this.sinceDate = c.getLong(PupilTable.NUM_COL_DATE_SINCE);
@@ -83,6 +94,7 @@ public class Pupil implements Serializable {
         this.parentPhone = c.getString(PupilTable.NUM_COL_PARENT_PHONE);
         this.imgPath = c.getString(PupilTable.NUM_COL_IMG_PATH);
         this.state = c.getInt(PupilTable.NUM_COL_STATE);
+        this.uuid = c.getString(PupilTable.NUM_COL_UUID);
     }
 
     public long getId() {
@@ -149,14 +161,6 @@ public class Pupil implements Serializable {
         this.state = state;
     }
 
-    public long getLocationId() {
-        return locationId;
-    }
-
-    public void setLocationId(long pLocationId) {
-        this.locationId = pLocationId;
-    }
-
     public double getHourlyPrice() {
         return hourlyPrice;
     }
@@ -197,18 +201,38 @@ public class Pupil implements Serializable {
         this.imgPath = imgPath;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getLocationUuid() {
+        return locationUuid;
+    }
+
+    public void setLocationUuid(String locationUuid) {
+        this.locationUuid = locationUuid;
+    }
+
+    @Exclude
     public List<Course> getCourses() {
         return mCourses;
     }
 
+    @Exclude
     public void setCourses(List<Course> pCourses) {
         this.mCourses = pCourses;
     }
 
+    @Exclude
     public Location getLocation() {
         return location;
     }
 
+    @Exclude
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -221,32 +245,38 @@ public class Pupil implements Serializable {
         values.put(COL_CLASS_LEVEL, this.classLevel);
         values.put(COL_PAYMENT_TYPE, this.paymentType);
         values.put(COL_FREQUENCY, this.frequency);
-        values.put(COL_LOCATION_ID, this.locationId);
         values.put(COL_HOURLY_PRICE, this.hourlyPrice);
         values.put(COL_DATE_SINCE, this.sinceDate);
         values.put(COL_PHONE, this.phone);
         values.put(COL_PARENT_PHONE, this.parentPhone);
         values.put(COL_IMG_PATH, this.imgPath);
         values.put(COL_STATE, this.state);
+        values.put(COL_UUID, this.uuid);
+        values.put(COL_LOCATION_UUID, this.locationUuid);
         return values;
     }
 
+    @Exclude
     public String getFullName(){
         return String.format(Locale.FRANCE, "%s %s", this.firstname, this.lastname);
     }
 
+    @Exclude
     public String getFriendlyFrequency(Context context){
         return context.getResources().getStringArray(R.array.pupil_course_frequency)[this.getFrequency()];
     }
 
+    @Exclude
     public String getFriendlyPaymentType(Context context){
         return context.getResources().getStringArray(R.array.pupil_payment_type)[this.getPaymentType()];
     }
 
+    @Exclude
     public String getFriendlyClassLevel(Context context){
         return context.getResources().getStringArray(R.array.pupil_class_levels)[this.getClassLevel()];
     }
 
+    @Exclude
     public String getFriendlyHourlyPrice(){
         return String.format(Locale.FRANCE, "%.02f", this.getHourlyPrice());
     }
@@ -262,12 +292,56 @@ public class Pupil implements Serializable {
                 ", gender=" + gender +
                 ", frequency=" + frequency +
                 ", state=" + state +
-                ", locationId=" + locationId +
                 ", hourlyPrice=" + hourlyPrice +
                 ", sinceDate=" + sinceDate +
                 ", phone='" + phone + '\'' +
                 ", parentPhone='" + parentPhone + '\'' +
                 ", imgPath='" + imgPath + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", locationUuid='" + locationUuid + '\'' +
                 '}';
+    }
+
+    @Override
+    public Map<String, Object> toMap(){
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("firstname", firstname);
+        result.put("lastname", lastname);
+        result.put("classLevel", classLevel);
+        result.put("paymentType", paymentType);
+        result.put("gender", gender);
+        result.put("frequency", frequency);
+        result.put("state", state);
+        result.put("hourlyPrice", hourlyPrice);
+        result.put("sinceDate", sinceDate);
+        result.put("phone", phone);
+        result.put("parentPhone", parentPhone);
+        result.put("imgPath", imgPath);
+        result.put("uuid", uuid);
+        result.put("locationUuid", locationUuid);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pupil pupil = (Pupil) o;
+        return id == pupil.id &&
+                classLevel == pupil.classLevel &&
+                paymentType == pupil.paymentType &&
+                gender == pupil.gender &&
+                frequency == pupil.frequency &&
+                state == pupil.state &&
+                Double.compare(pupil.hourlyPrice, hourlyPrice) == 0 &&
+                sinceDate == pupil.sinceDate &&
+                Objects.equals(firstname, pupil.firstname) &&
+                Objects.equals(lastname, pupil.lastname) &&
+                Objects.equals(phone, pupil.phone) &&
+                Objects.equals(parentPhone, pupil.parentPhone) &&
+                Objects.equals(imgPath, pupil.imgPath) &&
+                Objects.equals(uuid, pupil.uuid) &&
+                Objects.equals(locationUuid, pupil.locationUuid);
     }
 }

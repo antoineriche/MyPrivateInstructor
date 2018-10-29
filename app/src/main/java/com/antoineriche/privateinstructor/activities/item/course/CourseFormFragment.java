@@ -110,7 +110,7 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         // COMMENT
         c.setComment(((EditText) view.findViewById(R.id.et_course_comment)).getText().toString());
 
-        c.setPupilID(p.getId());
+        c.setPupilUuid(p.getUuid());
         return c;
     }
 
@@ -119,7 +119,7 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         Course course = (Course) item;
 
         Spinner spinner = view.findViewById(R.id.spinner_pupils);
-        int index = ((SpinnerPupilAdapter) spinner.getAdapter()).getIndexSelection(course.getPupilID());
+        int index = ((SpinnerPupilAdapter) spinner.getAdapter()).getIndexSelection(course.getPupilUuid());
         spinner.setSelection(index);
         ((MySelectorListener) spinner.getOnItemSelectedListener()).computeBasicPrice(course.getMoney());
 

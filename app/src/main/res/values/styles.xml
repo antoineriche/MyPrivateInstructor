@@ -7,6 +7,8 @@
         <item name="colorPrimaryDark">@color/them900</item>
         <item name="colorAccent">@color/unthemAccent</item>
         <item name="actionMenuTextColor">@color/white</item>
+        <!--<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>-->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

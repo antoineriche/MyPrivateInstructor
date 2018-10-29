@@ -1,5 +1,6 @@
 package com.antoineriche.privateinstructor.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -7,12 +8,36 @@ import java.util.Locale;
 
 public class DateUtils {
 
-    private static final long SECOND = 1000;
-    private static final long MINUTE = SECOND * 60;
-    private static final long HOUR = MINUTE * 60;
-    private static final long DAY = HOUR * 24;
+    public static final long SECOND = 1000;
+    public static final long MINUTE = SECOND * 60;
+    public static final long HOUR = MINUTE * 60;
+    public static final long DAY = HOUR * 24;
 
-    public static Date getFirstSecond(Date pDate){
+
+    public static String getShortDate(Date pDate){
+        return StringUtils.capitalizeFirstChar(new SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(pDate));
+    }
+    public static String getShortDate(long pDateInMillis){
+        return getShortDate(new Date(pDateInMillis));
+    }
+
+    public static String getFriendlyDate(Date pDate){
+        return StringUtils.capitalizeFirstChar(new SimpleDateFormat("EEEE dd MMMM yyyy", Locale.FRANCE).format(pDate));
+    }
+
+    public static String getFriendlyDate(long pDateInMillis){
+        return getFriendlyDate(new Date(pDateInMillis));
+    }
+
+    public static String getFriendlyHour(long pDateInMillis){
+        return getFriendlyHour(new Date(pDateInMillis));
+    }
+
+    public static String getFriendlyHour(Date pDate){
+        return new SimpleDateFormat("HH'h'mm", Locale.FRANCE).format(pDate);
+    }
+
+    public static Date getFirstSecondOfTheDay(Date pDate){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(pDate);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -22,7 +47,7 @@ public class DateUtils {
         return calendar.getTime();
     }
 
-    public static Date getLastSecond(Date pDate){
+    public static Date getLastSecondOfTheDay(Date pDate){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(pDate);
         calendar.set(Calendar.HOUR_OF_DAY, 23);

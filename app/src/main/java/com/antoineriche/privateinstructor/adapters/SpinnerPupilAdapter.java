@@ -87,6 +87,11 @@ public class SpinnerPupilAdapter extends BaseAdapter {
         return pupils.indexOf(a);
     }
 
+    public int getIndexSelection(String pPupilUuid){
+        Pupil a = pupils.stream().filter(p -> p.getUuid().equals(pPupilUuid)).findFirst().orElse(new Pupil());
+        return pupils.indexOf(a);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvPupilName;
