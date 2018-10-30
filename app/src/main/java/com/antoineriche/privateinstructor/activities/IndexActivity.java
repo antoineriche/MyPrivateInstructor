@@ -21,6 +21,7 @@ import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractDatabaseActivity;
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
+import com.antoineriche.privateinstructor.activities.item.devoir.DevoirListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Location;
@@ -165,6 +166,9 @@ public class IndexActivity extends AbstractDatabaseActivity
                 break;
             case R.id.nav_course:
                 pFragment = CourseListFragment.newInstance();
+                break;
+            case R.id.nav_devoir:
+                pFragment = DevoirListFragment.newInstance();
                 break;
             case R.id.nav_calendar:
                 pFragment = CalendarFragment.newInstance();

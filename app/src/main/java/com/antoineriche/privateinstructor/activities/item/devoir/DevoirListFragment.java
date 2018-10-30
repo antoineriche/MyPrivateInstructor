@@ -1,4 +1,4 @@
-package com.antoineriche.privateinstructor.activities.item.course;
+package com.antoineriche.privateinstructor.activities.item.devoir;
 
 import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,23 +17,20 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
-import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.beans.Devoir;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.utils.DateUtils;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
-public class CourseListFragment extends AbstractFragmentList {
+public class DevoirListFragment extends AbstractFragmentList {
 
-    public CourseListFragment() {
+    public DevoirListFragment() {
     }
 
-    public static CourseListFragment newInstance() {
-        return new CourseListFragment();
+    public static DevoirListFragment newInstance() {
+        return new DevoirListFragment();
     }
 
     @Override
@@ -41,7 +38,7 @@ public class CourseListFragment extends AbstractFragmentList {
         super.onOptionsItemSelected(item);
 
         if (item.getItemId() == R.id.action_order) {
-            getItems().sort(Comparator.comparing(Course::getDate));
+            getItems().sort(Comparator.comparing(Devoir::getDate));
             refreshListItems();
         }
 
@@ -50,17 +47,17 @@ public class CourseListFragment extends AbstractFragmentList {
 
     @Override
     protected Class<? extends Activity> getAddingActivity() {
-        return CourseActivity.class;
+        return DevoirActivity.class;
     }
 
     @Override
-    protected List<Course> getItemsFromDB(SQLiteDatabase database) {
-        return CourseTable.getAllCourses(database);
+    protected List<Devoir> getItemsFromDB(SQLiteDatabase database) {
+        return DevoirTable.getAllDevoirs(database);
     }
 
     @Override
     protected String title() {
-        return "Mes cours";
+        return "Mes devoirs";
     }
 
     @Override
@@ -69,17 +66,17 @@ public class CourseListFragment extends AbstractFragmentList {
     }
 
     @Override
-    public List<Course> getItems() {
-        return ((List<Course>) super.getItems());
+    public List<Devoir> getItems() {
+        return ((List<Devoir>) super.getItems());
     }
 
     class RecyclerViewCourseAdapter extends RecyclerView.Adapter<RecyclerViewCourseAdapter.CourseViewHolder> {
 
-        private List<Course> mCourses;
+        private List<Devoir> mDevoirs;
         private FragmentListListener mListener;
 
-        RecyclerViewCourseAdapter(List<Course> mCourses, FragmentListListener mListener) {
-            this.mCourses = mCourses;
+        RecyclerViewCourseAdapter(List<Devoir> pDevoirs, FragmentListListener mListener) {
+            this.mDevoirs = pDevoirs;
             this.mListener = mListener;
         }
 
@@ -92,29 +89,36 @@ public class CourseListFragment extends AbstractFragmentList {
 
         @Override
         public void onBindViewHolder(@NonNull CourseViewHolder courseHolder, int position) {
-            final Course course = mCourses.get(position);
+            final Devoir devoir = mDevoirs.get(position);
 
-            courseHolder.tvTime.setText(course.getFriendlyTimeSlot());
-            courseHolder.tvDate.setText(DateUtils.getShortDate(course.getDate()));
+            courseHolder.tvDate.setText(DateUtils.getShortDate(devoir.getDate()));
+            courseHolder.tvTime.setText(devoir.getFriendlyDuration());
 
-            courseHolder.tvChapter.setText(course.getPupil().getFullName());
-            courseHolder.tvComment.setText(course.getChapter());
-            courseHolder.tvComment.setVisibility(!TextUtils.isEmpty(course.getChapter()) ? View.VISIBLE : View.GONE);
+            courseHolder.tvChapter.setText(devoir.getPupil().getFullName());
+            courseHolder.tvComment.setText(devoir.getChapter());
 
-            courseHolder.ivICourseState.setImageDrawable(course.getStateIcon(getContext()));
+            StringBuilder strB = new StringBuilder();
+            strB.append(devoir.getFriendlyType(getContext()));
+
+            if(!TextUtils.isEmpty(devoir.getChapter())){
+                strB.append(" | ").append(devoir.getChapter());
+            }
+
+            courseHolder.tvComment.setText(strB);
+            courseHolder.ivICourseState.setImageDrawable(devoir.getStateIcon(getContext()));
 
             courseHolder.cvCell.setOnClickListener(view -> {
                 Bundle args = new Bundle();
-                args.putLong(AbstractItemActivity.ARG_ITEM_ID, course.getId());
+                args.putLong(AbstractItemActivity.ARG_ITEM_ID, devoir.getId());
                 if(mListener != null) {
-                    mListener.goToDetailsActivity(CourseActivity.class, args);
+                    mListener.goToDetailsActivity(DevoirActivity.class, args);
                 }
             });
         }
 
         @Override
         public int getItemCount() {
-            return this.mCourses.size();
+            return this.mDevoirs.size();
         }
 
         class CourseViewHolder extends RecyclerView.ViewHolder {

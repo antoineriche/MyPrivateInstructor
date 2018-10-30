@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.database.LocationTable;
 import com.antoineriche.privateinstructor.database.MyDatabase;
 import com.antoineriche.privateinstructor.database.PupilTable;
@@ -67,6 +68,8 @@ public class FirebaseTasks {
                 localItems.addAll(PupilTable.getAllPupils(this.mDatabase));
             } else if(FirebaseUtils.LOCATION_REFERENCE.equals(this.mFirebaseReference.getKey())){
                 localItems.addAll(LocationTable.getAllLocations(this.mDatabase));
+            } else if(FirebaseUtils.DEVOIR_REFERENCE.equals(this.mFirebaseReference.getKey())){
+                localItems.addAll(DevoirTable.getAllDevoirs(this.mDatabase));
             }
 
             // Deal with missing courses
@@ -89,7 +92,7 @@ public class FirebaseTasks {
                     FirebaseUtils.saveItemInFirebase(item, mFirebaseReference,
                             o -> onProgressUpdate(progress),
                             e -> {
-                                Log.e(TAG, "Fail to save course to Firebase");
+                                Log.e(TAG, "Fail to save item to Firebase");
                                 mListener.failToSaveItemInFirebase(itemId, e.getMessage());
                             });
                 }

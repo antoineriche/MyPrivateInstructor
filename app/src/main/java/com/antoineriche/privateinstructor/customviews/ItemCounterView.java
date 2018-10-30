@@ -86,9 +86,14 @@ public class ItemCounterView extends CardView {
     }
 
     private Drawable getIndicator(double pCount, double pMean){
-        Drawable drawable = pCount > pMean ? ContextCompat.getDrawable(getContext(), R.drawable.baseline_expand_less_white_48)
-                : ContextCompat.getDrawable(getContext(), R.drawable.baseline_expand_more_white_48);
-        drawable.setTint(pCount > pMean ? getContext().getColor(R.color.green500) : getContext().getColor(R.color.red500));
+        Drawable drawable;
+        if(pCount == pMean) {
+            drawable = null;
+        } else {
+            drawable = pCount > pMean ? ContextCompat.getDrawable(getContext(), R.drawable.baseline_expand_less_white_48)
+                    : ContextCompat.getDrawable(getContext(), R.drawable.baseline_expand_more_white_48);
+            drawable.setTint(pCount > pMean ? getContext().getColor(R.color.green500) : getContext().getColor(R.color.red500));
+        }
         return drawable;
     }
 
@@ -104,7 +109,12 @@ public class ItemCounterView extends CardView {
         ((TextView) findViewById(R.id.tv_item_counter_count_2)).setText(
                 String.format(Locale.FRANCE, "(%s)", StringUtils.formatDouble(mMean)));
 
-        ((ImageView) findViewById(R.id.iv_item_counter_count_indicator)).setImageDrawable(getIndicator(mCount, mMean));
+        Drawable img = getIndicator(mCount, mMean);
+        if (img == null) {
+            findViewById(R.id.iv_item_counter_count_indicator).setVisibility(GONE);
+        } else {
+            ((ImageView) findViewById(R.id.iv_item_counter_count_indicator)).setImageDrawable(img);
+        }
     }
 
     public void setUpView(String pTitle){

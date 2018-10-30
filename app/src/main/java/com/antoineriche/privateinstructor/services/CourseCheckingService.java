@@ -83,7 +83,7 @@ public class CourseCheckingService extends Service {
 
     private void putCourseInWaitingState(Course course){
         if(this.mDatabase != null){
-            course.setState(Course.WAITING_FOT_VALIDATION);
+            course.setState(Course.WAITING_FOR_VALIDATION);
             CourseTable.updateCourse(mDatabase, course.getId(), course);
         } else {
             Log.e(LOG_TAG, "could not update course, database was null");

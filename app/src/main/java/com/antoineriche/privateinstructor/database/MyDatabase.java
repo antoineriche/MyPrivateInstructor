@@ -5,11 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.antoineriche.privateinstructor.beans.Devoir;
+import com.antoineriche.privateinstructor.beans.EventItem;
 import com.antoineriche.privateinstructor.beans.Pupil;
 
 public class MyDatabase extends SQLiteOpenHelper {
 
-    public static final int VERSION = 13;
+    public static final int VERSION = 15;
     public static final String DB_NAME = "private-instructor";
 
     public MyDatabase(Context context, SQLiteDatabase.CursorFactory factory) {
@@ -27,13 +29,14 @@ public class MyDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         if(newVersion > oldVersion) {
             Log.e(getClass().getSimpleName(), "onUpgrade");
+//            sqLiteDatabase.execSQL(new DevoirTable().getCreationString());
 //            sqLiteDatabase.execSQL(new LocationTable().getCreationString());
 //            sqLiteDatabase.execSQL(new PupilTable().getCreationString());
 
             //TODO update version
 //            sqLiteDatabase.execSQL("ALTER TABLE " + CourseTable.TABLE_NAME + " ADD COLUMN " + CourseTable.COL_PUPIL_UUID + " TEXT DEFAULT ''");
 //            sqLiteDatabase.execSQL("ALTER TABLE " + PupilTable.TABLE_NAME + " ADD COLUMN " + PupilTable.COL_LOCATION_UUID + " TEXT DEFAULT ''");
-            //sqLiteDatabase.execSQL("ALTER TABLE " + LocationTable.TABLE_NAME + " ADD COLUMN " + LocationTable.COL_UUID + " TEXT DEFAULT ''");
+            sqLiteDatabase.execSQL("ALTER TABLE " + DevoirTable.TABLE_NAME + " ADD COLUMN " + DevoirTable.COL_DURATION + " INTEGER DEFAULT " + EventItem.DURATION_1H);
 
 //            String temp = "tempo-courses";
 //            sqLiteDatabase.execSQL(CourseTable.creat(temp));

@@ -13,10 +13,12 @@ import com.antoineriche.privateinstructor.activities.SnapshotFragment;
 import com.antoineriche.privateinstructor.asynctasks.FirebaseTasks;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.Location;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.beans.Snapshot;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.database.LocationTable;
 import com.antoineriche.privateinstructor.database.MyDatabase;
 import com.antoineriche.privateinstructor.database.PupilTable;
@@ -113,6 +115,9 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
 
                 LocationTable.clearTable(database);
                 newSnap.getLocations().forEach(l -> LocationTable.insertLocation(database, l));
+
+                DevoirTable.clearTable(database);
+                newSnap.getDevoirs().forEach(d -> DevoirTable.insertDevoir(database, d));
 
                 broadcastIntent.putExtra(FIB_REPLACE_DATABASE, true);
                 sendBroadcast(broadcastIntent);
@@ -212,6 +217,18 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
                 }
 
                 @Override
+                public void onRemoteDevoirs(List<Devoir> pDevoirs) {
+                    Log.e(TAG, "onRemoteDevoirs: " + pDevoirs.size());
+                    List<DatabaseItem> items = new ArrayList<>();
+                    items.addAll(pDevoirs);
+                    //noinspection unchecked
+                    new FirebaseTasks.SynchronizeDatabases(
+                            FirebaseUtils.getDevoirReference(),
+                            new MyDatabase(pContext, null),
+                            pListener).execute(items);
+                }
+
+                @Override
                 public void cancelled(String pError) {
                     Log.e(TAG, "Error while retrieving data: " + pError);
                 }
@@ -271,7 +288,11 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
                             FirebaseUtils.extractLocationsFromDataSnapshot(snap.child(FirebaseUtils.LOCATION_REFERENCE))
                             : new ArrayList<>();
 
-                    snapshots.add(new Snapshot(date, courses, pupils, locations));
+                    List<Devoir> devoirs = snap.hasChild(FirebaseUtils.DEVOIR_REFERENCE) ?
+                            FirebaseUtils.extractDevoirsFromDataSnapshot(snap.child(FirebaseUtils.DEVOIR_REFERENCE))
+                            : new ArrayList<>();
+
+                    snapshots.add(new Snapshot(date, courses, pupils, locations, devoirs));
                 }
 
                 boolean noSnapshots = snapshots.isEmpty();

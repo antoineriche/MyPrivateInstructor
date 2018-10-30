@@ -16,17 +16,19 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.DatabaseListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.DatabaseItem;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.customviews.ItemCounterView;
-import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.customviews.MyCalendarView;
+import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.utils.CourseUtils;
-import com.antoineriche.privateinstructor.utils.StringUtils;
+import com.antoineriche.privateinstructor.utils.DateUtils;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class CalendarFragment extends Fragment implements MyCalendarView.MyCalendarClickListener {
 
@@ -36,7 +38,7 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
     public CalendarFragment() {
     }
 
-    public static CalendarFragment newInstance(){
+    public static CalendarFragment newInstance() {
         return new CalendarFragment();
     }
 
@@ -77,46 +79,63 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
     }
 
     private void setUpCalendarView() {
-        //FIXME use AsyncTask
-        List<Course> c = CourseTable.getAllCourses(mDBListener.getDatabase());
-        ((MyCalendarView) getView().findViewById(R.id.mcv)).setListCourses(c);
-        ((MyCalendarView) getView().findViewById(R.id.mcv)).setCalenderClickListener(this);
+        MyCalendarView mcv = getView().findViewById(R.id.mcv);
+        mcv.setUpCalendar(CourseTable.getAllCourses(mDBListener.getDatabase()),
+                DevoirTable.getAllDevoirs(mDBListener.getDatabase()), this);
     }
 
     @Override
-    public void clickOnDay(Date pDate, List<Course> pCourses) {
+    public void clickOnDay(Date pDate, List<Course> pCourses, List<Devoir> pDevoirs) {
         cvDetails.setVisibility(View.VISIBLE);
 
+        List<DatabaseItem> courses = new ArrayList<>();
+        List<DatabaseItem> devoirs = new ArrayList<>();
         pCourses.sort(Comparator.comparingLong(Course::getDate));
+        pDevoirs.sort(Comparator.comparingLong(Devoir::getDate));
 
-        ((TextView) cvDetails.findViewById(R.id.tv_day_details_title)).setText(StringUtils.capitalizeFirstChar(
-                new SimpleDateFormat("EEEE dd MMMM yyyy", Locale.FRANCE).format(pDate)));
+        ((TextView) cvDetails.findViewById(R.id.tv_day_details_title)).setText(DateUtils.getFriendlyDate(pDate));
 
         cvDetails.findViewById(R.id.iv_day_details_close).setOnClickListener(v -> cvDetails.setVisibility(View.GONE));
-
-        if(pCourses.isEmpty()){
+        //FIXME
+        if (pCourses.isEmpty()) {
             ((TextView) cvDetails.findViewById(R.id.tv_day_details_no_course)).setText("Pas de cours");
             cvDetails.findViewById(R.id.tv_day_details_no_course).setVisibility(View.VISIBLE);
             cvDetails.findViewById(R.id.rv_day_details_courses).setVisibility(View.GONE);
         } else {
+            courses.addAll(pCourses);
             cvDetails.findViewById(R.id.tv_day_details_no_course).setVisibility(View.GONE);
             RecyclerView rv = cvDetails.findViewById(R.id.rv_day_details_courses);
             rv.setVisibility(View.VISIBLE);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            rv.setAdapter(new RecyclerViewDailyCourseAdapter(pCourses));
+            rv.setAdapter(new DailyItemAdapter(courses));
+        }
+
+        if (pDevoirs.isEmpty()) {
+            ((TextView) cvDetails.findViewById(R.id.tv_day_details_no_devoir)).setText("Pas de devoir");
+            cvDetails.findViewById(R.id.tv_day_details_no_devoir).setVisibility(View.VISIBLE);
+            cvDetails.findViewById(R.id.rv_day_details_devoirs).setVisibility(View.GONE);
+        } else {
+            devoirs.addAll(pDevoirs);
+            cvDetails.findViewById(R.id.tv_day_details_no_devoir).setVisibility(View.GONE);
+            RecyclerView rv = cvDetails.findViewById(R.id.rv_day_details_devoirs);
+            rv.setVisibility(View.VISIBLE);
+            rv.setLayoutManager(new LinearLayoutManager(getContext()));
+            rv.setAdapter(new DailyItemAdapter(devoirs));
         }
     }
 
     @Override
-    public void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses) {
+    public void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses, List<Devoir> pDevoirs) {
         int courseCount = pCourses.size();
-        double monthCountMean = CourseTable.getMonthlyCourseCountMean(mDBListener.getDatabase());
-        ((ItemCounterView) getView().findViewById(R.id.icv_course)).setUpView(courseCount, monthCountMean);
+        double monthCourseCountMean = CourseTable.getMonthlyCourseCountMean(mDBListener.getDatabase());
+        ((ItemCounterView) getView().findViewById(R.id.icv_course)).setUpView(courseCount, monthCourseCountMean);
+
+        int devoirCount = pDevoirs.size();
+        double monthDevoirCountMean = DevoirTable.getMonthlyDevoirCountMean(mDBListener.getDatabase());
+        ((ItemCounterView) getView().findViewById(R.id.icv_devoir)).setUpView(devoirCount, monthDevoirCountMean);
 
         double money = CourseUtils.extractMoneySum(pCourses);
         double monthMoneyMean = CourseTable.getMonthlyMoneyMean(mDBListener.getDatabase());
-        ((ItemCounterView) getView().findViewById(R.id.icv_devoir)).setUpView(0, 2);
-
         ((ItemCounterView) getView().findViewById(R.id.icv_money)).setUpView(money, monthMoneyMean);
     }
 
@@ -156,6 +175,94 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
                 cvCell = itemView.findViewById(R.id.cv_course_cell);
                 tvCourseTime = itemView.findViewById(R.id.tv_course_time);
                 tvCoursePupil = itemView.findViewById(R.id.tv_course_pupil);
+            }
+        }
+    }
+
+    public static class RecyclerViewDailyDevoirAdapter extends RecyclerView.Adapter<RecyclerViewDailyDevoirAdapter.DevoirViewHolder> {
+
+        private List<Devoir> mDevoirs;
+
+        RecyclerViewDailyDevoirAdapter(List<Devoir> mDevoirs) {
+            this.mDevoirs = mDevoirs;
+        }
+
+        @NonNull
+        @Override
+        public DevoirViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_rv_daily_courses, parent, false);
+            return new DevoirViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DevoirViewHolder holder, int position) {
+            final Devoir devoir = mDevoirs.get(position);
+            holder.tvCoursePupil.setText(devoir.getPupil().getFullName());
+            holder.tvCourseTime.setText(String.valueOf(devoir.getState()));
+        }
+
+        @Override
+        public int getItemCount() {
+            return this.mDevoirs.size();
+        }
+
+        class DevoirViewHolder extends RecyclerView.ViewHolder {
+            CardView cvCell;
+            TextView tvCourseTime, tvCoursePupil;
+
+            DevoirViewHolder(View itemView) {
+                super(itemView);
+                cvCell = itemView.findViewById(R.id.cv_course_cell);
+                tvCourseTime = itemView.findViewById(R.id.tv_course_time);
+                tvCoursePupil = itemView.findViewById(R.id.tv_course_pupil);
+            }
+        }
+    }
+
+    public static class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.DailyItemHolder> {
+
+        private List<DatabaseItem> mItems;
+
+        DailyItemAdapter(List<DatabaseItem> pItems) {
+            this.mItems = pItems;
+        }
+
+        @NonNull
+        @Override
+        public DailyItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_rv_daily_items, parent, false);
+            return new DailyItemHolder(v);
+        }
+
+        @Override
+        public int getItemCount() {
+            if (!this.mItems.isEmpty()) {
+                DatabaseItem item = this.mItems.get(0);
+                return (item instanceof Course || item instanceof Devoir) ? this.mItems.size() : 0;
+            } else {
+                return 0;
+            }
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DailyItemHolder holder, int position) {
+            final DatabaseItem item = mItems.get(position);
+            if (item instanceof Course) {
+                holder.tvItemDetails.setText(((Course) item).getPupil().getFullName());
+                holder.tvItemLabel.setText(((Course) item).getFriendlyTimeSlot());
+            } else if (item instanceof Devoir) {
+                holder.tvItemLabel.setText(((Devoir) item).getPupil().getFullName());
+                holder.tvItemDetails.setVisibility(View.GONE);
+            }
+        }
+
+        class DailyItemHolder extends RecyclerView.ViewHolder {
+            TextView tvItemLabel, tvItemDetails;
+
+            DailyItemHolder(View itemView) {
+                super(itemView);
+                tvItemLabel = itemView.findViewById(R.id.tv_daily_item_label);
+                tvItemDetails = itemView.findViewById(R.id.tv_daily_item_details);
             }
         }
     }

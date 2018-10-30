@@ -218,6 +218,7 @@ public class SnapshotFragment extends Fragment  {
             snapshotHolder.tvCoursesCount.setText(String.valueOf(snapshot.getCourses().size()));
             snapshotHolder.tvPupilsCount.setText(String.valueOf(snapshot.getPupils().size()));
             snapshotHolder.tvLocationsCount.setText(String.valueOf(snapshot.getLocations().size()));
+            snapshotHolder.tvDevoirsCount.setText(String.valueOf(snapshot.getDevoirs().size()));
 
             snapshotHolder.ivSnapshotState.setVisibility(View.GONE);
             snapshotHolder.cvCell.setOnClickListener(view -> openChangeDatabaseDialog(snapshot));
@@ -230,7 +231,7 @@ public class SnapshotFragment extends Fragment  {
 
         class SnapshotViewHolder extends RecyclerView.ViewHolder {
             CardView cvCell;
-            TextView tvDate, tvTime, tvName, tvPupilsCount, tvCoursesCount, tvLocationsCount;
+            TextView tvDate, tvTime, tvName, tvPupilsCount, tvCoursesCount, tvDevoirsCount, tvLocationsCount;
             ImageView ivSnapshotState;
 
             SnapshotViewHolder(View itemView) {
@@ -240,6 +241,7 @@ public class SnapshotFragment extends Fragment  {
                 tvTime = itemView.findViewById(R.id.tv_snapshot_time);
                 tvName = itemView.findViewById(R.id.tv_snapshot_name);
                 tvCoursesCount = itemView.findViewById(R.id.tv_snapshot_courses_count);
+                tvDevoirsCount = itemView.findViewById(R.id.tv_snapshot_devoirs_count);
                 tvPupilsCount = itemView.findViewById(R.id.tv_snapshot_pupils_count);
                 tvLocationsCount = itemView.findViewById(R.id.tv_snapshot_locations_count);
                 ivSnapshotState = itemView.findViewById(R.id.iv_snapshot_state);

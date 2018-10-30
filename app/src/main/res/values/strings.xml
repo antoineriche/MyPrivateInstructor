@@ -29,11 +29,19 @@
     <!--Dialog-->
     <string name="dialog_delete_pupil">"En supprimant cet élève, tous ses cours et ses devoirs seront perdus. Souhaitez-vous vraiment supprimer cet élève ?"</string>
     <string name="dialog_delete_course">"Souhaitez-vous vraiment supprimer ce cours ?"</string>
+    <string name="dialog_delete_devoir">"Souhaitez-vous vraiment supprimer ce devoir ?"</string>
     <string name="dialog_update_database">"En changeant la base de données courantes, les données actuelles seront perdues. \nSouhaitez-vous faire une copie de votre base avant cette opération ?"</string>
 
 
     <string name="unknown_date">Unknown date</string>
     <string name="unknown_hour">Unknown hour</string>
+
+    <string-array name="event_states">
+        <item>À venir</item>
+        <item>Validé</item>
+        <item>En attente de validation</item>
+        <item>Annulé</item>
+    </string-array>
 
     <string-array name="course_states">
         <item>À venir</item>
@@ -41,6 +49,13 @@
         <item>En attente de validation</item>
         <item>Annulé</item>
     </string-array>
+
+    <string-array name="devoir_types">
+        <item>DST</item>
+        <item>DM</item>
+        <item>Interrogation</item>
+    </string-array>
+
 
     <string-array name="pupil_class_levels">
         <item>Sixième</item>

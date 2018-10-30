@@ -15,13 +15,13 @@
             android:background="@drawable/side_nav_bar">
 
             <ImageView
-                android:src="@drawable/ic_book_open_page_variant_white_48dp"
+                android:src="@drawable/ic_assignment_white_48dp"
                 android:tint="@color/unthemAccent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <TextView
-                android:id="@+id/tv_course_date"
+                android:id="@+id/tv_devoir_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content">
 
             <android.support.v7.widget.CardView
-                android:id="@+id/cv_course_pupil_details"
+                android:id="@+id/cv_devoir_pupil_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
@@ -59,7 +59,7 @@
                     android:padding="@dimen/lv_inter_margin">
 
                     <ImageView
-                        android:id="@+id/iv_course_pupil_pix"
+                        android:id="@+id/iv_devoir_pupil_pix"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:layout_alignParentStart="true"
@@ -71,12 +71,12 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_toEndOf="@+id/iv_course_pupil_pix"
+                        android:layout_toEndOf="@+id/iv_devoir_pupil_pix"
                         android:gravity="center_vertical"
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/tv_course_pupil_name"
+                            android:id="@+id/tv_devoir_pupil_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16dp"
@@ -84,7 +84,7 @@
                             android:text="First name Last name"/>
 
                         <TextView
-                            android:id="@+id/tv_course_pupil_class_level"
+                            android:id="@+id/tv_devoir_pupil_class_level"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/black"
@@ -96,14 +96,13 @@
 
             </android.support.v7.widget.CardView>
 
-
             <android.support.v7.widget.CardView
-                android:id="@+id/cv_course_money"
+                android:id="@+id/cv_devoir_money"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
                 android:layout_marginVertical="@dimen/vertical_lv_margin"
-                android:layout_below="@+id/cv_course_pupil_details">
+                android:layout_below="@+id/cv_devoir_pupil_details">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -123,7 +122,7 @@
                             android:text="Statut"/>
 
                         <TextView
-                            android:id="@+id/tv_course_status"
+                            android:id="@+id/tv_devoir_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -141,15 +140,14 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:textColor="@color/black"
-
-                            android:text="Rémunération"/>
+                            android:text="Note"/>
 
                         <TextView
-                            android:id="@+id/tv_course_money"
+                            android:id="@+id/tv_devoir_mark"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="25,00"/>
+                            android:text="15,50 / 20"/>
 
                     </RelativeLayout>
 
@@ -159,11 +157,11 @@
 
             <!--COMMENT-->
             <android.support.v7.widget.CardView
-                android:id="@+id/cv_course_comment"
+                android:id="@+id/cv_devoir_comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
-                android:layout_below="@+id/cv_course_money">
+                android:layout_below="@+id/cv_devoir_money">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -183,7 +181,7 @@
                             android:text="Chapitre"/>
 
                         <TextView
-                            android:id="@+id/tv_course_chapter"
+                            android:id="@+id/tv_devoir_chapter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -207,7 +205,7 @@
                             android:text="Commentaire"/>
 
                         <TextView
-                            android:id="@+id/tv_course_comment"
+                            android:id="@+id/tv_devoir_comment"
                             android:layout_width="wrap_content"
                             android:layout_toEndOf="@+id/tv_label_comment"
                             android:layout_height="wrap_content"
@@ -223,6 +221,5 @@
         </RelativeLayout>
 
     </ScrollView>
-
 
 </RelativeLayout>

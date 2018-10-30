@@ -9,6 +9,7 @@ import com.antoineriche.privateinstructor.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -86,26 +87,21 @@ public class CourseTable extends MyDatabaseTable {
         return cursorToListCourses(c, pSQLDatabase);
     }
 
-    public static List<Course> getCoursesForWeekOffset(SQLiteDatabase pSQLDatabase, int pWeekOffset) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.WEEK_OF_YEAR, pWeekOffset);
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        long startDate = calendar.getTimeInMillis();
+    public static List<Course> getCoursesBetweenTwoDates(SQLiteDatabase pSQLDatabase, Date pStart, Date pEnd){
+        return getCoursesBetweenTwoDates(pSQLDatabase, pStart.getTime(), pEnd.getTime());
+    }
 
-        calendar.add(Calendar.DAY_OF_YEAR, 6);
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        long endDate = calendar.getTimeInMillis();
-
-        String filterString = String.format(Locale.FRANCE, "%s BETWEEN '%d' AND '%d'", COL_DATE, startDate, endDate);
+    public static List<Course> getCoursesBetweenTwoDates(SQLiteDatabase pSQLDatabase, long pStartInMillis, long pEndInMillis){
+        String filterString = String.format(Locale.FRANCE, "%s BETWEEN '%d' AND '%d'", COL_DATE, pStartInMillis, pEndInMillis);
         String orderString = String.format(Locale.FRANCE, "%s ASC", COL_DATE);
-
         Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, filterString , null, null, null, orderString);
         return cursorToListCourses(c, pSQLDatabase);
+    }
+
+    public static List<Course> getCoursesForWeekOffset(SQLiteDatabase pSQLDatabase, int pWeekOffset) {
+        Date start = DateUtils.getFirstSecondOfWeekOffsetFromNow(pWeekOffset);
+        Date end = DateUtils.getLastSecondOfWeekOffsetFromNow(pWeekOffset);
+        return getCoursesBetweenTwoDates(pSQLDatabase, start, end);
     }
 
     public static List<Course> getAllCourses(SQLiteDatabase pSQLDatabase){

@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.DatabaseListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.customviews.ItemCounterView;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.utils.CourseUtils;
 import com.antoineriche.privateinstructor.utils.DateUtils;
 import com.antoineriche.privateinstructor.utils.StringUtils;
@@ -121,8 +123,8 @@ public class HomeFragment extends AbstractDatabaseFragment {
         double money = CourseUtils.extractMoneySum(weekCourses);
         ((ItemCounterView) getView().findViewById(R.id.icv_week_money)).setUpView(StringUtils.formatDouble(money));
 
-        //TODO
-        int devoirCount = 0;
+        List<Devoir> weekDevoirs = DevoirTable.getDevoirsForWeekOffset(mListener.getDatabase(), pWeekOffset);
+        int devoirCount = weekDevoirs.size();
         ((ItemCounterView) getView().findViewById(R.id.icv_week_devoirs)).setUpView(String.valueOf(devoirCount));
     }
 

@@ -57,6 +57,55 @@ public class DateUtils {
         return calendar.getTime();
     }
 
+    public static Date getFirstSecondOfWeekOffsetFromNow(int pWeekOffset){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.WEEK_OF_YEAR, pWeekOffset);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        return getFirstSecondOfTheDay(calendar.getTime());
+    }
+
+    public static Date getLastSecondOfWeekOffsetFromNow(int pWeekOffset){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.WEEK_OF_YEAR, pWeekOffset);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        calendar.add(Calendar.DAY_OF_YEAR, 6);
+        return getLastSecondOfTheDay(calendar.getTime());
+    }
+
+    public static Date getFirstSecondOfWeek(Date pDateInWeek){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pDateInWeek);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        return getFirstSecondOfTheDay(calendar.getTime());
+    }
+
+    public static Date getLastSecondOfWeek(Date pDateInWeek){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pDateInWeek);
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+        calendar.add(Calendar.DAY_OF_YEAR, 6);
+        return getLastSecondOfTheDay(calendar.getTime());
+    }
+
+    public static int getDayCountOfMonth(Date pDayInMonth){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pDayInMonth);
+        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+
+    public static Date getFirstDayOfMonth(Date pDayInMonth){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pDayInMonth);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        return calendar.getTime();
+    }
+
+    public static int getMonthIndex(Date pDayInMonth){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pDayInMonth);
+        return calendar.get(Calendar.MONTH);
+    }
+
     public static boolean isToday(Date pDate){
         Calendar c1 = Calendar.getInstance();
         Calendar c2 = Calendar.getInstance();

@@ -98,20 +98,66 @@
 
                 </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/tv_day_details_no_course"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/vertical_lv_margin"
-                    android:layout_marginHorizontal="@dimen/horizontal_lv_margin"
-                    android:text="Pas de cours"/>
+                    android:weightSum="10"
+                    android:orientation="horizontal"
+                    android:layout_margin="@dimen/vertical_lv_margin">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_day_details_courses"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/vertical_lv_margin"
-                    android:layout_marginHorizontal="@dimen/horizontal_lv_margin"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="6"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textColor="@color/themPrimaryDark"
+                            android:text="Cours"/>
+
+                        <TextView
+                            android:id="@+id/tv_day_details_no_course"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Pas de cours"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_day_details_courses"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="4"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textColor="@color/themPrimaryDark"
+                            android:text="Devoirs"/>
+
+                        <TextView
+                            android:id="@+id/tv_day_details_no_devoir"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Pas de devoir"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_day_details_devoirs"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
             </LinearLayout>
 

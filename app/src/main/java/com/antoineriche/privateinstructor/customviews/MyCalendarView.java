@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
@@ -29,8 +30,14 @@ import java.util.stream.Collectors;
 
 public class MyCalendarView extends LinearLayout {
 
+    private static final String TAG = MyCalendarView.class.getSimpleName();
+
     private static int currentMonthOffset = 0;
-    private final MyCalendarViewAdapter adapter;
+    private Date firstDayOfMonth;
+    private MyCalendarViewAdapter adapter;
+    protected MyCalendarClickListener mListener;
+    protected List<Course> mCourses = new ArrayList<>();
+    protected List<Devoir> mDevoirs = new ArrayList<>();
 
     public MyCalendarView(Context context) {
         this(context, null);
@@ -38,7 +45,6 @@ public class MyCalendarView extends LinearLayout {
 
     public MyCalendarView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        this.adapter = new MyCalendarViewAdapter(new Date());
         init();
     }
 
@@ -47,6 +53,7 @@ public class MyCalendarView extends LinearLayout {
         findViewById(R.id.iv_next_month).setOnClickListener(v -> { currentMonthOffset++; refreshCalendar(currentMonthOffset);});
         findViewById(R.id.iv_previous_month).setOnClickListener(v -> { currentMonthOffset--; refreshCalendar(currentMonthOffset);});
 
+        this.adapter = new MyCalendarViewAdapter(new Date());
         RecyclerView rv = findViewById(R.id.rv_month_days);
         rv.setLayoutManager(new GridLayoutManager(getContext(), 7));
         rv.setAdapter(this.adapter);
@@ -57,19 +64,16 @@ public class MyCalendarView extends LinearLayout {
     private void refreshCalendar(int currentMonthOffset) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MONTH, currentMonthOffset);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        Date firstDayOfMonth = calendar.getTime();
-        this.adapter.updateFirstDayOfMonth(firstDayOfMonth);
-
+        this.firstDayOfMonth = DateUtils.getFirstDayOfMonth(calendar.getTime());
+        this.adapter.refreshView();
         ((TextView) findViewById(R.id.tv_month_label)).setText(new SimpleDateFormat("MMMM yyyy", Locale.FRANCE).format(calendar.getTime()));
     }
 
-    public void setListCourses(List<Course> courses){
-        this.adapter.setListCourses(courses);
-    }
-
-    public void setCalenderClickListener(MyCalendarClickListener pListener){
-        this.adapter.addCalendarClickListener(pListener);
+    public void setUpCalendar(List<Course> courses, List<Devoir> devoirs, MyCalendarClickListener pListener){
+        this.mListener = pListener;
+        this.mCourses = courses;
+        this.mDevoirs = devoirs;
+        this.adapter.refreshView();
     }
 
     public void cleanSelection(){
@@ -83,27 +87,21 @@ public class MyCalendarView extends LinearLayout {
      */
     class MyCalendarViewAdapter extends RecyclerView.Adapter<MyCalendarViewAdapter.ViewHolder> {
 
-        private Date firstDayOfMonth;
         private int currentMonth;
-        private List<Course> courses;
         private List<Course> monthlyCourses;
-        private MyCalendarClickListener mClickListener;
+        private List<Devoir> monthlyDevoirs;
         private Date selectedDate;
 
-        private int getDayCountInMonth(){
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(firstDayOfMonth);
-            return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        }
-
+        //FIXME
         private int getBeforeDayOffset(){
             Calendar calendar = Calendar.getInstance(Locale.FRENCH);
             int firstOfWeek = calendar.getFirstDayOfWeek();
-            calendar.setTime(this.firstDayOfMonth);
+            calendar.setTime(firstDayOfMonth);
             int current = calendar.get(Calendar.DAY_OF_WEEK);
             return Math.abs(current - firstOfWeek);
         }
 
+        //FIXME
         private int getAfterDayOffset(){
             Calendar calendar = Calendar.getInstance(Locale.FRENCH);
             calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
@@ -111,7 +109,7 @@ public class MyCalendarView extends LinearLayout {
 
             int lastOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
-            calendar.setTime(this.firstDayOfMonth);
+            calendar.setTime(firstDayOfMonth);
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 
             int current = calendar.get(Calendar.DAY_OF_WEEK);
@@ -120,35 +118,38 @@ public class MyCalendarView extends LinearLayout {
         }
 
         /**
-         *
+         * Method called to update all the calendar view
          */
-        // Method called to update all the calendar view
-        private void updateFirstDayOfMonth(Date pDate){
-            this.firstDayOfMonth = pDate;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(pDate);
-
-            this.currentMonth = calendar.get(Calendar.MONTH);
-            this.monthlyCourses = getMonthlyCourses(this.firstDayOfMonth);
-//            updateCourseCount(this.monthlyCourses.size());
+        void refreshView(){
+            updateMonthlyLists();
             notifyDataSetChanged();
 
-            if(this.mClickListener != null) {
-                this.mClickListener.monthChanged(this.firstDayOfMonth, this.monthlyCourses);
+            if(mListener != null) {
+                mListener.monthChanged(firstDayOfMonth, this.monthlyCourses, this.monthlyDevoirs);
             }
         }
-        /**
-         *
-         */
+
+        private void updateMonthlyLists() {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(firstDayOfMonth);
+            currentMonth = calendar.get(Calendar.MONTH);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+            this.monthlyCourses = mCourses.stream().filter(c -> c.isBetweenDates(
+                    DateUtils.getFirstSecondOfTheDay(firstDayOfMonth),
+                    DateUtils.getLastSecondOfTheDay(calendar.getTime())
+            )).collect(Collectors.toList());
+
+            this.monthlyDevoirs = mDevoirs.stream().filter(d -> d.isBetweenDates(
+                    DateUtils.getFirstSecondOfTheDay(firstDayOfMonth),
+                    DateUtils.getLastSecondOfTheDay(calendar.getTime())
+            )).collect(Collectors.toList());
+        }
 
         MyCalendarViewAdapter(Date pDate) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(pDate);
-            calendar.set(Calendar.DAY_OF_MONTH, 1);
-            this.firstDayOfMonth = calendar.getTime();
-            this.currentMonth = calendar.get(Calendar.MONTH);
-            this.courses = new ArrayList<>();
+            this.currentMonth = DateUtils.getMonthIndex(pDate);
             this.monthlyCourses = new ArrayList<>();
+            this.monthlyDevoirs = new ArrayList<>();
         }
 
         @NonNull
@@ -161,27 +162,32 @@ public class MyCalendarView extends LinearLayout {
         @Override
         public void onBindViewHolder(@NonNull MyCalendarViewAdapter.ViewHolder holder, int position) {
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(this.firstDayOfMonth);
+            calendar.setTime(firstDayOfMonth);
             calendar.add(Calendar.DAY_OF_YEAR, position - getBeforeDayOffset());
 
             holder.tvDayNumber.setText(String.format(Locale.FRANCE, "%d", calendar.get(Calendar.DAY_OF_MONTH)));
             List<Course> dailyCourses = monthlyCourses.stream().filter(course -> course.isTheGoodDay(calendar.getTime())).collect(Collectors.toList());
+            List<Devoir> dailyDevoirs = monthlyDevoirs.stream().filter(devoir -> devoir.isTheGoodDay(calendar.getTime())).collect(Collectors.toList());
 
             if(!dailyCourses.isEmpty()) {
                 holder.tvCourseCounter.setText(String.format(Locale.FRANCE, " x%d", dailyCourses.size()));
                 holder.ivCourse.setVisibility(VISIBLE);
             } else {
                 holder.tvCourseCounter.setText(null);
-                holder.ivCourse.setVisibility(INVISIBLE);
+                holder.ivCourse.setVisibility(GONE);
             }
 
-            //FIXME
-            holder.tvDevoirCounter.setText(null);
-            holder.ivDevoir.setVisibility(INVISIBLE);
+            if(!dailyDevoirs.isEmpty()) {
+                holder.tvDevoirCounter.setText(String.format(Locale.FRANCE, " x%d", dailyDevoirs.size()));
+                holder.ivDevoir.setVisibility(VISIBLE);
+            } else {
+                holder.tvDevoirCounter.setText(null);
+                holder.ivDevoir.setVisibility(GONE);
+            }
 
             holder.rlDayCell.setOnClickListener(v -> {
-                if(mClickListener != null){
-                    mClickListener.clickOnDay(calendar.getTime(), dailyCourses);
+                if(mListener != null){
+                    mListener.clickOnDay(calendar.getTime(), dailyCourses, dailyDevoirs);
                 }
             });
 
@@ -197,7 +203,7 @@ public class MyCalendarView extends LinearLayout {
 
         @Override
         public int getItemCount() {
-            return getDayCountInMonth() + getBeforeDayOffset() + getAfterDayOffset();
+            return DateUtils.getDayCountOfMonth(firstDayOfMonth) + getBeforeDayOffset() + getAfterDayOffset();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -216,33 +222,13 @@ public class MyCalendarView extends LinearLayout {
             }
         }
 
-        void setListCourses(List<Course> pCourses){
-            this.courses = pCourses;
-            this.monthlyCourses = getMonthlyCourses(this.firstDayOfMonth);
-            notifyDataSetChanged();
-        }
-
-        void addCalendarClickListener(MyCalendarClickListener mListener){
-            this.mClickListener = mListener;
-            this.mClickListener.monthChanged(this.firstDayOfMonth, this.monthlyCourses);
-        }
-
-        private List<Course> getMonthlyCourses(Date pFirstDayOfMonth){
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(pFirstDayOfMonth);
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-            return this.courses.stream().filter(course -> course.isBetweenDates(
-                    DateUtils.getFirstSecondOfTheDay(this.firstDayOfMonth),
-                    DateUtils.getLastSecondOfTheDay(calendar.getTime())
-            )).collect(Collectors.toList());
-        }
     }
 
     /**
      * MyCalendarView interface
      */
     public interface MyCalendarClickListener {
-        void clickOnDay(Date pDate, List<Course> pCourses);
-        void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses);
+        void clickOnDay(Date pDate, List<Course> pCourses, List<Devoir> pDevoirs);
+        void monthChanged(Date pFirstDayOfMonth, List<Course> pCourses, List<Devoir> pDevoirs);
     }
 }

@@ -20,9 +20,11 @@ import com.antoineriche.privateinstructor.activities.item.AbstractFormItemFragme
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.adapters.SpinnerPupilAdapter;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.EventItem;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.database.PupilTable;
+import com.antoineriche.privateinstructor.utils.DateUtils;
 import com.antoineriche.privateinstructor.utils.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -75,10 +77,8 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         } else if(getString(R.string.unknown_hour).contentEquals(((TextView) view.findViewById(R.id.tv_course_hour)).getText())){
             throw new IllegalArgumentException("Invalid hour");
         } else {
-            Log.e(getClass().getSimpleName(), "All params are good for date updating");
             c.setDate(mCalendar.getTimeInMillis());
-            Log.e(getClass().getSimpleName(), "New date : " + c.getDate() + " (" + mCalendar.getTime() + ")");
-            c.setState(new Date().after(new Date(c.getDate())) ? Course.WAITING_FOT_VALIDATION : Course.FORESEEN);
+            c.setState(new Date().after(new Date(c.getDate())) ? Course.WAITING_FOR_VALIDATION : Course.FORESEEN);
         }
 
         // MONEY
@@ -91,16 +91,16 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         // DURATION
         switch (((RadioGroup) view.findViewById(R.id.rg_course_duration)).getCheckedRadioButtonId()) {
             case R.id.rb_course_duration_60:
-                c.setDuration(Course.DURATION_1H);
+                c.setDuration(EventItem.DURATION_1H);
                 break;
             case R.id.rb_course_duration_90:
-                c.setDuration(Course.DURATION_1H30);
+                c.setDuration(EventItem.DURATION_1H30);
                 break;
             case R.id.rb_course_duration_120:
-                c.setDuration(Course.DURATION_2H);
+                c.setDuration(EventItem.DURATION_2H);
                 break;
             default:
-                c.setDuration(Course.DURATION_1H);
+                c.setDuration(EventItem.DURATION_1H);
                 break;
         }
 
@@ -123,23 +123,21 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         spinner.setSelection(index);
         ((MySelectorListener) spinner.getOnItemSelectedListener()).computeBasicPrice(course.getMoney());
 
-        ((TextView) view.findViewById(R.id.tv_course_hour)).setText(new SimpleDateFormat("HH'h'mm", Locale.FRANCE)
-                .format(course.getDate()));
-        ((TextView) view.findViewById(R.id.tv_course_date)).setText(new SimpleDateFormat("EEEE dd MM yyyy", Locale.FRANCE)
-                .format(course.getDate()));
+        ((TextView) view.findViewById(R.id.tv_course_hour)).setText(DateUtils.getFriendlyHour(course.getDate()));
+        ((TextView) view.findViewById(R.id.tv_course_date)).setText(DateUtils.getFriendlyDate(course.getDate()));
 
         ((EditText) view.findViewById(R.id.et_course_chapter)).setText(course.getChapter());
         ((EditText) view.findViewById(R.id.et_course_comment)).setText(course.getComment());
 
 
         switch (course.getDuration()) {
-            case Course.DURATION_1H:
+            case EventItem.DURATION_1H:
                 ((RadioButton) view.findViewById(R.id.rb_course_duration_60)).setChecked(true);
                 break;
-            case Course.DURATION_1H30:
+            case EventItem.DURATION_1H30:
                 ((RadioButton) view.findViewById(R.id.rb_course_duration_90)).setChecked(true);
                 break;
-            case Course.DURATION_2H:
+            case EventItem.DURATION_2H:
                 ((RadioButton) view.findViewById(R.id.rb_course_duration_120)).setChecked(true);
                 break;
             default:
@@ -210,16 +208,14 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
         mCalendar.set(Calendar.YEAR, year);
         mCalendar.set(Calendar.MONTH, monthOfYear);
         mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        ((TextView)getView().findViewById(R.id.tv_course_date)).setText(new SimpleDateFormat("dd MM yyyy", Locale.FRANCE)
-                .format(mCalendar.getTime()));
+        ((TextView)getView().findViewById(R.id.tv_course_date)).setText(DateUtils.getFriendlyDate(mCalendar.getTime()));
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         mCalendar.set(Calendar.MINUTE, minute);
-        ((TextView)getView().findViewById(R.id.tv_course_hour)).setText(new SimpleDateFormat("HH:mm", Locale.FRANCE)
-                .format(mCalendar.getTime()));
+        ((TextView)getView().findViewById(R.id.tv_course_hour)).setText(DateUtils.getFriendlyHour(mCalendar.getTime()));
     }
 
     private static class MySelectorListener implements AdapterView.OnItemSelectedListener, RadioGroup.OnCheckedChangeListener {

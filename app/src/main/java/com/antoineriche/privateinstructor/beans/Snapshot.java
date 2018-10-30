@@ -13,13 +13,15 @@ public class Snapshot implements Serializable {
     private List<Course> mCourses;
     private List<Pupil> mPupils;
     private List<Location> mLocations;
+    private List<Devoir> mDevoirs;
 
-    public Snapshot(Date mDate, List<Course> pCourses, List<Pupil> pPupils, List<Location> pLocations) {
+    public Snapshot(Date mDate, List<Course> pCourses, List<Pupil> pPupils, List<Location> pLocations, List<Devoir> pDevoirs) {
         this.mName = SnapshotFactory.createSnapshotName(mDate);
         this.mDate = mDate;
         this.mCourses = pCourses;
         this.mPupils = pPupils;
         this.mLocations = pLocations;
+        this.mDevoirs = pDevoirs;
     }
 
     public String getName() {
@@ -60,5 +62,13 @@ public class Snapshot implements Serializable {
 
     public void setLocations(List<Location> pLocations) {
         this.mLocations = pLocations;
+    }
+
+    public List<Devoir> getDevoirs() {
+        return mDevoirs;
+    }
+
+    public void setDevoirs(List<Devoir> pDevoirs) {
+        this.mDevoirs = pDevoirs;
     }
 }

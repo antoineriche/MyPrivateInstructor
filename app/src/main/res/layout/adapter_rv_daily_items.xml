@@ -10,7 +10,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_course_time"
+                android:id="@+id/tv_daily_item_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="18h30 - 19h30"
@@ -18,7 +18,7 @@
                 android:layout_marginEnd="@dimen/lv_inter_margin"/>
 
             <TextView
-                android:id="@+id/tv_course_pupil"
+                android:id="@+id/tv_daily_item_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Antoine"

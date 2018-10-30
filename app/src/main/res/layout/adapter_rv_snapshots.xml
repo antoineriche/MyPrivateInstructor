@@ -77,7 +77,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginEnd="5dp"
-                            android:tint="@color/black"
+                            android:tint="@color/themPrimaryDark"
                             android:src="@drawable/ic_supervisor_account_white_48dp"/>
 
                         <TextView
@@ -101,7 +101,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginEnd="5dp"
-                            android:tint="@color/black"
+                            android:tint="@color/themPrimaryDark"
                             android:src="@drawable/ic_book_open_page_variant_white_48dp"/>
 
                         <TextView
@@ -125,7 +125,31 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginEnd="5dp"
-                            android:tint="@color/black"
+                            android:tint="@color/themPrimaryDark"
+                            android:src="@drawable/ic_assignment_white_48dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_snapshot_devoirs_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:textColor="@color/black"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginEnd="5dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="5dp"
+                            android:tint="@color/themPrimaryDark"
                             android:src="@drawable/baseline_public_white_48"/>
 
                         <TextView

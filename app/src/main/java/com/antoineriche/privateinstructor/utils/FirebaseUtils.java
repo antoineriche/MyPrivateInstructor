@@ -6,10 +6,12 @@ import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.Location;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.beans.Snapshot;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.database.LocationTable;
 import com.antoineriche.privateinstructor.database.PupilTable;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +34,7 @@ public class FirebaseUtils {
 
     public final static String DATA_REFERENCE = "data";
     public final static String COURSE_REFERENCE = "courses";
+    public final static String DEVOIR_REFERENCE = "devoirs";
     public final static String PUPIL_REFERENCE = "pupils";
     public final static String LOCATION_REFERENCE = "locations";
     public final static String SNAPSHOT_REFERENCE = "snapshots";
@@ -54,6 +57,10 @@ public class FirebaseUtils {
 
     public static DatabaseReference getLocationReference(){
         return getDataReference().child(LOCATION_REFERENCE);
+    }
+
+    public static DatabaseReference getDevoirReference(){
+        return getDataReference().child(DEVOIR_REFERENCE);
     }
 
     private static DatabaseReference getSnapshotReference(){
@@ -81,6 +88,10 @@ public class FirebaseUtils {
         Map<String, Map<String, Object>> courses = new HashMap<>();
         CourseTable.getAllCourses(pDatabase).forEach(c -> courses.put(c.generateDatabaseId(), c.toMap()));
         root.put(COURSE_REFERENCE, courses);
+
+        Map<String, Map<String, Object>> devoirs = new HashMap<>();
+        DevoirTable.getAllDevoirs(pDatabase).forEach(c -> devoirs.put(c.generateDatabaseId(), c.toMap()));
+        root.put(DEVOIR_REFERENCE, devoirs);
 
         Map<String, Map<String, Object>> pupils = new HashMap<>();
         PupilTable.getAllPupils(pDatabase).forEach(p -> pupils.put(p.generateDatabaseId(), p.toMap()));
@@ -117,7 +128,8 @@ public class FirebaseUtils {
         return new Snapshot(SnapshotFactory.extractDateFromSnapshot(pDataSnapshot.getKey()),
                 extractCoursesFromDataSnapshot(pDataSnapshot.child(COURSE_REFERENCE)),
                 extractPupilsFromDataSnapshot(pDataSnapshot.child(PUPIL_REFERENCE)),
-                extractLocationsFromDataSnapshot(pDataSnapshot.child(LOCATION_REFERENCE)));
+                extractLocationsFromDataSnapshot(pDataSnapshot.child(LOCATION_REFERENCE)),
+                extractDevoirsFromDataSnapshot(pDataSnapshot.child(DEVOIR_REFERENCE)));
     }
 
     public static List<Course> extractCoursesFromDataSnapshot(DataSnapshot pDataSnapshot){
@@ -165,6 +177,21 @@ public class FirebaseUtils {
         return list;
     }
 
+    public static List<Devoir> extractDevoirsFromDataSnapshot(DataSnapshot pDataSnapshot){
+        List<Devoir> list = new ArrayList<>();
+        for (DataSnapshot snap : pDataSnapshot.getChildren()){
+            Devoir devoir;
+            try {
+                devoir = snap.getValue(Devoir.class);
+            } catch (Exception e){
+                Log.e(TAG, "Error while retrieving location, this one is malformed, only keep id");
+                devoir = new Devoir(Long.valueOf(snap.getKey()));
+            }
+            list.add(devoir);
+        }
+        return list;
+    }
+
     public static void getDataFromFirebase(FirebaseListener pListener){
         getDataReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -181,6 +208,10 @@ public class FirebaseUtils {
                 pListener.onRemoteLocations(dataSnapshot.hasChild(LOCATION_REFERENCE) ?
                         extractLocationsFromDataSnapshot(dataSnapshot.child(LOCATION_REFERENCE))
                         : new ArrayList<>());
+
+                pListener.onRemoteDevoirs(dataSnapshot.hasChild(DEVOIR_REFERENCE) ?
+                        extractDevoirsFromDataSnapshot(dataSnapshot.child(DEVOIR_REFERENCE))
+                        : new ArrayList<>());
             }
 
             @Override
@@ -194,6 +225,7 @@ public class FirebaseUtils {
         void onRemoteCourses(List<Course> pCourses);
         void onRemotePupils(List<Pupil> pPupils);
         void onRemoteLocations(List<Location> pLocations);
+        void onRemoteDevoirs(List<Devoir> pDevoirs);
         void cancelled(String pError);
     }
 }
