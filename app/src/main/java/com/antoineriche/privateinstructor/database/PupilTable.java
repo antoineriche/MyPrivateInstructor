@@ -166,9 +166,9 @@ public class PupilTable extends MyDatabaseTable {
             c.moveToFirst();
 
             while (!c.isAfterLast()) {
-                Pupil pupil = new Pupil(c);
-                pupil.setLocation(LocationTable.getLocationWithUuid(pSQLDatabase, pupil.getLocationUuid()));
-                list.add(pupil);
+//                Pupil pupil = new Pupil(c);
+//                pupil.setLocation(LocationTable.getLocationWithUuid(pSQLDatabase, pupil.getLocationUuid()));
+                list.add(new Pupil(c));
                 c.moveToNext();
             }
             c.close();

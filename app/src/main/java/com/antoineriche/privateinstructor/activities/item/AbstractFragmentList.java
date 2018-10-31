@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,21 +24,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
+import com.antoineriche.privateinstructor.beans.DatabaseItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractFragmentList extends Fragment {
 
     private FragmentListListener mListener;
-    private List mListItems;
+    private List<DatabaseItem> mListItems;
+    private RecyclerView.Adapter mRVAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mListItems = new ArrayList();
+        mListItems = new ArrayList<>();
     }
 
     @Override
@@ -52,35 +56,9 @@ public abstract class AbstractFragmentList extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         new GetList(this.mListener).execute();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle(title());
-        getRecyclerView().setLayoutManager(new LinearLayoutManager(getContext()));
-        setUpRecyclerView();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_shuffle) {
-            Collections.shuffle(mListItems);
-            getRecyclerView().getAdapter().notifyDataSetChanged();
-        }
-        return true;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.list_menu, menu);
-        Drawable drawable = menu.findItem(R.id.action_shuffle).getIcon();
-
-        drawable = DrawableCompat.wrap(drawable);
-        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
     }
 
     @Override
@@ -99,45 +77,79 @@ public abstract class AbstractFragmentList extends Fragment {
         mListener = null;
     }
 
-    public List getItems() {
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setUpRecyclerView(getRecyclerView());
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.list_menu, menu);
+        Drawable drawable = menu.findItem(R.id.action_shuffle).getIcon();
+
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, ContextCompat.getColor(getActivity(), R.color.white));
+    }
+
+
+    private void setUpRecyclerView(RecyclerView recyclerView){
+        mRVAdapter = initAdapter(getListItems(), mListener);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(mRVAdapter);
+    }
+
+    public List<DatabaseItem> getListItems() {
         return mListItems;
     }
 
-    private void setUpRecyclerView(){
-        getRecyclerView().setAdapter(getAdapter(mListItems, mListener));
-    }
-
-    private void refreshList(List pList){
-        this.mListItems.clear();
-        this.mListItems.addAll(pList);
-        getRecyclerView().getAdapter().notifyDataSetChanged();
-    }
-
-    private void startGettingItems(){
-        ((TextView) getView().findViewById(R.id.tv_progress_label)).setText("Récupération des nachos");
-    }
-
-    private void itemsRetrieved(List pList){
-        getView().findViewById(R.id.ll_list_progress).setVisibility(View.GONE);
-        refreshList(pList);
-    }
-
-    private RecyclerView getRecyclerView(){
+    protected RecyclerView getRecyclerView(){
         return getView().findViewById(R.id.rv_list_item);
     }
 
-    protected void refreshListItems(){
-        getRecyclerView().getAdapter().notifyDataSetChanged();
+    protected RecyclerView.Adapter getAdapter(){
+        return mRVAdapter;
+    }
+
+    private void startGettingItems(){
+        mListItems.clear();
+        ((TextView) getView().findViewById(R.id.tv_progress_label)).setText("Récupération des nachos");
+    }
+
+    private void onItemsFromDatabase(List<DatabaseItem> pItemsFromDatabase){
+        getView().findViewById(R.id.ll_list_progress).setVisibility(View.GONE);
+        mListItems.addAll(pItemsFromDatabase);
+        refreshRecyclerViewData(mListItems);
+    }
+
+    protected void refreshRecyclerViewData(List<DatabaseItem> pNewData){
+        getAdapter().notifyDataSetChanged();
+    }
+
+
+
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_shuffle) {
+            Collections.shuffle(mListItems);
+            refreshRecyclerViewData(mListItems);
+        } else if (item.getItemId() == R.id.action_order) {
+            refreshRecyclerViewData(order(mListItems));
+        }
+        return true;
     }
 
     protected abstract Class<? extends Activity> getAddingActivity();
-    protected abstract List getItemsFromDB(SQLiteDatabase database);
-    protected abstract String title();
-    protected abstract RecyclerView.Adapter getAdapter(List pListItems, FragmentListListener pListener);
+    protected abstract List<DatabaseItem> order(List<DatabaseItem> pItemsToOrder);
+    protected abstract List<DatabaseItem> getItemsFromDB(SQLiteDatabase database);
+    protected abstract RecyclerView.Adapter initAdapter(List<DatabaseItem> pListItems, FragmentListListener pListener);
 
 
     //FIXME make it static
-    public class GetList extends AsyncTask<Void, Integer, List>{
+    public class GetList extends AsyncTask<Void, Integer, List<DatabaseItem>>{
 
         private FragmentListListener mListener;
 
@@ -152,7 +164,7 @@ public abstract class AbstractFragmentList extends Fragment {
         }
 
         @Override
-        protected List doInBackground(Void... params) {
+        protected List<DatabaseItem> doInBackground(Void... params) {
             return getItemsFromDB(mListener.getDatabase());
         }
 
@@ -162,16 +174,10 @@ public abstract class AbstractFragmentList extends Fragment {
         }
 
         @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-
-        @Override
-        protected void onPostExecute(List list) {
+        protected void onPostExecute(List<DatabaseItem> list) {
             super.onPostExecute(list);
-            itemsRetrieved(list);
+            onItemsFromDatabase(list);
         }
-
     }
 
 

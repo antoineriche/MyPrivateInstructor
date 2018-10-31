@@ -51,7 +51,6 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle("Calendrier");
         setUpCalendarView();
     }
 
@@ -137,86 +136,6 @@ public class CalendarFragment extends Fragment implements MyCalendarView.MyCalen
         double money = CourseUtils.extractMoneySum(pCourses);
         double monthMoneyMean = CourseTable.getMonthlyMoneyMean(mDBListener.getDatabase());
         ((ItemCounterView) getView().findViewById(R.id.icv_money)).setUpView(money, monthMoneyMean);
-    }
-
-    public static class RecyclerViewDailyCourseAdapter extends RecyclerView.Adapter<RecyclerViewDailyCourseAdapter.CourseViewHolder> {
-
-        private List<Course> mCourses;
-
-        RecyclerViewDailyCourseAdapter(List<Course> mCourses) {
-            this.mCourses = mCourses;
-        }
-
-        @NonNull
-        @Override
-        public CourseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_rv_daily_courses, parent, false);
-            return new CourseViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-            final Course course = mCourses.get(position);
-            holder.tvCoursePupil.setText(course.getPupil().getFullName());
-            holder.tvCourseTime.setText(course.getFriendlyTimeSlot());
-        }
-
-        @Override
-        public int getItemCount() {
-            return this.mCourses.size();
-        }
-
-        class CourseViewHolder extends RecyclerView.ViewHolder {
-            CardView cvCell;
-            TextView tvCourseTime, tvCoursePupil;
-
-            CourseViewHolder(View itemView) {
-                super(itemView);
-                cvCell = itemView.findViewById(R.id.cv_course_cell);
-                tvCourseTime = itemView.findViewById(R.id.tv_course_time);
-                tvCoursePupil = itemView.findViewById(R.id.tv_course_pupil);
-            }
-        }
-    }
-
-    public static class RecyclerViewDailyDevoirAdapter extends RecyclerView.Adapter<RecyclerViewDailyDevoirAdapter.DevoirViewHolder> {
-
-        private List<Devoir> mDevoirs;
-
-        RecyclerViewDailyDevoirAdapter(List<Devoir> mDevoirs) {
-            this.mDevoirs = mDevoirs;
-        }
-
-        @NonNull
-        @Override
-        public DevoirViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_rv_daily_courses, parent, false);
-            return new DevoirViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull DevoirViewHolder holder, int position) {
-            final Devoir devoir = mDevoirs.get(position);
-            holder.tvCoursePupil.setText(devoir.getPupil().getFullName());
-            holder.tvCourseTime.setText(String.valueOf(devoir.getState()));
-        }
-
-        @Override
-        public int getItemCount() {
-            return this.mDevoirs.size();
-        }
-
-        class DevoirViewHolder extends RecyclerView.ViewHolder {
-            CardView cvCell;
-            TextView tvCourseTime, tvCoursePupil;
-
-            DevoirViewHolder(View itemView) {
-                super(itemView);
-                cvCell = itemView.findViewById(R.id.cv_course_cell);
-                tvCourseTime = itemView.findViewById(R.id.tv_course_time);
-                tvCoursePupil = itemView.findViewById(R.id.tv_course_pupil);
-            }
-        }
     }
 
     public static class DailyItemAdapter extends RecyclerView.Adapter<DailyItemAdapter.DailyItemHolder> {

@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
+import com.antoineriche.privateinstructor.database.LocationTable;
 import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.io.File;
@@ -54,6 +56,8 @@ public class PupilActivity extends AbstractItemActivity {
     public Pupil getItemFromDb(long pId) {
         Pupil pupil = PupilTable.getPupilWithId(getDatabase(), pId);
         pupil.setCourses(CourseTable.getCoursesForPupil(getDatabase(), pupil.getUuid()));
+        pupil.setLocation(LocationTable.getLocationWithUuid(getDatabase(), pupil.getLocationUuid()));
+        pupil.setDevoirs(DevoirTable.getDevoirsForPupil(getDatabase(), pupil.getUuid()));
         return pupil;
     }
 }

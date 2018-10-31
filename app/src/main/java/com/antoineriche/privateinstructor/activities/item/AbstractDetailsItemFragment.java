@@ -41,9 +41,7 @@ public abstract class AbstractDetailsItemFragment extends AbstractDatabaseFragme
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        Object item = mDbItemListener.getItemFromDb(mItemId);
-        fillViewWithItem(getView(), item);
+        fillViewWithItem(getView(), getItem());
     }
 
     @Override

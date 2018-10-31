@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,18 +22,8 @@ import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.activities.item.devoir.DevoirListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
-import com.antoineriche.privateinstructor.beans.Course;
-import com.antoineriche.privateinstructor.beans.Location;
-import com.antoineriche.privateinstructor.beans.Pupil;
-import com.antoineriche.privateinstructor.database.CourseTable;
-import com.antoineriche.privateinstructor.database.LocationTable;
-import com.antoineriche.privateinstructor.database.PupilTable;
 import com.antoineriche.privateinstructor.services.CourseCheckingService;
 import com.antoineriche.privateinstructor.services.FirebaseIntentService;
-import com.antoineriche.privateinstructor.services.SnapshotService;
-
-import java.util.List;
-import java.util.UUID;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -69,7 +58,6 @@ public class IndexActivity extends AbstractDatabaseActivity
     protected void onResume() {
         super.onResume();
         startService(new Intent(this, CourseCheckingService.class));
-//        startService(new Intent(this, SnapshotService.class));
         Intent intent = new Intent(this, FirebaseIntentService.class);
         intent.putExtra(FirebaseIntentService.FIB_TASKS, new String[]{FirebaseIntentService.FIB_CHECK_SNAPSHOT, FirebaseIntentService.FIB_CHECK_SYNCHRONIZATION});
         startService(intent);
@@ -155,39 +143,50 @@ public class IndexActivity extends AbstractDatabaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        String title;
         Fragment pFragment;
 
         switch (item.getItemId()) {
             case R.id.nav_home:
                 pFragment = HomeFragment.newInstance();
+                title = "Accueil";
                 break;
             case R.id.nav_pupil:
                 pFragment = PupilListFragment.newInstance();
+                title = "Mes élèves";
                 break;
             case R.id.nav_course:
                 pFragment = CourseListFragment.newInstance();
+                title = "Mes cours";
                 break;
             case R.id.nav_devoir:
                 pFragment = DevoirListFragment.newInstance();
+                title = "Mes devoirs";
                 break;
             case R.id.nav_calendar:
                 pFragment = CalendarFragment.newInstance();
+                title = "Calendrier";
                 break;
             case R.id.nav_money:
                 pFragment = MoneyFragment.newInstance();
+                title = "Argent";
                 break;
             case R.id.nav_settings:
                 pFragment = SettingsFragment.newInstance();
+                title = "Paramètres";
                 break;
             case R.id.nav_snapshots:
                 pFragment = SnapshotFragment.newInstance();
+                title = "Snapshots";
                 break;
             default:
                 pFragment = ToImplementFragment.newInstance("");
+                title = "ToImplementFragment";
                 break;
         }
 
         loadFragment(pFragment);
+        setTitle(title);
         item.setChecked(true);
 
         if (id == R.id.nav_camera) {

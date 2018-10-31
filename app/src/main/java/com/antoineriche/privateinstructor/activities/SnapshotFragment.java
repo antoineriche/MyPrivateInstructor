@@ -23,7 +23,6 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Snapshot;
 import com.antoineriche.privateinstructor.services.FirebaseIntentService;
-import com.antoineriche.privateinstructor.services.SnapshotService;
 import com.antoineriche.privateinstructor.utils.DateUtils;
 
 import java.lang.ref.WeakReference;
@@ -36,7 +35,7 @@ public class SnapshotFragment extends Fragment  {
     String TAG = SnapshotFragment.class.getSimpleName();
 
     public static class MyReceiver extends BroadcastReceiver {
-        public static final String SNAPSHOT_FRAGMENT = SnapshotService.class.getName();
+        public static final String SNAPSHOT_FRAGMENT = SnapshotFragment.class.getName();
         private final WeakReference<SnapshotFragment> mFragment;
 
         MyReceiver(SnapshotFragment fragment) {
@@ -100,7 +99,6 @@ public class SnapshotFragment extends Fragment  {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle("Snapshots");
 
         getRecyclerView().setLayoutManager(new LinearLayoutManager(getContext()));
         setUpRecyclerView();

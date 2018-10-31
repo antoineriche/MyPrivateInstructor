@@ -73,4 +73,9 @@ public interface EventItem {
     default String getFriendlyDate(){
         return DateUtils.getFriendlyDate(getDate());
     }
+
+    @Exclude
+    default String getShortDate(){
+        return DateUtils.getShortDate(getDate());
+    }
 }

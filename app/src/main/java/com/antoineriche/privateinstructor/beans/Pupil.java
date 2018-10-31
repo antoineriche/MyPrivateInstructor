@@ -63,6 +63,7 @@ public class Pupil implements Serializable, DatabaseItem {
     protected String imgPath;
 
     protected List<Course> mCourses;
+    protected List<Devoir> mDevoirs;
 
     public Pupil() {
     }
@@ -225,6 +226,16 @@ public class Pupil implements Serializable, DatabaseItem {
     @Exclude
     public void setCourses(List<Course> pCourses) {
         this.mCourses = pCourses;
+    }
+
+    @Exclude
+    public List<Devoir> getDevoirs() {
+        return mDevoirs;
+    }
+
+    @Exclude
+    public void setDevoirs(List<Devoir> pDevoirs) {
+        this.mDevoirs = pDevoirs;
     }
 
     @Exclude

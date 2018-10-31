@@ -21,10 +21,13 @@ import android.widget.Toast;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
+import com.antoineriche.privateinstructor.beans.DatabaseItem;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.database.PupilTable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,42 +41,25 @@ public class PupilListFragment extends AbstractFragmentList {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-
-        if (item.getItemId() == R.id.action_order) {
-            getItems().sort(Comparator.comparing(Pupil::getId));
-            refreshListItems();
-        }
-
-        return true;
-    }
-
-    @Override
     protected Class<? extends Activity> getAddingActivity() {
         return PupilActivity.class;
     }
 
     @Override
-    protected List<Pupil> getItemsFromDB(SQLiteDatabase database) {
-        return PupilTable.getAllPupils(database);
+    protected List<DatabaseItem> order(List<DatabaseItem> pItemsToOrder) {
+        pItemsToOrder.sort(Comparator.comparing(DatabaseItem::getId));
+        return pItemsToOrder;
     }
 
     @Override
-    protected String title() {
-        return "Mes élèves";
+    protected List<DatabaseItem> getItemsFromDB(SQLiteDatabase database) {
+        return new ArrayList<>(PupilTable.getAllPupils(database));
     }
 
     @Override
-    protected RecyclerView.Adapter getAdapter(List pListItems, FragmentListListener pListener) {
+    protected RecyclerView.Adapter initAdapter(List pListItems, FragmentListListener pListener) {
         return new RecyclerViewPupilAdapter(pListItems, pListener);
     }
-
-    @Override
-    public List<Pupil> getItems() {
-        return ((List<Pupil>) super.getItems());
-    }
-
 
 
     public class RecyclerViewPupilAdapter extends RecyclerView.Adapter<RecyclerViewPupilAdapter.PupilViewHolder> {

@@ -18,6 +18,8 @@ import com.antoineriche.privateinstructor.activities.ToImplementFragment;
 import com.antoineriche.privateinstructor.activities.item.AbstractDetailsItemFragment;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.beans.Pupil;
+import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 
 import java.io.File;
 
@@ -115,7 +117,7 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
                 } else if (TAB_COURSES.equals(tab.getTag())){
                     fragment = AbstractPupilSubDetailsFragment.PupilCoursesDetailsFragment.newInstance(pupil);
                 } else if (TAB_DEVOIRS.equals(tab.getTag())){
-                    fragment = ToImplementFragment.newInstance("Pupil devoirs");
+                    fragment = AbstractPupilSubDetailsFragment.PupilDevoirsDetailsFragment.newInstance(pupil);
                 } else if (TAB_MAP.equals(tab.getTag())){
                     fragment = AbstractPupilSubDetailsFragment.PupilMapDetailsFragment.newInstance(pupil);
                 } else if (TAB_EVOLUTION.equals(tab.getTag())){

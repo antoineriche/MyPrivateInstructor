@@ -30,7 +30,6 @@
         <activity android:name=".activities.item.devoir.DevoirActivity" android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".services.CourseCheckingService" />
-        <service android:name=".services.FirebaseService" />
         <service android:name=".services.FirebaseIntentService" />
 
         <receiver android:name=".services.NotificationReceiver" />

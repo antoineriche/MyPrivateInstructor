@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.antoineriche.privateinstructor.DatabaseListener;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Devoir;
@@ -72,7 +71,6 @@ public class HomeFragment extends AbstractDatabaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getActivity().setTitle("Accueil");
         setUpView(mCurrentWeekOffset);
 
         Course next = CourseTable.getNextCourse(mListener.getDatabase());

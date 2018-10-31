@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.database.DevoirTable;
@@ -190,6 +191,15 @@ public class Devoir implements Serializable, DatabaseItem, EventItem {
     @Exclude
     public String getFriendlyDuration(){
         return DateUtils.formatRemainingTime(1000 * 60 * this.duration);
+    }
+
+    @Exclude
+    public String getDetails(Context pContext){
+        StringBuilder strB = new StringBuilder(getFriendlyType(pContext));
+        if(!TextUtils.isEmpty(getComment())){
+            strB.append(" | ").append(getComment());
+        }
+        return strB.toString();
     }
 
     @Override

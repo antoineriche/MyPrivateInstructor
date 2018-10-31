@@ -1,5 +1,6 @@
 package com.antoineriche.privateinstructor.activities.item.pupil;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +17,8 @@ import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
+import com.antoineriche.privateinstructor.beans.Devoir;
+import com.antoineriche.privateinstructor.beans.EventItem;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,9 +30,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -115,64 +116,37 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
         protected void fillView(View pView, Pupil pPupil) {
             RecyclerView rv = pView.findViewById(R.id.rv_pupil_courses);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            rv.setAdapter(new CourseAdapter(pPupil.getCourses()));
+            rv.setAdapter(new PupilEventItemAdapter(getActivity(), new ArrayList<>(pPupil.getCourses())));
 
             pView.findViewById(R.id.tv_no_course).setVisibility(pPupil.getCourses().isEmpty() ? View.VISIBLE : View.GONE);
         }
+    }
 
-        public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseViewHolder> {
+    public static class PupilDevoirsDetailsFragment extends AbstractPupilSubDetailsFragment {
 
-            private List<Course> mCourses;
+        public PupilDevoirsDetailsFragment() {
+        }
 
-            CourseAdapter(List<Course> mCourses) {
-                this.mCourses = mCourses;
-            }
+        public static PupilDevoirsDetailsFragment newInstance(Pupil pPupil) {
+            PupilDevoirsDetailsFragment fragment = new PupilDevoirsDetailsFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(PupilDetailsFragment.PUPIL, pPupil);
+            fragment.setArguments(args);
+            return fragment;
+        }
 
-            @NonNull
-            @Override
-            public CourseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_rv_courses, parent, false);
-                return new CourseViewHolder(v);
-            }
+        @Override
+        protected int layout() {
+            return R.layout.pupil_details_courses;
+        }
 
-            @Override
-            public void onBindViewHolder(@NonNull CourseViewHolder courseHolder, int position) {
-                final Course course = mCourses.get(position);
+        @Override
+        protected void fillView(View pView, Pupil pPupil) {
+            RecyclerView rv = pView.findViewById(R.id.rv_pupil_courses);
+            rv.setLayoutManager(new LinearLayoutManager(getContext()));
+            rv.setAdapter(new PupilEventItemAdapter(getActivity(), new ArrayList<>(pPupil.getDevoirs())));
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(course.getDate());
-
-                courseHolder.tvTime.setText(course.getFriendlyTimeSlot());
-                courseHolder.tvDate.setText(
-                        new SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(calendar.getTimeInMillis()));
-
-                courseHolder.tvChapter.setText(course.getChapter());
-                courseHolder.tvChapter.setVisibility(!TextUtils.isEmpty(course.getChapter()) ? View.VISIBLE : View.GONE);
-                courseHolder.tvComment.setText(course.getComment());
-                courseHolder.tvComment.setVisibility(!TextUtils.isEmpty(course.getComment()) ? View.VISIBLE : View.GONE);
-                courseHolder.ivICourseState.setImageDrawable(course.getStateIcon(getContext()));
-            }
-
-            @Override
-            public int getItemCount() {
-                return this.mCourses.size();
-            }
-
-            class CourseViewHolder extends RecyclerView.ViewHolder {
-                CardView cvCell;
-                TextView tvDate, tvTime, tvChapter, tvComment;
-                ImageView ivICourseState;
-
-                CourseViewHolder(View itemView) {
-                    super(itemView);
-                    cvCell = itemView.findViewById(R.id.cv_course_cell);
-                    tvDate = itemView.findViewById(R.id.tv_course_date);
-                    tvTime = itemView.findViewById(R.id.tv_course_time);
-                    tvChapter = itemView.findViewById(R.id.tv_course_chapter);
-                    tvComment = itemView.findViewById(R.id.tv_course_comment);
-                    ivICourseState = itemView.findViewById(R.id.iv_course_state);
-                }
-            }
+            pView.findViewById(R.id.tv_no_course).setVisibility(pPupil.getDevoirs().isEmpty() ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -265,4 +239,69 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
 
     }
 
-}
+
+    public static class PupilEventItemAdapter extends RecyclerView.Adapter<PupilEventItemAdapter.PupilEventItemHolder> {
+
+        private Context mContext;
+        private List<EventItem> mEventItems;
+
+        public PupilEventItemAdapter(Context pContext, List<EventItem> mItems) {
+            this.mEventItems = new ArrayList<>(mItems);
+            this.mContext = pContext;
+        }
+
+        @NonNull
+        @Override
+        public PupilEventItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+            View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.adapter_rv_event_item, viewGroup, false);
+            return new PupilEventItemHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PupilEventItemHolder pupilEeventItemHolder, int position) {
+            EventItem event = mEventItems.get(position);
+            pupilEeventItemHolder.tvDate.setText(event.getShortDate());
+            pupilEeventItemHolder.ivEventState.setImageDrawable(event.getStateIcon(mContext));
+            if(event instanceof Course){
+                Course course = (Course) event;
+                pupilEeventItemHolder.tvDate2.setText(course.getFriendlyTimeSlot());
+                pupilEeventItemHolder.tvEventLabel.setText(course.getChapter());
+                pupilEeventItemHolder.tvEventDetails.setText(course.getComment());
+                pupilEeventItemHolder.tvEventDetails.setVisibility(!TextUtils.isEmpty(course.getComment()) ? View.VISIBLE : View.GONE);
+            } else if(event instanceof Devoir){
+                Devoir devoir = (Devoir) event;
+                pupilEeventItemHolder.tvDate2.setText(devoir.getFriendlyDuration());
+                pupilEeventItemHolder.tvEventLabel.setText(devoir.getChapter());
+                pupilEeventItemHolder.tvEventDetails.setText(devoir.getDetails(mContext));
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            if (!this.mEventItems.isEmpty()) {
+                EventItem item = this.mEventItems.get(0);
+                return (item instanceof Course || item instanceof Devoir) ? this.mEventItems.size() : 0;
+            } else {
+                return 0;
+            }
+        }
+
+        class PupilEventItemHolder extends RecyclerView.ViewHolder {
+            CardView cvEventCell;
+            TextView tvDate, tvDate2, tvEventLabel, tvEventDetails;
+            ImageView ivEventState;
+
+            PupilEventItemHolder(View itemView) {
+                super(itemView);
+                cvEventCell = itemView.findViewById(R.id.cv_event_cell);
+                tvDate = itemView.findViewById(R.id.tv_event_date);
+                tvDate2 = itemView.findViewById(R.id.tv_event_date_2);
+                tvEventLabel = itemView.findViewById(R.id.tv_event_label);
+                tvEventDetails = itemView.findViewById(R.id.tv_event_details);
+                ivEventState = itemView.findViewById(R.id.iv_event_state);
+            }
+        }
+
+    }
+
+} // 356 - 245
