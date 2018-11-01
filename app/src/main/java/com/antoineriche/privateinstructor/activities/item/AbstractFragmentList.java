@@ -14,7 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,9 +25,9 @@ import android.widget.TextView;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractFragmentList extends Fragment {
@@ -58,7 +57,7 @@ public abstract class AbstractFragmentList extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        new GetList(this.mListener).execute();
+        new GetListItems(new WeakReference<>(this)).execute();
     }
 
     @Override
@@ -126,11 +125,6 @@ public abstract class AbstractFragmentList extends Fragment {
         getAdapter().notifyDataSetChanged();
     }
 
-
-
-
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_shuffle) {
@@ -147,25 +141,25 @@ public abstract class AbstractFragmentList extends Fragment {
     protected abstract List<DatabaseItem> getItemsFromDB(SQLiteDatabase database);
     protected abstract RecyclerView.Adapter initAdapter(List<DatabaseItem> pListItems, FragmentListListener pListener);
 
+    public static class GetListItems extends AsyncTask<Void, Integer, List<DatabaseItem>>{
 
-    //FIXME make it static
-    public class GetList extends AsyncTask<Void, Integer, List<DatabaseItem>>{
-
+        WeakReference<AbstractFragmentList> mFragment;
         private FragmentListListener mListener;
 
-        GetList(FragmentListListener pListener){
-            this.mListener = pListener;
+        GetListItems(WeakReference<AbstractFragmentList> pFragment){
+            this.mFragment = pFragment;
+            this.mListener = pFragment.get().mListener;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            startGettingItems();
+            this.mFragment.get().startGettingItems();
         }
 
         @Override
         protected List<DatabaseItem> doInBackground(Void... params) {
-            return getItemsFromDB(mListener.getDatabase());
+            return this.mFragment.get().getItemsFromDB(this.mListener.getDatabase());
         }
 
         @Override
@@ -176,11 +170,9 @@ public abstract class AbstractFragmentList extends Fragment {
         @Override
         protected void onPostExecute(List<DatabaseItem> list) {
             super.onPostExecute(list);
-            onItemsFromDatabase(list);
+            this.mFragment.get().onItemsFromDatabase(list);
         }
     }
-
-
 
     public interface FragmentListListener {
         SQLiteDatabase getDatabase();

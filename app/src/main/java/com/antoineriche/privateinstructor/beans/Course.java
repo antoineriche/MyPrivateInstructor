@@ -2,6 +2,7 @@ package com.antoineriche.privateinstructor.beans;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.utils.DateUtils;
@@ -194,6 +195,15 @@ public class Course implements Serializable, DatabaseItem, EventItem {
     @Exclude
     public long getEndDate(){
         return this.date + this.duration * 60 * 1000;
+    }
+
+    @Exclude
+    public boolean isComplete(){
+        if(DateUtils.isPast(date)){
+            return !TextUtils.isEmpty(comment) && !TextUtils.isEmpty(chapter);
+        } else {
+            return true;
+        }
     }
 
     @Override

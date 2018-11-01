@@ -20,6 +20,7 @@ import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.EventItem;
 import com.antoineriche.privateinstructor.beans.Pupil;
+import com.antoineriche.privateinstructor.customviews.GraphicView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public abstract class AbstractPupilSubDetailsFragment extends Fragment {
 
@@ -137,16 +140,43 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
 
         @Override
         protected int layout() {
-            return R.layout.pupil_details_courses;
+            return R.layout.pupil_details_devoirs;
         }
 
         @Override
         protected void fillView(View pView, Pupil pPupil) {
-            RecyclerView rv = pView.findViewById(R.id.rv_pupil_courses);
+            RecyclerView rv = pView.findViewById(R.id.rv_pupil_devoirs);
             rv.setLayoutManager(new LinearLayoutManager(getContext()));
             rv.setAdapter(new PupilEventItemAdapter(getActivity(), new ArrayList<>(pPupil.getDevoirs())));
 
-            pView.findViewById(R.id.tv_no_course).setVisibility(pPupil.getDevoirs().isEmpty() ? View.VISIBLE : View.GONE);
+            pView.findViewById(R.id.tv_no_devoir).setVisibility(pPupil.getDevoirs().isEmpty() ? View.VISIBLE : View.GONE);
+
+            GraphicView graphic =  pView.findViewById(R.id.graphicView);
+            fillGraphicView(graphic, pPupil.getDevoirs());
+            graphic.setTitle("Résultats");
+
+            pView.findViewById(R.id.btn_pupil_devoir_list).setOnClickListener(v -> {
+                pView.findViewById(R.id.rl_pupil_list_devoirs).setVisibility(View.VISIBLE);
+                pView.findViewById(R.id.cv_pupil_evolution_devoirs).setVisibility(View.GONE);
+            });
+
+            pView.findViewById(R.id.btn_pupil_devoir_evolution).setOnClickListener(v -> {
+                if(pView.findViewById(R.id.cv_pupil_evolution_devoirs).getVisibility() != View.VISIBLE) {
+                    pView.findViewById(R.id.cv_pupil_evolution_devoirs).setVisibility(View.VISIBLE);
+                    pView.findViewById(R.id.rl_pupil_list_devoirs).setVisibility(View.GONE);
+                }
+            });
+        }
+
+        private void fillGraphicView(GraphicView graphView, List<Devoir> pDevoirs){
+            Float[] marks = new Float[pDevoirs.size()];
+
+            for(int i = 0 ; i < pDevoirs.size() ; i++){
+                Devoir dev = pDevoirs.get(i);
+                marks[i] = dev.getMaxMark() != 0 ?  (float) dev.getMark() * 20f / (float) dev.getMaxMark() : 0f;
+            }
+
+            graphView.setValues(marks, true);
         }
     }
 

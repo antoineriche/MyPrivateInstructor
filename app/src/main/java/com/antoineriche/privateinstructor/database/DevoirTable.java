@@ -2,6 +2,7 @@ package com.antoineriche.privateinstructor.database;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Devoir;
@@ -89,7 +90,8 @@ public class DevoirTable extends MyDatabaseTable {
     }
 
     public static List<Devoir> getDevoirsForPupil(SQLiteDatabase pSQLDatabase, String pupilUuid) {
-        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_PUPIL_UUID + " = '" + pupilUuid + "'", null, null, null, null);
+        String orderString = String.format(Locale.FRANCE, "%s DESC", COL_DATE);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_PUPIL_UUID + " = '" + pupilUuid + "'", null, null, null, orderString);
         return cursorToListDevoirs(c, pSQLDatabase);
     }
 

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
@@ -19,18 +18,17 @@ import com.antoineriche.privateinstructor.utils.DateUtils;
 import com.antoineriche.privateinstructor.utils.PreferencesUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CourseCheckingService extends Service {
 
-    private static String LOG_TAG = "CourseCheckingService";
     private SQLiteDatabase mDatabase;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.v(LOG_TAG, "in onCreate");
         mDatabase = new MyDatabase(this, null).getWritableDatabase();
     }
 
@@ -53,17 +51,12 @@ public class CourseCheckingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mDatabase != null) {
-            mDatabase.close();
-            Log.v(LOG_TAG, "database closed");
-        }
+        if(mDatabase != null) { mDatabase.close(); }
     }
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+    public IBinder onBind(Intent intent) { return null; }
 
     /**
      * Get past courses with state FORESEEN {@link Course}
@@ -85,25 +78,29 @@ public class CourseCheckingService extends Service {
         if(this.mDatabase != null){
             course.setState(Course.WAITING_FOR_VALIDATION);
             CourseTable.updateCourse(mDatabase, course.getId(), course);
-        } else {
-            Log.e(LOG_TAG, "could not update course, database was null");
         }
     }
 
-    //FIXME: notification before course
     private void scheduleAlarmForNextCourse(Course pCourse){
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         Intent intentAlarm;
         intentAlarm = new Intent(getApplicationContext(), NotificationReceiver.class);
         intentAlarm.putExtra(NotificationReceiver.ITEM_ID, pCourse.getId());
+        Calendar calendar = Calendar.getInstance();
 
 
         // Schedule start notification
         if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_beginning))) {
             intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getDate(),
-                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.BEGINNING_COURSE_CODE,
+
+            calendar.setTimeInMillis(pCourse.getDate());
+            calendar.add(Calendar.MINUTE, -10);
+            long alarmTime = calendar.getTimeInMillis();
+
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
+                    PendingIntent.getBroadcast(getApplicationContext(),
+                            CourseNotification.BEGINNING_COURSE_CODE,
                             intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
             );
         }
@@ -111,7 +108,12 @@ public class CourseCheckingService extends Service {
         // Schedule end notification
         if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_end))) {
             intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.END_COURSE_CODE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP, pCourse.getEndDate(),
+
+            calendar.setTimeInMillis(pCourse.getEndDate());
+            calendar.add(Calendar.MINUTE, +10);
+            long alarmTime = calendar.getTimeInMillis();
+
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
                     PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.END_COURSE_CODE,
                             intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
             );

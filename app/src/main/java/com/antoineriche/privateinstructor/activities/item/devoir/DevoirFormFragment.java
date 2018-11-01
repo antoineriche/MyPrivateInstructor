@@ -34,6 +34,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import static com.antoineriche.privateinstructor.beans.EventItem.FORESEEN;
+import static com.antoineriche.privateinstructor.beans.EventItem.WAITING_FOR_VALIDATION;
+
 public class DevoirFormFragment extends AbstractFormItemFragment implements
         DatePickerDialog.OnDateSetListener {
 
@@ -77,7 +80,9 @@ public class DevoirFormFragment extends AbstractFormItemFragment implements
             throw new IllegalArgumentException("Invalid date");
         } else {
             d.setDate(mCalendar.getTimeInMillis());
-            d.setState(new Date().after(new Date(d.getDate())) ? Course.WAITING_FOR_VALIDATION : Course.FORESEEN);
+            if(d.getState() == EventItem.FORESEEN) {
+                d.setState(new Date().after(new Date(d.getDate())) ? WAITING_FOR_VALIDATION : FORESEEN);
+            }
         }
 
         // MONEY

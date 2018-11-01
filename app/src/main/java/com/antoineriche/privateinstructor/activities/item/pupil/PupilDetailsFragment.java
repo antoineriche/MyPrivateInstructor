@@ -31,7 +31,6 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
     public final static String TAB_COURSES = "courses";
     public final static String TAB_DEVOIRS = "devoirs";
     public final static String TAB_MAP = "map";
-    public final static String TAB_EVOLUTION = "evolution";
 
     public PupilDetailsFragment() {
     }
@@ -104,10 +103,6 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
         tab = setUpTab(tab, R.drawable.ic_assignment_white_48dp, TAB_DEVOIRS);
         pTabLayout.addTab(tab);
 
-        tab = pTabLayout.newTab();
-        tab = setUpTab(tab, R.drawable.ic_trending_up_white_48dp, TAB_EVOLUTION);
-        pTabLayout.addTab(tab);
-
         pTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -120,8 +115,6 @@ public class PupilDetailsFragment extends AbstractDetailsItemFragment {
                     fragment = AbstractPupilSubDetailsFragment.PupilDevoirsDetailsFragment.newInstance(pupil);
                 } else if (TAB_MAP.equals(tab.getTag())){
                     fragment = AbstractPupilSubDetailsFragment.PupilMapDetailsFragment.newInstance(pupil);
-                } else if (TAB_EVOLUTION.equals(tab.getTag())){
-                    fragment = ToImplementFragment.newInstance("Pupil evolution");
                 } else {
                     fragment = AbstractPupilSubDetailsFragment.PupilGeneralDetailsFragment.newInstance(pupil);
                 }

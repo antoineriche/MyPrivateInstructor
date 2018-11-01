@@ -33,6 +33,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import static com.antoineriche.privateinstructor.beans.EventItem.FORESEEN;
+import static com.antoineriche.privateinstructor.beans.EventItem.WAITING_FOR_VALIDATION;
+
 public class CourseFormFragment extends AbstractFormItemFragment implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
@@ -78,7 +81,9 @@ public class CourseFormFragment extends AbstractFormItemFragment implements
             throw new IllegalArgumentException("Invalid hour");
         } else {
             c.setDate(mCalendar.getTimeInMillis());
-            c.setState(new Date().after(new Date(c.getDate())) ? Course.WAITING_FOR_VALIDATION : Course.FORESEEN);
+            if(c.getState() == EventItem.FORESEEN) {
+                c.setState(new Date().after(new Date(c.getDate())) ? WAITING_FOR_VALIDATION : FORESEEN);
+            }
         }
 
         // MONEY

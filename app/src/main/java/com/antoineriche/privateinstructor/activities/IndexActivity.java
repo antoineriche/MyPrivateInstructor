@@ -1,6 +1,8 @@
 package com.antoineriche.privateinstructor.activities;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -22,8 +24,12 @@ import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.activities.item.devoir.DevoirListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
+import com.antoineriche.privateinstructor.database.CourseTable;
+import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.services.CourseCheckingService;
 import com.antoineriche.privateinstructor.services.FirebaseIntentService;
+
+import java.lang.ref.WeakReference;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -33,7 +39,6 @@ public class IndexActivity extends AbstractDatabaseActivity
 
     Fragment mCurrentFragment;
     NavigationView mNavigationView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,8 @@ public class IndexActivity extends AbstractDatabaseActivity
         Intent intent = new Intent(this, FirebaseIntentService.class);
         intent.putExtra(FirebaseIntentService.FIB_TASKS, new String[]{FirebaseIntentService.FIB_CHECK_SNAPSHOT, FirebaseIntentService.FIB_CHECK_SYNCHRONIZATION});
         startService(intent);
+
+        new GetDashboardNotifications(new WeakReference<>(this)).execute();
     }
 
     @Override
@@ -72,57 +79,68 @@ public class IndexActivity extends AbstractDatabaseActivity
     private void initMenu(Menu pMenu) {
 
         String[] sections = getResources().getStringArray(R.array.drawer_sections);
+        int index = 0;
 
         View actionView = pMenu.findItem(R.id.nav_home).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_home_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[0].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[0].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
+        actionView = pMenu.findItem(R.id.nav_dashboard).getActionView();
+        ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.baseline_dashboard_white_48));
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
+        actionView.findViewById(R.id.menu_badge).setVisibility(View.VISIBLE);
+        ((TextView) actionView.findViewById(R.id.menu_badge)).setText("2");
+
+        index++;
         actionView = pMenu.findItem(R.id.nav_pupil).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_supervisor_account_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[1].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[1].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_course).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_book_open_page_variant_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[2].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[2].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_devoir).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_assignment_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[3].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[3].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_calendar).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_today_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[5].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[5].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_money).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_account_balance_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[6].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[6].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_snapshots).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.baseline_storage_white_48));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[7].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[7].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_stats).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_equalizer_white_48dp));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[8].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[8].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
+        index++;
         actionView = pMenu.findItem(R.id.nav_settings).getActionView();
-        actionView.setEnabled(false);
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_menu_manage));
-        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[9].split(";")[0]);
-        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[9].split(";")[1]);
+        ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
+        ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
     }
 
     @Override
@@ -150,6 +168,10 @@ public class IndexActivity extends AbstractDatabaseActivity
             case R.id.nav_home:
                 pFragment = HomeFragment.newInstance();
                 title = "Accueil";
+                break;
+            case R.id.nav_dashboard:
+                pFragment = ToImplementFragment.newInstance("Dashboard");
+                title = "Dashboard";
                 break;
             case R.id.nav_pupil:
                 pFragment = PupilListFragment.newInstance();
@@ -224,5 +246,35 @@ public class IndexActivity extends AbstractDatabaseActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.flContent, pFragment).commit();
         mCurrentFragment = pFragment;
+    }
+
+    private void updateDashboardNotif(Integer integer){
+        MenuItem a = mNavigationView.getMenu().findItem(R.id.nav_dashboard);
+        ((TextView) a.getActionView().findViewById(R.id.menu_badge)).setText(""+integer);
+    }
+
+    public static class GetDashboardNotifications extends AsyncTask<Void, Void, Integer> {
+
+        WeakReference<IndexActivity> mActivity;
+
+        GetDashboardNotifications(WeakReference<IndexActivity> pActivity) {
+            this.mActivity = pActivity;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            SQLiteDatabase db = this.mActivity.get().getDatabase();
+
+            long uncompletedDevoirs = DevoirTable.getAllDevoirs(db).stream().filter(d -> !d.isComplete()).count();
+            long uncompletedCours = CourseTable.getAllCourses(db).stream().filter(c -> !c.isComplete()).count();
+
+            return (int) (uncompletedCours + uncompletedDevoirs);
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            this.mActivity.get().updateDashboardNotif(integer);
+        }
     }
 }

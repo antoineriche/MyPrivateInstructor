@@ -34,4 +34,5 @@ public abstract class AbstractDatabaseActivity extends AppCompatActivity impleme
     public SQLiteDatabase getDatabase() {
         return mDatabase;
     }
+
 }

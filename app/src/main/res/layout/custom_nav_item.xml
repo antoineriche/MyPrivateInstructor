@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/menu_icon"
+            android:layout_toStartOf="@+id/menu_badge"
             android:orientation="vertical">
 
             <TextView
@@ -44,6 +45,20 @@
                 android:textSize="12dp" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/menu_badge"
+            android:visibility="gone"
+            android:layout_width="@dimen/menu_icon"
+            android:layout_height="@dimen/menu_icon"
+            android:layout_centerVertical="true"
+            android:background="@color/unthemAccent"
+            android:text="12"
+            android:gravity="center"
+            android:textColor="@color/themPrimaryDark"
+            android:textStyle="bold"
+            android:layout_alignParentEnd="true"
+            android:tint="@color/white" />
 
     </RelativeLayout>
 

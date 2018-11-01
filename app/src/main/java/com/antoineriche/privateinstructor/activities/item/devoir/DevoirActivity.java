@@ -1,6 +1,7 @@
 package com.antoineriche.privateinstructor.activities.item.devoir;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.activities.item.course.CourseDetailsFragment;

@@ -70,8 +70,8 @@ public class Devoir implements Serializable, DatabaseItem, EventItem {
 
     public Devoir(Cursor c) {
         this(c.getLong(DevoirTable.NUM_COL_ID), c.getString(DevoirTable.NUM_COL_PUPIL_UUID),
-                c.getLong(DevoirTable.NUM_COL_DATE), c.getInt(DevoirTable.NUM_COL_MARK),
-                c.getInt(DevoirTable.NUM_COL_MAX_MARK), c.getString(DevoirTable.NUM_COL_CHAPTER),
+                c.getLong(DevoirTable.NUM_COL_DATE), c.getDouble(DevoirTable.NUM_COL_MARK),
+                c.getDouble(DevoirTable.NUM_COL_MAX_MARK), c.getString(DevoirTable.NUM_COL_CHAPTER),
                 c.getString(DevoirTable.NUM_COL_COMMENT), c.getInt(DevoirTable.NUM_COL_STATE),
                 c.getInt(DevoirTable.NUM_COL_TYPE), c.getString(DevoirTable.NUM_COL_UUID),
                 c.getInt(DevoirTable.NUM_COL_DURATION));
@@ -200,6 +200,15 @@ public class Devoir implements Serializable, DatabaseItem, EventItem {
             strB.append(" | ").append(getComment());
         }
         return strB.toString();
+    }
+
+    @Exclude
+    public boolean isComplete(){
+        if(DateUtils.isPast(date)){
+            return !TextUtils.isEmpty(comment) && !TextUtils.isEmpty(chapter);
+        } else {
+            return true;
+        }
     }
 
     @Override

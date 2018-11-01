@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/head_btns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <Button
+            android:id="@+id/btn_pupil_devoir_evolution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="evolution"
+            android:layout_alignParentEnd="true"/>
+
+        <Button
+            android:id="@+id/btn_pupil_devoir_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="liste"
+            android:layout_alignParentStart="true"/>
+
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:id="@+id/rl_pupil_list_devoirs"
+        android:layout_below="@+id/head_btns"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_pupil_devoirs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="5"
+            tools:listitem="@layout/recycler_view_item" />
+
+        <TextView android:id="@+id/tv_no_devoir"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:background="@color/themPrimaryDark"
+            android:gravity="center"
+            android:padding="5dp"
+            android:layout_alignParentTop="true"
+            android:text="Aucun devoir"/>
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_pupil_evolution_devoirs"
+        android:layout_below="@+id/head_btns"
+        android:layout_margin="@dimen/vertical_lv_margin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <com.antoineriche.privateinstructor.customviews.GraphicView
+            android:id="@+id/graphicView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </android.support.v7.widget.CardView>
+
+    
+</RelativeLayout>

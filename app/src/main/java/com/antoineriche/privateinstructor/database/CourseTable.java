@@ -83,7 +83,8 @@ public class CourseTable extends MyDatabaseTable {
     }
 
     public static List<Course> getCoursesForPupil(SQLiteDatabase pSQLDatabase, String pupilUuid) {
-        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_PUPIL_UUID + " = '" + pupilUuid + "'", null, null, null, null);
+        String orderString = String.format(Locale.FRANCE, "%s DESC", COL_DATE);
+        Cursor c = pSQLDatabase.query(TABLE_NAME, FIELDS, COL_PUPIL_UUID + " = '" + pupilUuid + "'", null, null, null, orderString);
         return cursorToListCourses(c, pSQLDatabase);
     }
 

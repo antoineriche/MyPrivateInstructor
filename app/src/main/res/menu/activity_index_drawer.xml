@@ -6,10 +6,10 @@
 
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_home" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
+        <item android:id="@+id/nav_dashboard" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_pupil" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_course" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_devoir" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
-        <item android:id="@+id/nav_evolution" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_calendar" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_money" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
         <item android:id="@+id/nav_snapshots" android:title="@null" app:actionLayout="@layout/custom_nav_item"/>
