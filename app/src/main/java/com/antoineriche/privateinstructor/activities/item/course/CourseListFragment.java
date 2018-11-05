@@ -2,12 +2,15 @@ package com.antoineriche.privateinstructor.activities.item.course;
 
 import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
+import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
 import com.antoineriche.privateinstructor.adapters.EventItemAdapter;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.database.DevoirTable;
 
@@ -42,7 +45,11 @@ public class CourseListFragment extends AbstractFragmentList {
 
     @Override   //FIXME: bug with list item <DatabaseItem>
     protected RecyclerView.Adapter initAdapter(List pListItems, FragmentListListener pListener) {
-        return new EventItemAdapter(getActivity(), pListItems, Course.class, pListener);
+        return new EventItemAdapter(getActivity(), pListItems, Course.class, pEventItem -> {
+            Bundle args = new Bundle();
+            args.putLong(AbstractItemActivity.ARG_ITEM_ID, ((Course) pEventItem).getId());
+            pListener.goToDetailsActivity(CourseActivity.class, args);
+        });
     }
 
     @Override

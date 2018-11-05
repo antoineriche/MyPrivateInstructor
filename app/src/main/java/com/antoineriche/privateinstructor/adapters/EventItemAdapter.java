@@ -1,7 +1,6 @@
 package com.antoineriche.privateinstructor.adapters;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -13,10 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
-import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
-import com.antoineriche.privateinstructor.activities.item.course.CourseActivity;
-import com.antoineriche.privateinstructor.activities.item.devoir.DevoirActivity;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.EventItem;
@@ -28,10 +23,10 @@ public class EventItemAdapter extends RecyclerView.Adapter<EventItemAdapter.Even
 
     private Context mContext;
     private List<EventItem> mEventItems;
-    private AbstractFragmentList.FragmentListListener mListener;
+    private EventItemAdapterListener mListener;
     private Class mClass;
 
-    public EventItemAdapter(Context pContext, List<EventItem> mItems, Class pClass, AbstractFragmentList.FragmentListListener pListener) {
+    public EventItemAdapter(Context pContext, List<EventItem> mItems, Class pClass, EventItemAdapterListener pListener) {
         this.mEventItems = new ArrayList<>(mItems);
         this.mContext = pContext;
         this.mListener = pListener;
@@ -51,17 +46,12 @@ public class EventItemAdapter extends RecyclerView.Adapter<EventItemAdapter.Even
         eventItemHolder.tvDate.setText(event.getShortDate());
         eventItemHolder.ivEventState.setImageDrawable(event.getStateIcon(mContext));
 
-        Bundle args = new Bundle();
-        Class activityClass = null;
-
         if(mClass.equals(Course.class)){
             Course course = (Course) event;
             eventItemHolder.tvDate2.setText(course.getFriendlyTimeSlot());
             eventItemHolder.tvEventLabel.setText(course.getPupil().getFullName());
             eventItemHolder.tvEventDetails.setText(course.getChapter());
             eventItemHolder.tvEventDetails.setVisibility(!TextUtils.isEmpty(course.getChapter()) ? View.VISIBLE : View.GONE);
-            args.putLong(AbstractItemActivity.ARG_ITEM_ID, course.getId());
-            activityClass = CourseActivity.class;
         } else if(mClass.equals(Devoir.class)){
             Devoir devoir = (Devoir) event;
             eventItemHolder.tvDate2.setText(devoir.getFriendlyDuration());
@@ -69,13 +59,10 @@ public class EventItemAdapter extends RecyclerView.Adapter<EventItemAdapter.Even
             StringBuilder strB = new StringBuilder(devoir.getFriendlyType(mContext));
             if(!TextUtils.isEmpty(devoir.getChapter())){ strB.append(" | ").append(devoir.getChapter()); }
             eventItemHolder.tvEventDetails.setText(strB.toString());
-            args.putLong(AbstractItemActivity.ARG_ITEM_ID, devoir.getId());
-            activityClass = DevoirActivity.class;
         }
 
-        Class finalActivityClass = activityClass;
         eventItemHolder.cvEventCell.setOnClickListener(view -> {
-            if(mListener != null) { mListener.goToDetailsActivity(finalActivityClass, args); }
+            if(mListener != null) { mListener.clickOnEventItem(event); }
         });
     }
 
@@ -108,5 +95,9 @@ public class EventItemAdapter extends RecyclerView.Adapter<EventItemAdapter.Even
             tvEventDetails = itemView.findViewById(R.id.tv_event_details);
             ivEventState = itemView.findViewById(R.id.iv_event_state);
         }
+    }
+
+    public interface EventItemAdapterListener {
+        void clickOnEventItem(EventItem pEventItem);
     }
 }

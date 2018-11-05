@@ -33,7 +33,7 @@ import java.lang.ref.WeakReference;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        AbstractFragmentList.FragmentListListener {
+        AbstractFragmentList.FragmentListListener, DashBoardFragment.DashBoardListener {
 
     private static final String TAG = IndexActivity.class.getSimpleName();
 
@@ -170,7 +170,7 @@ public class IndexActivity extends AbstractDatabaseActivity
                 title = "Accueil";
                 break;
             case R.id.nav_dashboard:
-                pFragment = ToImplementFragment.newInstance("Dashboard");
+                pFragment = DashBoardFragment.newInstance();
                 title = "Dashboard";
                 break;
             case R.id.nav_pupil:
@@ -251,6 +251,11 @@ public class IndexActivity extends AbstractDatabaseActivity
     private void updateDashboardNotif(Integer integer){
         MenuItem a = mNavigationView.getMenu().findItem(R.id.nav_dashboard);
         ((TextView) a.getActionView().findViewById(R.id.menu_badge)).setText(""+integer);
+    }
+
+    @Override
+    public void onItemComplete(String pItemUuid) {
+        new GetDashboardNotifications(new WeakReference<>(this)).execute();
     }
 
     public static class GetDashboardNotifications extends AsyncTask<Void, Void, Integer> {

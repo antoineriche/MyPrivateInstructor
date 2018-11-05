@@ -3,26 +3,15 @@ package com.antoineriche.privateinstructor.activities.item.devoir;
 import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.AbstractItemActivity;
+import com.antoineriche.privateinstructor.activities.item.course.CourseActivity;
 import com.antoineriche.privateinstructor.adapters.EventItemAdapter;
-import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.DatabaseItem;
 import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.database.DevoirTable;
-import com.antoineriche.privateinstructor.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,12 +43,15 @@ public class DevoirListFragment extends AbstractFragmentList {
 
     @Override
     protected RecyclerView.Adapter initAdapter(List pListItems, FragmentListListener pListener) {
-        return new EventItemAdapter(getActivity(), pListItems, Devoir.class, pListener);
+        return new EventItemAdapter(getActivity(), pListItems, Devoir.class, pEventItem -> {
+            Bundle args = new Bundle();
+            args.putLong(AbstractItemActivity.ARG_ITEM_ID, ((Devoir) pEventItem).getId());
+            pListener.goToDetailsActivity(DevoirActivity.class, args);
+        });
     }
 
     @Override
     protected void refreshRecyclerViewData(List<DatabaseItem> pNewData) {
         ((EventItemAdapter) getAdapter()).refreshList(pNewData);
     }
-
 } // 146 - 79
