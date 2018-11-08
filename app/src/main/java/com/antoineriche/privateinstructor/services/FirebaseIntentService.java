@@ -1,9 +1,12 @@
 package com.antoineriche.privateinstructor.services;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,12 +25,20 @@ import com.antoineriche.privateinstructor.database.DevoirTable;
 import com.antoineriche.privateinstructor.database.LocationTable;
 import com.antoineriche.privateinstructor.database.MyDatabase;
 import com.antoineriche.privateinstructor.database.PupilTable;
+import com.antoineriche.privateinstructor.notifications.AbstractNotification;
 import com.antoineriche.privateinstructor.utils.DateUtils;
 import com.antoineriche.privateinstructor.utils.FirebaseUtils;
 import com.antoineriche.privateinstructor.utils.PreferencesUtils;
 import com.antoineriche.privateinstructor.utils.SnapshotFactory;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
@@ -36,24 +47,33 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class FirebaseIntentService extends IntentService implements FirebaseTasks.SynchronizeListener {
+public class FirebaseIntentService extends IntentService {
 
-    private static final String NAME = "FirebaseIntentService";
-    private static final String TAG = NAME;
+    private static final String TAG = FirebaseIntentService.class.getSimpleName();
 
     public static final String FIB_TASKS = "FIB_TASKS";
     public static final String FIB_CHECK_SYNCHRONIZATION = "FIB_CHECK_SYNCHRONIZATION";
-    public static final String FIB_CHECK_SNAPSHOT = "FIB_CHECK_SNAPSHOT";
+    public static final String FIB_SCHEDULE_SNAPSHOT = "FIB_SCHEDULE_SNAPSHOT";
+    public static final String FIB_SAVE_NEW_SNAPSHOT = "FIB_SAVE_NEW_SNAPSHOT";
     public static final String FIB_GET_LAST_SNAPSHOT_DATE = "FIB_GET_LAST_SNAPSHOT_DATE";
     public static final String FIB_GET_SNAPSHOTS = "FIB_GET_SNAPSHOTS";
     public static final String FIB_REPLACE_DATABASE = "FIB_REPLACE_DATABASE";
     public static final String FIB_NEW_DATABASE = "FIB_NEW_DATABASE";
     public static final String FIB_CREATE_SNAPSHOT = "FIB_CREATE_SNAPSHOT";
 
+    private FirebaseAuth mAuth;
 
     public FirebaseIntentService() {
-        super(NAME);
+        super(FirebaseIntentService.class.getSimpleName());
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FirebaseApp.initializeApp(getApplicationContext());
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -61,20 +81,79 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         Log.e(TAG, "onHandleIntent: " + intent);
         boolean hasTasks = intent.hasExtra(FIB_TASKS);
         Log.e(TAG, "Intent has tasks: " + hasTasks);
+        FirebaseUser user = mAuth.getCurrentUser();
+        boolean userConnected = user != null;
+        Log.e(TAG, "User connected: " + userConnected);
 
-        if(hasTasks){
-            List<String> tasks = Arrays.asList(intent.getStringArrayExtra(FIB_TASKS));
+        if(userConnected && hasTasks) {
 
-            //First, make synchronization
-            if (tasks.contains(FIB_CHECK_SYNCHRONIZATION)) { checkSynchronization(this, this); }
-            if (tasks.contains(FIB_CHECK_SNAPSHOT)) { checkSnapshot(this); }
-            if (tasks.contains(FIB_GET_LAST_SNAPSHOT_DATE)) { getLastSnapshot(); }
-            if (tasks.contains(FIB_GET_SNAPSHOTS)) { getSnapshots(); }
-            if (tasks.contains(FIB_REPLACE_DATABASE)) { askForReplacingDatabaseBySnapshot(intent.getStringExtra(FIB_NEW_DATABASE), intent.getBooleanExtra(FIB_CREATE_SNAPSHOT, false)); }
+            user.getIdToken(true).addOnCompleteListener(task -> {
+                Log.e(TAG, "Refresh token? " + task.isSuccessful());
+                if (task.isSuccessful()) { dispatchJobs(intent, user); }
+                else { Log.e(TAG, "Exception: " + task.getException().getMessage(), task.getException()); }
+            });
+
         }
     }
 
-    private void askForReplacingDatabaseBySnapshot(String pSnapshotName, Boolean pCreateSnapshot) {
+    private void dispatchJobs(Intent intent, FirebaseUser user) {
+        String userUid = user.getUid();
+        List<String> tasks = Arrays.asList(intent.getStringArrayExtra(FIB_TASKS));
+
+        if (tasks.contains(FIB_CHECK_SYNCHRONIZATION)) {
+            checkSynchronization(this, userUid, new FirebaseTasks.SynchronizeListener() {
+
+                @Override
+                public void startSynchronization(String pReferenceKey) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "Start %s synchronization", pReferenceKey));
+                }
+
+                @Override
+                public void progress(String pReferenceKey, double percent) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "%s synchronization progress: ", pReferenceKey, percent));
+                }
+
+                @Override
+                public void failToSaveItemInFirebase(String pReferenceKey, long pItemId, String pError) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "Fail to save %s (id=%f) on Firebase.", pReferenceKey, pItemId, pError));
+                }
+
+                @Override
+                public void failToRemoveItemOfFirebase(String pReferenceKey, long pItemId, String pError) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "Fail to remove %s (id=%f) of Firebase.", pReferenceKey, pItemId, pError));
+                }
+
+                @Override
+                public void failToUpdateItemInFirebase(String pReferenceKey, long pItemId, String pError) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "Fail to update %s (id=%f) in Firebase.", pReferenceKey, pItemId, pError));
+                }
+
+                @Override
+                public void itemsSuccessfullySynchronized(String pReferenceKey) {
+                    Log.e(TAG, String.format(Locale.FRANCE, "%s successfully synchronized.", pReferenceKey));
+                }
+            });
+        }
+        if (tasks.contains(FIB_SCHEDULE_SNAPSHOT)) {
+            scheduleSnapshot(this, userUid);
+        }
+        if (tasks.contains(FIB_SAVE_NEW_SNAPSHOT)) {
+            saveNewSnapshot(userUid);
+        }
+        if (tasks.contains(FIB_GET_LAST_SNAPSHOT_DATE)) {
+            getLastSnapshot(userUid);
+        }
+        if (tasks.contains(FIB_GET_SNAPSHOTS)) {
+            getSnapshots(userUid);
+        }
+        if (tasks.contains(FIB_REPLACE_DATABASE)) {
+            String snapshotName = intent.getStringExtra(FIB_NEW_DATABASE);
+            boolean keepCopy = intent.getBooleanExtra(FIB_CREATE_SNAPSHOT, false);
+            askForReplacingDatabaseBySnapshot(userUid, snapshotName, keepCopy);
+        }
+    }
+
+    private void askForReplacingDatabaseBySnapshot(String pUserUid, String pSnapshotName, Boolean pCreateSnapshot) {
         Log.e(TAG, "ReplaceDatabase by: " + pSnapshotName + ", makeCopy: " + pCreateSnapshot);
 
         SQLiteDatabase database = new MyDatabase(getApplicationContext(), null).getWritableDatabase();
@@ -84,25 +163,31 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         if(pCreateSnapshot){
-            FirebaseUtils.createSnapshot(database,
-                    o -> {
-                        Log.e(TAG, "Snapshot created.");
-                        replaceDatabaseBySnapshot(pSnapshotName);
-                    },
-                    e -> Log.e(TAG, "Error while creating snapshot: " + e.getMessage())
+            FirebaseUtils.createSnapshot(database, pUserUid, new FirebaseUtils.SaveSnapshotListener() {
+                        @Override
+                        public void snapshotSaved(Snapshot newSnapshot) {
+                            Log.e(TAG, "Snapshot created.");
+                            replaceDatabaseBySnapshot(pUserUid, pSnapshotName);
+                        }
+
+                        @Override
+                        public void snapshotSavingFailed(String pError) {
+                            Log.e(TAG, "Error while creating snapshot: " + pError);
+                        }
+                    }
             );
         } else {
-            replaceDatabaseBySnapshot(pSnapshotName);
+            replaceDatabaseBySnapshot(pUserUid, pSnapshotName);
         }
     }
 
-    private void replaceDatabaseBySnapshot(String pSnapshotName){
+    private void replaceDatabaseBySnapshot(String pUserUid, String pSnapshotName){
         SQLiteDatabase database = new MyDatabase(getApplicationContext(), null).getWritableDatabase();
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(SnapshotFragment.MyReceiver.SNAPSHOT_FRAGMENT);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
-        FirebaseUtils.getSnapshotWithKey(pSnapshotName, new ValueEventListener() {
+        FirebaseUtils.getSnapshotWithKey(pUserUid, pSnapshotName, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Snapshot newSnap = FirebaseUtils.extractSnapshotFromDataSnapshot(dataSnapshot);
@@ -132,18 +217,18 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         });
     }
 
-    private void checkSnapshot(Context pContext){
+    private void scheduleSnapshot(Context pContext, String pUserUid){
         boolean snapshotsEnabled = PreferencesUtils.getBooleanPreferences(pContext, getString(R.string.pref_enable_firebase_snapshot));
         Log.e(TAG, "Snapshots enabled: " + snapshotsEnabled);
 
         if(snapshotsEnabled){
 
-            FirebaseUtils.getLastSnapshot(new ValueEventListener() {
+            FirebaseUtils.getLastSnapshot(pUserUid, new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String str = null;
                     for(DataSnapshot snap : dataSnapshot.getChildren()){ str = snap.getKey(); }
-                    Date last = !TextUtils.isEmpty(str) ? SnapshotFactory.extractDateFromSnapshot(str) : new Date();
+                    Date last = !TextUtils.isEmpty(str) ? SnapshotFactory.extractDateFromSnapshot(str) : new Date(0);
                     Log.e(TAG, "Last snapshot: " + last);
 
                     //FIXME use configuration
@@ -153,18 +238,20 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(last);
                     calendar.add(Calendar.DAY_OF_YEAR, 7);
-                    Log.e(TAG, "Next snapshot: " + calendar.getTime());
+                    calendar.setTime(DateUtils.getFirstSecondOfTheDay(calendar.getTime()));
 
-                    boolean isTimeForSnapshot = DateUtils.isPast(calendar.getTime());
-                    Log.e(TAG, "Is time for snapshot: " + isTimeForSnapshot);
 
-                    if(isTimeForSnapshot){
-                        SQLiteDatabase db = new MyDatabase(getApplicationContext(), null).getReadableDatabase();
-                        FirebaseUtils.createSnapshot(db,
-                                o -> Log.e(TAG, "Snapshot created."),
-                                e -> Log.e(TAG, "Error while creating snapshot: " + e.getMessage())
-                        );
-                    }
+                    //FIXME: Hack for test
+                    long alarmTime = calendar.getTimeInMillis();
+                    Log.e(TAG, "Next snapshot: " + new Date(alarmTime));
+                    AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    Intent intentAlarm = new Intent(getApplicationContext(), NotificationReceiver.class);
+                    intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, AbstractNotification.SNAPSHOT_TIME);
+
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
+                            PendingIntent.getBroadcast(getApplicationContext(), AbstractNotification.SNAPSHOT_TIME,
+                                    intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
+                    );
                 }
 
                 @Override
@@ -175,57 +262,55 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         }
     }
 
-    private void checkSynchronization(Context pContext, FirebaseTasks.SynchronizeListener pListener){
+    private void saveNewSnapshot(String pUserUid){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intentAlarm = new Intent(getApplicationContext(), NotificationReceiver.class);
+        SQLiteDatabase db = new MyDatabase(getApplicationContext(), null).getReadableDatabase();
+        FirebaseUtils.createSnapshot(db, pUserUid, new FirebaseUtils.SaveSnapshotListener() {
+            @Override
+            public void snapshotSaved(Snapshot newSnapshot) {
+                Log.e(TAG, "Snapshot created: " + newSnapshot.toString());
+                long alarmTime = new Date().getTime();
+
+                Bundle args = new Bundle();
+                args.putSerializable(NotificationReceiver.ITEM, newSnapshot);
+                intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, AbstractNotification.SNAPSHOT_NEW_ONE);
+                intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_ARGS, args);
+
+                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
+                        PendingIntent.getBroadcast(getApplicationContext(), AbstractNotification.SNAPSHOT_NEW_ONE,
+                                intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
+            }
+
+            @Override
+            public void snapshotSavingFailed(String pError) {
+                Log.e(TAG, "Error while creating snapshot: " + pError);
+                long alarmTime = new Date().getTime();
+
+                intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, AbstractNotification.SNAPSHOT_FAILURE);
+                intentAlarm.putExtra(NotificationReceiver.ERROR, pError);
+
+                alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
+                        PendingIntent.getBroadcast(getApplicationContext(), AbstractNotification.SNAPSHOT_FAILURE,
+                                intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT));
+            }
+        });
+    }
+
+    private void checkSynchronization(Context pContext, String pUserUid, FirebaseTasks.SynchronizeListener pListener){
         boolean synchronizationEnabled = PreferencesUtils.getBooleanPreferences(pContext, getString(R.string.pref_enable_firebase_synchronization));
         Log.e(TAG, "Synchronization enabled: " + synchronizationEnabled);
 
         if(synchronizationEnabled){
 
-            FirebaseUtils.getDataFromFirebase(new FirebaseUtils.FirebaseListener() {
-                @Override
-                public void onRemoteCourses(List<Course> pCourses) {
-                    List<DatabaseItem> items = new ArrayList<>();
-                    items.addAll(pCourses);
-                    //noinspection unchecked
-                    new FirebaseTasks.SynchronizeDatabases(
-                            FirebaseUtils.getCourseReference(),
-                            new MyDatabase(pContext, null),
-                            pListener).execute(items);
-                }
+            FirebaseUtils.getUserDataFromFirebase(pUserUid, new FirebaseUtils.FirebaseListener() {
 
                 @Override
-                public void onRemotePupils(List<Pupil> pPupils) {
-                    List<DatabaseItem> items = new ArrayList<>();
-                    items.addAll(pPupils);
+                public void onRemoteItems(List<DatabaseItem> pRemoteItems, DatabaseReference pDatabaseReference) {
                     //noinspection unchecked
-                    new FirebaseTasks.SynchronizeDatabases(
-                            FirebaseUtils.getPupilReference(),
-                            new MyDatabase(pContext, null),
-                            pListener).execute(items);
-                }
-
-                @Override
-                public void onRemoteLocations(List<Location> pLocations) {
-                    Log.e(TAG, "onRemoteLocations: " + pLocations.size());
-                    List<DatabaseItem> items = new ArrayList<>();
-                    items.addAll(pLocations);
-                    //noinspection unchecked
-                    new FirebaseTasks.SynchronizeDatabases(
-                            FirebaseUtils.getLocationReference(),
-                            new MyDatabase(pContext, null),
-                            pListener).execute(items);
-                }
-
-                @Override
-                public void onRemoteDevoirs(List<Devoir> pDevoirs) {
-                    Log.e(TAG, "onRemoteDevoirs: " + pDevoirs.size());
-                    List<DatabaseItem> items = new ArrayList<>();
-                    items.addAll(pDevoirs);
-                    //noinspection unchecked
-                    new FirebaseTasks.SynchronizeDatabases(
-                            FirebaseUtils.getDevoirReference(),
-                            new MyDatabase(pContext, null),
-                            pListener).execute(items);
+                    new FirebaseTasks.SynchronizeDatabases(pDatabaseReference,
+                            new MyDatabase(pContext, null), pListener)
+                            .execute(pRemoteItems);
                 }
 
                 @Override
@@ -236,10 +321,10 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         }
     }
 
-    private void getLastSnapshot(){
+    private void getLastSnapshot(String pUserUid){
         Log.e(TAG, "getLastSnapshot");
 
-        FirebaseUtils.getLastSnapshot(new ValueEventListener() {
+        FirebaseUtils.getLastSnapshot(pUserUid, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String str = null;
@@ -265,10 +350,10 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         });
     }
 
-    private void getSnapshots(){
+    private void getSnapshots(String pUserUid){
         Log.e(TAG, "getSnapshots");
 
-        FirebaseUtils.getSnapshots(new ValueEventListener() {
+        FirebaseUtils.getSnapshots(pUserUid, new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -312,30 +397,4 @@ public class FirebaseIntentService extends IntentService implements FirebaseTask
         });
     }
 
-
-    @Override
-    public void startSynchronization() {
-        Log.e(TAG, "startSynchronization");
-    }
-
-    @Override
-    public void progress(String pReferenceKey, double percent) { Log.e(TAG,  pReferenceKey + " x progress: " + percent); }
-
-    @Override
-    public void failToSaveItemInFirebase(long pItemId, String pError) {
-        Log.e(TAG, "failToSaveItemInFirebase: " + pError);
-    }
-
-    @Override
-    public void failToRemoveItemOfFirebase(long pItemId, String pError) {
-        Log.e(TAG, "failToRemoveItemOfFirebase: " + pError);
-    }
-
-    @Override
-    public void failToUpdateItemInFirebase(long pItemId, String pError) {
-        Log.e(TAG, "failToUpdateItemInFirebase: " + pError);
-    }
-
-    @Override
-    public void itemsSuccessfullySynchronized() { Log.e(TAG, "itemsSuccessfullySynchronized"); }
 }

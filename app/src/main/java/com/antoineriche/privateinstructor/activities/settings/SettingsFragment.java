@@ -1,119 +1,30 @@
-package com.antoineriche.privateinstructor.activities;
+package com.antoineriche.privateinstructor.activities.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.antoineriche.privateinstructor.R;
-import com.antoineriche.privateinstructor.customviews.SwitchPreferences;
+import com.antoineriche.privateinstructor.customviews.MyTabLayout;
 import com.antoineriche.privateinstructor.utils.PreferencesUtils;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SettingsFragment extends Fragment {
 
-    String TAG = SettingsFragment.class.getSimpleName();
+    private static final String TAG = SettingsFragment.class.getSimpleName();
 
-//    private Messenger mBoundServiceMessenger;
-//    private FirebaseService mBoundService;
-//    private boolean mServiceConnected = false;
-//    private final Messenger mActivityMessenger = new Messenger(new MyHandler(this));
-//    private ServiceConnection mServiceConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//            Log.e(TAG, "onServiceDisconnected");
-//            mBoundService = null;
-//            mBoundServiceMessenger = null;
-//            mServiceConnected = false;
-//        }
-//
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            Log.e(TAG, "onServiceConnected");
-//            mBoundServiceMessenger = ((FirebaseService.LocalBinder) service).getMessenger();
-//            mBoundService = ((FirebaseService.LocalBinder) service).getService();
-//            mServiceConnected = true;
-//            mBoundService.checkSyncState(mActivityMessenger);
-//        }
-//    };
+    public final static String TAB_GENERAL = "general";
+    public final static String TAB_NOTIFICATIONS = "notifications";
+    public final static String TAB_FIREBASE = "firebase";
 
-//    static class MyHandler extends Handler {
-//        private final WeakReference<SettingsFragment> mSettingsFragment;
-//
-//        MyHandler(SettingsFragment fragment) {
-//            mSettingsFragment = new WeakReference<>(fragment);
-//        }
-//
-//        @Override
-//        public void handleMessage(Message msg) {
-//            switch (msg.what) {
-//                case FirebaseService.MSG_SYNC_CHECK_STATE:
-//                    boolean isUpToDate = msg.getData().getBoolean(FirebaseService.MSG_EXTRA_DATA);
-//                    mSettingsFragment.get().enableView(R.id.btn_firebase_save, !isUpToDate);
-//                    String str = isUpToDate ? "Les bases sont synchronisées" : "Les bases ne sont pas synchronisées.";
-//                    mSettingsFragment.get().updateSyncState(str);
-//                    break;
-//                case FirebaseService.MSG_SYNC_CHECK_START:
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, true);
-//                    mSettingsFragment.get().updateSyncState("Contrôle de la base distante.");
-//                    break;
-//                case FirebaseService.MSG_SYNC_CHECK_END:
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, false);
-//                    break;
-//                case FirebaseService.MSG_SYNC_CHECK_COURSE_TO_ADD_COUNT:
-//                    mSettingsFragment.get().updateCount(R.id.tv_course_to_add_count,
-//                            msg.getData().getInt(FirebaseService.MSG_EXTRA_DATA));
-//                    break;
-//                case FirebaseService.MSG_SYNC_CHECK_COURSE_TO_REMOVE_COUNT:
-//                    mSettingsFragment.get().updateCount(R.id.tv_course_to_remove_count,
-//                            msg.getData().getInt(FirebaseService.MSG_EXTRA_DATA));
-//                    break;
-//                case FirebaseService.MSG_SYNC_CHECK_COURSE_TO_UPDATE_COUNT:
-//                    mSettingsFragment.get().updateCount(R.id.tv_course_to_update_count,
-//                            msg.getData().getInt(FirebaseService.MSG_EXTRA_DATA));
-//                    break;
-//
-//                case FirebaseService.MSG_SYNCHRONIZATION_START:
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, true);
-//                    mSettingsFragment.get().updateSyncState("Synchronisation en cours.");
-//                    break;
-//                case FirebaseService.MSG_SYNCHRONIZATION_SUCCESS:
-//                    mSettingsFragment.get().coursesSuccessfullySynchronized();
-//                    mSettingsFragment.get().updateSyncState("Les bases sont synchronisées");
-//                    break;
-//                case FirebaseService.MSG_SYNCHRONIZATION_ERROR:
-//                    str = String.format(Locale.FRANCE, "Erreur lors de la synchronisation\n%s",
-//                            msg.getData().getString(FirebaseService.MSG_EXTRA_DATA));
-//                    mSettingsFragment.get().updateSyncState(str);
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, false);
-//                    break;
-//
-//                case FirebaseService.MSG_SNAPSHOT_START:
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, true);
-//                    mSettingsFragment.get().updateSyncState("Snapshot creation starts");
-//                    break;
-//                case FirebaseService.MSG_SNAPSHOT_ERROR:
-//                    str = String.format(Locale.FRANCE, "Erreur de snapshot\n%s",
-//                            msg.getData().getString(FirebaseService.MSG_EXTRA_DATA));
-//                    mSettingsFragment.get().updateSyncState(str);
-//                    mSettingsFragment.get().enableView(R.id.btn_create_snapshot, true);
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, false);
-//                    break;
-//                case FirebaseService.MSG_SNAPSHOT_SUCCESS:
-//                    str = String.format(Locale.FRANCE, "Snapshot created\n%s",
-//                            msg.getData().getString(FirebaseService.MSG_EXTRA_DATA));
-//                    mSettingsFragment.get().updateSyncState(str);
-//                    mSettingsFragment.get().enableView(R.id.btn_create_snapshot, true);
-//                    mSettingsFragment.get().updateViewVisibility(R.id.pb_check, false);
-//                    break;
-//
-//            }
-//        }
-//    }
 
     public SettingsFragment() {
     }
@@ -131,7 +42,25 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        SharedPreferences sharedPreferences = PreferencesUtils.getDefaultSharedPreferences(getActivity());
+
+        MyTabLayout mtl = view.findViewById(R.id.mtl_settings);
+        mtl.addTab("Général", TAB_GENERAL);
+        mtl.addTab("Notifications", TAB_NOTIFICATIONS);
+        mtl.addTab("Firebase", TAB_FIREBASE);
+        mtl.addTabListener(tabTag -> {
+            if (TAB_GENERAL.equals(tabTag)) {
+                loadFragment(SettingsGeneralFragment.newInstance());
+            } else if (TAB_FIREBASE.equals(tabTag)){
+                loadFragment(SettingsAccountFragment.newInstance());
+            } else if (TAB_NOTIFICATIONS.equals(tabTag)){
+                loadFragment(SettingsNotificationFragment.newInstance());
+            }
+        });
+        mtl.getTabAt(0);
+
+
+//FIXME
+//        SharedPreferences sharedPreferences = PreferencesUtils.getDefaultSharedPreferences(getActivity());
 
 //        RadioGroup radioGroup = view.findViewById(R.id.rg_sync_freq);
 //        enableRadioGroup(radioGroup, PreferencesUtils.getBooleanPreferences(getContext(),
@@ -158,11 +87,15 @@ public class SettingsFragment extends Fragment {
 //                    .setChecked(true);
 //        }
 
-        ((SwitchPreferences) view.findViewById(R.id.swipref_course_beginning)).setSharedPreferences(sharedPreferences);
-        ((SwitchPreferences) view.findViewById(R.id.swipref_course_end)).setSharedPreferences(sharedPreferences);
+        //FIXME
+//        ((SwitchPreferences) view.findViewById(R.id.swipref_course_beginning)).setSharedPreferences(sharedPreferences);
+//        ((SwitchPreferences) view.findViewById(R.id.swipref_course_end)).setSharedPreferences(sharedPreferences);
+//
+//        ((SwitchPreferences) view.findViewById(R.id.swipref_enable_firebase_synchronization)).setSharedPreferences(sharedPreferences);
+//        ((SwitchPreferences) view.findViewById(R.id.swipref_enable_firebase_snapshots)).setSharedPreferences(sharedPreferences);
 
-        ((SwitchPreferences) view.findViewById(R.id.swipref_enable_firebase_synchronization)).setSharedPreferences(sharedPreferences);
-        ((SwitchPreferences) view.findViewById(R.id.swipref_enable_firebase_snapshots)).setSharedPreferences(sharedPreferences);
+
+
 //        SwitchPreferences switchFirebase = view.findViewById(R.id.swipref_enable_firebase_snapshots);
 //        switchFirebase.setSharedPreferences(sharedPreferences);
 //        switchFirebase.setSwitchPreferencesListener(new SwitchPreferences.SwitchPreferencesListener() {
@@ -289,4 +222,10 @@ public class SettingsFragment extends Fragment {
 //            return -1;
 //        }
 //    }
+
+    private void loadFragment(Fragment pFragment) {
+        FragmentManager fragmentManager = getChildFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.fl_settings, pFragment).commit();
+    }
+
 }

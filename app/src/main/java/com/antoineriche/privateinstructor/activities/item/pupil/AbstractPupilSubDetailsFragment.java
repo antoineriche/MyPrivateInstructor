@@ -1,6 +1,7 @@
 package com.antoineriche.privateinstructor.activities.item.pupil;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,8 +20,12 @@ import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.beans.Course;
 import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.EventItem;
+import com.antoineriche.privateinstructor.beans.Location;
 import com.antoineriche.privateinstructor.beans.Pupil;
 import com.antoineriche.privateinstructor.customviews.GraphicView;
+import com.antoineriche.privateinstructor.database.LocationTable;
+import com.antoineriche.privateinstructor.database.MyDatabase;
+import com.antoineriche.privateinstructor.utils.PreferencesUtils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,10 +37,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 public abstract class AbstractPupilSubDetailsFragment extends Fragment {
 
@@ -169,6 +173,7 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
         }
 
         private void fillGraphicView(GraphicView graphView, List<Devoir> pDevoirs){
+            pDevoirs.sort(Comparator.comparing(Devoir::getDate));
             Float[] marks = new Float[pDevoirs.size()];
 
             for(int i = 0 ; i < pDevoirs.size() ; i++){
@@ -183,7 +188,7 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
     public static class PupilMapDetailsFragment extends AbstractPupilSubDetailsFragment
             implements OnMapReadyCallback {
 
-        private static final LatLng DEFAULT_HOME = new LatLng(44.836260, -0.602890);
+//        private static final LatLng DEFAULT_HOME = new LatLng(44.836260, -0.602890);
 
         public PupilMapDetailsFragment() {
         }
@@ -226,9 +231,11 @@ public abstract class AbstractPupilSubDetailsFragment extends Fragment {
                 markers.add(newMarker(googleMap, pupil.getFullName(), pupil.getLocation().getLatLng()));
             }
 
-            //FIXME
-            if (true) {
-                markers.add(newMarker(googleMap, "User home", DEFAULT_HOME));
+            String locationUuid = PreferencesUtils.getStringPreferences(getContext(), getString(R.string.pref_user_location));
+            if (!TextUtils.isEmpty(locationUuid)) {
+                SQLiteDatabase sql = new MyDatabase(getContext(), null).getReadableDatabase();
+                Location location = LocationTable.getLocationWithUuid(sql, locationUuid);
+                markers.add(newMarker(googleMap, "User home", location.getLatLng()));
             }
 
             zoomMap(googleMap, markers);

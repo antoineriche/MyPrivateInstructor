@@ -31,4 +31,16 @@ public class PreferencesUtils {
         return getDefaultSharedPreferences(pContext).getLong(pKey, pDefaultValue);
     }
 
+    public static void setStringPreferences(Context pContext, String pKey, String pValue){
+        getDefaultSharedPreferences(pContext).edit().putString(pKey, pValue).apply();
+    }
+
+    public static String getStringPreferences(Context pContext, String pKey, String pDefaultValue){
+        return getDefaultSharedPreferences(pContext).getString(pKey, pDefaultValue);
+    }
+
+    public static String getStringPreferences(Context pContext, String pKey){
+        return getStringPreferences(pContext, pKey, "");
+    }
+
 }

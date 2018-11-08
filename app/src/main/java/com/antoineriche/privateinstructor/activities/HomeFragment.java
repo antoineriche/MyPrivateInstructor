@@ -199,11 +199,11 @@ public class HomeFragment extends AbstractDatabaseFragment {
             if(!courses.isEmpty()){
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     courseContent = String.join("\n", courses.stream().map(course ->
-                            String.format(Locale.FRANCE, "%s : %s", course.getPupil().getFullName(), course.getFriendlyTimeSlot()))
+                            String.format(Locale.FRANCE, "%s : %s", course.getFriendlyTimeSlot(), course.getPupil().getFullName()))
                             .collect(Collectors.toList()));
                 } else {
                     courseContent = courses.stream().map(course ->
-                            String.format(Locale.FRANCE, "%s : %s\n", course.getPupil().getFullName(), course.getFriendlyTimeSlot()))
+                            String.format(Locale.FRANCE, "%s : %s", course.getFriendlyTimeSlot(), course.getPupil().getFullName()))
                             .collect(Collectors.toList()).toString();
                 }
             }

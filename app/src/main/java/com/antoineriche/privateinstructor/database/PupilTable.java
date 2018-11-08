@@ -131,13 +131,13 @@ public class PupilTable extends MyDatabaseTable {
     }
 
     public static boolean removePupilWithUuid(SQLiteDatabase pSQLDatabase, String pUuid) {
-        List<Long> coursesId = CourseTable.getCoursesForPupil(pSQLDatabase, pUuid).stream().map(Course::getId).collect(Collectors.toList());
-        for(long courseId : coursesId){
-            CourseTable.removeCourseWithID(pSQLDatabase, courseId);
-        }
+//        List<Long> coursesId = CourseTable.getCoursesForPupil(pSQLDatabase, pUuid).stream().map(Course::getId).collect(Collectors.toList());
+//        coursesId.stream().forEach(id -> CourseTable.removeCourseWithID(pSQLDatabase, id));
+        CourseTable.getCoursesForPupil(pSQLDatabase, pUuid).forEach(c -> CourseTable.removeCourseWithID(pSQLDatabase, c.getId()));
+        DevoirTable.getDevoirsForPupil(pSQLDatabase, pUuid).forEach(d -> DevoirTable.removeDevoirWithID(pSQLDatabase, d.getId()));
+
         //TODO deal with location
-        //TODO Remove devoir
-        return pSQLDatabase.delete(TABLE_NAME, COL_LOCATION_UUID + " = " + pUuid, null) == 1;
+        return pSQLDatabase.delete(TABLE_NAME, COL_UUID + " = '" + pUuid+"'", null) == 1;
     }
 
     public static void clearTable(SQLiteDatabase pSQLDatabase){

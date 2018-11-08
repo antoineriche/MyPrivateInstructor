@@ -40,7 +40,7 @@ public class FirebaseTasks {
         protected void onPreExecute() {
             super.onPreExecute();
             mDatabase = pMyDB.getReadableDatabase();
-            mListener.startSynchronization();
+            mListener.startSynchronization(mFirebaseReference.getKey());
         }
 
         @Override
@@ -52,7 +52,7 @@ public class FirebaseTasks {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mListener.itemsSuccessfullySynchronized();
+            mListener.itemsSuccessfullySynchronized(mFirebaseReference.getKey());
             mDatabase.close();
         }
 
@@ -93,7 +93,7 @@ public class FirebaseTasks {
                             o -> onProgressUpdate(progress),
                             e -> {
                                 Log.e(TAG, "Fail to save item to Firebase");
-                                mListener.failToSaveItemInFirebase(itemId, e.getMessage());
+                                mListener.failToSaveItemInFirebase(mFirebaseReference.getKey(), itemId, e.getMessage());
                             });
                 }
             }
@@ -110,7 +110,7 @@ public class FirebaseTasks {
                     FirebaseUtils.removeItemFromFirebase(firebaseKey, mFirebaseReference,
                             (databaseError, databaseReference) -> {
                                 if(databaseError != null){
-                                    mListener.failToRemoveItemOfFirebase(itemId, databaseError.getMessage());
+                                    mListener.failToRemoveItemOfFirebase(mFirebaseReference.getKey(), itemId, databaseError.getMessage());
                                 } else {
                                     onProgressUpdate(progress);
                                 }
@@ -131,7 +131,7 @@ public class FirebaseTasks {
                             o -> onProgressUpdate(progress),
                             e -> {
                                 Log.e(TAG, "Fail to update item in Firebase");
-                                mListener.failToUpdateItemInFirebase(itemId, e.getMessage());
+                                mListener.failToUpdateItemInFirebase(mFirebaseReference.getKey(), itemId, e.getMessage());
                             });
                 }
             }
@@ -167,11 +167,11 @@ public class FirebaseTasks {
 
 
     public interface SynchronizeListener {
-        void startSynchronization();
+        void startSynchronization(String pReferenceKey);
         void progress(String pReferenceKey, double percent);
-        void failToSaveItemInFirebase(long pItemId, String pError);
-        void failToRemoveItemOfFirebase(long pItemId, String pError);
-        void failToUpdateItemInFirebase(long pItemId, String pError);
-        void itemsSuccessfullySynchronized();
+        void failToSaveItemInFirebase(String pReferenceKey, long pItemId, String pError);
+        void failToRemoveItemOfFirebase(String pReferenceKey, long pItemId, String pError);
+        void failToUpdateItemInFirebase(String pReferenceKey, long pItemId, String pError);
+        void itemsSuccessfullySynchronized(String pReferenceKey);
     }
 }

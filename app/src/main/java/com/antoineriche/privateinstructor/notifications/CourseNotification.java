@@ -18,10 +18,6 @@ import java.util.Locale;
 
 public abstract class CourseNotification extends AbstractNotification {
 
-    public static int BEGINNING_COURSE_CODE = 91;
-    public static int END_COURSE_CODE = 92;
-    public static List<Integer> NOTIFICATION_CODES = Arrays.asList(BEGINNING_COURSE_CODE, END_COURSE_CODE);
-
     @Override
     String getChannelId() {
         return "COURSES_NOTIFICATION";
@@ -76,7 +72,7 @@ public abstract class CourseNotification extends AbstractNotification {
 
         @Override
         int getNotificationId() {
-            return BEGINNING_COURSE_CODE;
+            return COURSE_BEGINNING;
         }
 
     }
@@ -101,7 +97,7 @@ public abstract class CourseNotification extends AbstractNotification {
 
         @Override
         int getNotificationId() {
-            return END_COURSE_CODE;
+            return COURSE_END;
         }
 
         @Override
@@ -117,7 +113,7 @@ public abstract class CourseNotification extends AbstractNotification {
             launchIntent.putExtra(AbstractItemActivity.ARG_ITEM_ID, course.getId());
             launchIntent.putExtra(AbstractItemActivity.ARG_ITEM_EDITION, true);
             launchIntent.putExtra(NotificationReceiver.NOTIFICATION_ID, getNotificationId());
-            return PendingIntent.getActivity(pContext, END_COURSE_CODE,
+            return PendingIntent.getActivity(pContext, COURSE_END,
                     launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 

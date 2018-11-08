@@ -3,7 +3,6 @@ package com.antoineriche.privateinstructor.beans;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import com.antoineriche.privateinstructor.R;
@@ -14,10 +13,11 @@ import com.google.firebase.database.Exclude;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.antoineriche.privateinstructor.database.DevoirTable.COL_DATE;
 import static com.antoineriche.privateinstructor.database.DevoirTable.COL_CHAPTER;
 import static com.antoineriche.privateinstructor.database.DevoirTable.COL_COMMENT;
+import static com.antoineriche.privateinstructor.database.DevoirTable.COL_DATE;
 import static com.antoineriche.privateinstructor.database.DevoirTable.COL_DURATION;
 import static com.antoineriche.privateinstructor.database.DevoirTable.COL_MARK;
 import static com.antoineriche.privateinstructor.database.DevoirTable.COL_MAX_MARK;
@@ -259,5 +259,23 @@ public class Devoir implements Serializable, DatabaseItem, EventItem {
         values.put(COL_DURATION, this.duration);
         values.put(COL_PUPIL_UUID, this.pupilUuid);
         return values;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Devoir devoir = (Devoir) o;
+        return id == devoir.id &&
+                date == devoir.date &&
+                Double.compare(devoir.mark, mark) == 0 &&
+                Double.compare(devoir.maxMark, maxMark) == 0 &&
+                state == devoir.state &&
+                type == devoir.type &&
+                duration == devoir.duration &&
+                Objects.equals(pupilUuid, devoir.pupilUuid) &&
+                Objects.equals(chapter, devoir.chapter) &&
+                Objects.equals(comment, devoir.comment) &&
+                Objects.equals(uuid, devoir.uuid);
     }
 }

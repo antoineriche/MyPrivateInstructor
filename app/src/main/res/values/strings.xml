@@ -18,6 +18,8 @@
     <string name="pref_enable_firebase_synchronization">pref_enable_firebase_synchronization</string>
     <string name="pref_enable_firebase_snapshot">pref_enable_firebase_snapshot</string>
     <string name="pref_firebase_snapshot_frequency">pref_firebase_snapshot_frequency</string>
+    <string name="pref_user_mail">pref_user_mail</string>
+    <string name="pref_user_location">pref_user_location</string>
 
     <string name="action_save">Enregistrer</string>
     <string name="action_cancel">Annuler</string>

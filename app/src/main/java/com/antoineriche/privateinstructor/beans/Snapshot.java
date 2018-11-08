@@ -5,6 +5,7 @@ import com.antoineriche.privateinstructor.utils.SnapshotFactory;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Snapshot implements Serializable {
 
@@ -71,4 +72,12 @@ public class Snapshot implements Serializable {
     public void setDevoirs(List<Devoir> pDevoirs) {
         this.mDevoirs = pDevoirs;
     }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.FRANCE, "Snapshot{date: %s, name: %s, cours: %d, pupils: %d, devoirs: %d, locations: %d}",
+                getDate().toString(), getName(), getCourses().size(),
+                getPupils().size(), getDevoirs().size(), getLocations().size());
+    }
+
 }

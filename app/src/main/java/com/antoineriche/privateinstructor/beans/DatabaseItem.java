@@ -1,9 +1,10 @@
 package com.antoineriche.privateinstructor.beans;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
 
-public interface DatabaseItem {
+public interface DatabaseItem extends Serializable {
 
     long getId();
 

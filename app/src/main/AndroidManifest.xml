@@ -31,6 +31,7 @@
 
         <service android:name=".services.CourseCheckingService" />
         <service android:name=".services.FirebaseIntentService" />
+        <service android:name=".services.DatabaseIntentService" />
 
         <receiver android:name=".services.NotificationReceiver" />
 

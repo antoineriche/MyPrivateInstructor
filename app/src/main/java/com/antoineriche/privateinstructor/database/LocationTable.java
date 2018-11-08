@@ -1,8 +1,10 @@
 package com.antoineriche.privateinstructor.database;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.antoineriche.privateinstructor.beans.Devoir;
 import com.antoineriche.privateinstructor.beans.Location;
 
 import java.util.ArrayList;
@@ -52,6 +54,10 @@ public class LocationTable extends MyDatabaseTable {
         else{
             return null;
         }
+    }
+
+    public static int updateLocationWithUuid(SQLiteDatabase pSQLDatabase, String uUID, Location location) {
+        return pSQLDatabase.update(TABLE_NAME, location.toContentValues(), COL_UUID + " = '" + uUID + "'", null);
     }
 
     public static boolean removeLocationWithID(SQLiteDatabase pSQLDatabase, long id) {

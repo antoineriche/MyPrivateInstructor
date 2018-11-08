@@ -12,7 +12,20 @@ import android.support.v4.app.NotificationManagerCompat;
 import com.antoineriche.privateinstructor.R;
 import com.antoineriche.privateinstructor.services.NotificationReceiver;
 
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class AbstractNotification {
+
+    private static final String TAG = AbstractNotification.class.getSimpleName();
+
+    public static int COURSE_BEGINNING = 91;
+    public static int COURSE_END = 92;
+    private static List<Integer> COURSES_CODES = Arrays.asList(COURSE_BEGINNING, COURSE_END);
+    public static int SNAPSHOT_TIME = 101;
+    public static int SNAPSHOT_NEW_ONE = 102;
+    public static int SNAPSHOT_FAILURE = 103;
+    private static List<Integer> SNAPSHOTS_CODES = Arrays.asList(SNAPSHOT_TIME, SNAPSHOT_NEW_ONE, SNAPSHOT_FAILURE);
 
     abstract String getTitle();
     abstract String getContent();
@@ -40,7 +53,7 @@ public abstract class AbstractNotification {
     }
 
     public NotificationCompat.Builder build(Context pContext){
-        return new NotificationCompat.Builder(pContext, getChannelName())
+        return new NotificationCompat.Builder(pContext, getChannelId())
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getTitle())
@@ -65,6 +78,14 @@ public abstract class AbstractNotification {
         intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_ID, getNotificationId());
         return PendingIntent.getBroadcast(pContext, NotificationReceiver.CANCEL_NOTIFICATION,
                 intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static boolean dealsWithCourse(int requestCode){
+        return COURSES_CODES.contains(requestCode);
+    }
+
+    public static boolean dealsWithSnapshot(int requestCode){
+        return SNAPSHOTS_CODES.contains(requestCode);
     }
 
 }

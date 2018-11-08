@@ -33,95 +33,117 @@ public class FirebaseUtils {
     private final static String TAG = FirebaseUtils.class.getSimpleName();
 
     public final static String DATA_REFERENCE = "data";
+    public final static String USER_INFO_REFERENCE = "user-info";
+    public final static String SNAPSHOT_REFERENCE = "snapshots";
     public final static String COURSE_REFERENCE = "courses";
     public final static String DEVOIR_REFERENCE = "devoirs";
     public final static String PUPIL_REFERENCE = "pupils";
     public final static String LOCATION_REFERENCE = "locations";
-    public final static String SNAPSHOT_REFERENCE = "snapshots";
+
+
+    public final static String USER_LOCATION = "location";
 
     private static FirebaseDatabase getDatabase() {
         return FirebaseDatabase.getInstance();
     }
 
-    private static DatabaseReference getDataReference(){
-        return getDatabase().getReference(DATA_REFERENCE);
+    private static DatabaseReference getUserReference(String pUserUid) {
+        return getDatabase().getReference(pUserUid);
     }
 
-    public static DatabaseReference getCourseReference(){
-        return getDataReference().child(COURSE_REFERENCE);
+    private static DatabaseReference getUserInfoReference(String pUserUid){
+        return getUserReference(pUserUid).child(USER_INFO_REFERENCE);
     }
 
-    public static DatabaseReference getPupilReference(){
-        return getDataReference().child(PUPIL_REFERENCE);
+    private static DatabaseReference getDataReference(String pUserUid){
+        return getUserReference(pUserUid).child(DATA_REFERENCE);
     }
 
-    public static DatabaseReference getLocationReference(){
-        return getDataReference().child(LOCATION_REFERENCE);
+    public static DatabaseReference getCourseReference(String pUserUid){
+        return getDataReference(pUserUid).child(COURSE_REFERENCE);
     }
 
-    public static DatabaseReference getDevoirReference(){
-        return getDataReference().child(DEVOIR_REFERENCE);
+    public static DatabaseReference getPupilReference(String pUserUid){
+        return getDataReference(pUserUid).child(PUPIL_REFERENCE);
     }
 
-    private static DatabaseReference getSnapshotReference(){
-        return getDatabase().getReference(SNAPSHOT_REFERENCE);
+    public static DatabaseReference getLocationReference(String pUserUid){
+        return getDataReference(pUserUid).child(LOCATION_REFERENCE);
     }
 
-    public static void saveCourseInFirebase(Course course, OnSuccessListener pSuccessListener, OnFailureListener pFailureListener){
-        saveItemInFirebase(course, getCourseReference(), pSuccessListener, pFailureListener);
+    public static DatabaseReference getDevoirReference(String pUserUid){
+        return getDataReference(pUserUid).child(DEVOIR_REFERENCE);
+    }
+
+    private static DatabaseReference getSnapshotReference(String pUserUid){
+        return getUserReference(pUserUid).child(SNAPSHOT_REFERENCE);
+    }
+
+    private static void updateUserInfo(String pUserUid, String infoKey, Object infoValue, OnSuccessListener pSuccessListener, OnFailureListener pFailureListener){
+        getUserInfoReference(pUserUid).child(infoKey).setValue(infoValue)
+                .addOnSuccessListener(pSuccessListener)
+                .addOnFailureListener(pFailureListener);
+    }
+
+    public static void updateUserLocation(String pUserUid, String locationUuid, OnSuccessListener pSuccessListener, OnFailureListener pFailureListener){
+        updateUserInfo(pUserUid, USER_LOCATION, locationUuid, pSuccessListener, pFailureListener);
     }
 
     public static void saveItemInFirebase(DatabaseItem item, DatabaseReference pReference, OnSuccessListener pSuccessListener, OnFailureListener pFailureListener){
         String pKey = String.format(Locale.FRANCE, "%04d", item.getId());
-        pReference.child(pKey).setValue(item.toMap())
-                .addOnSuccessListener(pSuccessListener).addOnFailureListener(pFailureListener);
+        pReference.child(pKey).setValue(item.toMap()).addOnSuccessListener(pSuccessListener)
+                .addOnFailureListener(pFailureListener);
     }
 
-    public static void createSnapshot(SQLiteDatabase pDatabase, OnSuccessListener pSuccessListener, OnFailureListener pFailureListener){
+    public static void createSnapshot(SQLiteDatabase pDatabase, String pUserUid, SaveSnapshotListener pListener){
 
         String snapshotName = SnapshotFactory.createSnapshotName();
 
-        DatabaseReference reference = getSnapshotReference().child(snapshotName);
+        DatabaseReference reference = getSnapshotReference(pUserUid).child(snapshotName);
 
         Map<String, Map<String, Map<String, Object>>> root = new HashMap<>();
 
         Map<String, Map<String, Object>> courses = new HashMap<>();
-        CourseTable.getAllCourses(pDatabase).forEach(c -> courses.put(c.generateDatabaseId(), c.toMap()));
+        List<Course> lCourses = CourseTable.getAllCourses(pDatabase);
+        lCourses.forEach(c -> courses.put(c.generateDatabaseId(), c.toMap()));
         root.put(COURSE_REFERENCE, courses);
 
         Map<String, Map<String, Object>> devoirs = new HashMap<>();
-        DevoirTable.getAllDevoirs(pDatabase).forEach(c -> devoirs.put(c.generateDatabaseId(), c.toMap()));
+        List<Devoir> lDevoirs = DevoirTable.getAllDevoirs(pDatabase);
+        lDevoirs.forEach(c -> devoirs.put(c.generateDatabaseId(), c.toMap()));
         root.put(DEVOIR_REFERENCE, devoirs);
 
         Map<String, Map<String, Object>> pupils = new HashMap<>();
-        PupilTable.getAllPupils(pDatabase).forEach(p -> pupils.put(p.generateDatabaseId(), p.toMap()));
+        List<Pupil> lPupils = PupilTable.getAllPupils(pDatabase);
+        lPupils.forEach(p -> pupils.put(p.generateDatabaseId(), p.toMap()));
         root.put(PUPIL_REFERENCE, pupils);
 
         Map<String, Map<String, Object>> locations = new HashMap<>();
-        LocationTable.getAllLocations(pDatabase).forEach(l -> locations.put(l.generateDatabaseId(), l.toMap()));
+        List<Location> lLocations = LocationTable.getAllLocations(pDatabase);
+        lLocations.forEach(l -> locations.put(l.generateDatabaseId(), l.toMap()));
         root.put(LOCATION_REFERENCE, locations);
 
-        reference.setValue(root).addOnSuccessListener(pSuccessListener).addOnFailureListener(pFailureListener);
-    }
-
-    public static void removeCourseFromFirebase(String pFirebaseKey, DatabaseReference.CompletionListener pListener){
-        getCourseReference().child(pFirebaseKey).removeValue(pListener);
+        reference.setValue(root)
+                .addOnSuccessListener(aVoid -> pListener.snapshotSaved(new Snapshot(
+                        SnapshotFactory.extractDateFromSnapshot(snapshotName),
+                        lCourses, lPupils, lLocations, lDevoirs)))
+                .addOnFailureListener(e -> pListener.snapshotSavingFailed(e.getMessage()));
     }
 
     public static void removeItemFromFirebase(String pFirebaseKey, DatabaseReference pReference, DatabaseReference.CompletionListener pListener){
         pReference.child(pFirebaseKey).removeValue(pListener);
     }
 
-    public static void getSnapshots(ValueEventListener pValueEventListener){
-        getSnapshotReference().addListenerForSingleValueEvent(pValueEventListener);
+    public static void getSnapshots(String pUserUid, ValueEventListener pValueEventListener){
+        getSnapshotReference(pUserUid).addListenerForSingleValueEvent(pValueEventListener);
     }
 
-    public static void getSnapshotWithKey(String pSnapshotKey, ValueEventListener pValueEventListener){
-        getSnapshotReference().child(pSnapshotKey).addListenerForSingleValueEvent(pValueEventListener);
+    public static void getSnapshotWithKey(String pUserUid, String pSnapshotKey, ValueEventListener pValueEventListener){
+        getSnapshotReference(pUserUid).child(pSnapshotKey).addListenerForSingleValueEvent(pValueEventListener);
     }
 
-    public static void getLastSnapshot(ValueEventListener pValueEventListener){
-        getSnapshotReference().orderByKey().limitToLast(1).addListenerForSingleValueEvent(pValueEventListener);
+    public static void getLastSnapshot(String pUserUid, ValueEventListener pValueEventListener){
+        getSnapshotReference(pUserUid).orderByKey().limitToLast(1).addListenerForSingleValueEvent(pValueEventListener);
     }
 
     public static Snapshot extractSnapshotFromDataSnapshot(DataSnapshot pDataSnapshot){
@@ -192,26 +214,27 @@ public class FirebaseUtils {
         return list;
     }
 
-    public static void getDataFromFirebase(FirebaseListener pListener){
-        getDataReference().addListenerForSingleValueEvent(new ValueEventListener() {
+
+    public static void getUserDataFromFirebase(String pUserUid, FirebaseListener pListener){
+        getDataReference(pUserUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                pListener.onRemoteCourses(dataSnapshot.hasChild(COURSE_REFERENCE) ?
-                        extractCoursesFromDataSnapshot(dataSnapshot.child(COURSE_REFERENCE))
-                        : new ArrayList<>());
+                pListener.onRemoteItems(dataSnapshot.hasChild(COURSE_REFERENCE) ?
+                        new ArrayList<>(extractCoursesFromDataSnapshot(dataSnapshot.child(COURSE_REFERENCE)))
+                        : new ArrayList<>(), getCourseReference(pUserUid));
 
-                pListener.onRemotePupils(dataSnapshot.hasChild(PUPIL_REFERENCE) ?
-                        extractPupilsFromDataSnapshot(dataSnapshot.child(PUPIL_REFERENCE))
-                        : new ArrayList<>());
+                pListener.onRemoteItems(dataSnapshot.hasChild(PUPIL_REFERENCE) ?
+                        new ArrayList<>(extractPupilsFromDataSnapshot(dataSnapshot.child(PUPIL_REFERENCE)))
+                        : new ArrayList<>(), getPupilReference(pUserUid));
 
-                pListener.onRemoteLocations(dataSnapshot.hasChild(LOCATION_REFERENCE) ?
-                        extractLocationsFromDataSnapshot(dataSnapshot.child(LOCATION_REFERENCE))
-                        : new ArrayList<>());
+                pListener.onRemoteItems(dataSnapshot.hasChild(LOCATION_REFERENCE) ?
+                        new ArrayList<>(extractLocationsFromDataSnapshot(dataSnapshot.child(LOCATION_REFERENCE)))
+                        : new ArrayList<>(), getLocationReference(pUserUid));
 
-                pListener.onRemoteDevoirs(dataSnapshot.hasChild(DEVOIR_REFERENCE) ?
-                        extractDevoirsFromDataSnapshot(dataSnapshot.child(DEVOIR_REFERENCE))
-                        : new ArrayList<>());
+                pListener.onRemoteItems(dataSnapshot.hasChild(DEVOIR_REFERENCE) ?
+                        new ArrayList<>(extractDevoirsFromDataSnapshot(dataSnapshot.child(DEVOIR_REFERENCE)))
+                        : new ArrayList<>(), getDevoirReference(pUserUid));
             }
 
             @Override
@@ -221,11 +244,13 @@ public class FirebaseUtils {
         });
     }
 
-    public interface FirebaseListener{
-        void onRemoteCourses(List<Course> pCourses);
-        void onRemotePupils(List<Pupil> pPupils);
-        void onRemoteLocations(List<Location> pLocations);
-        void onRemoteDevoirs(List<Devoir> pDevoirs);
+    public interface FirebaseListener {
+        void onRemoteItems(List<DatabaseItem> pRemoteItems, DatabaseReference pDatabaseReference);
         void cancelled(String pError);
+    }
+
+    public interface SaveSnapshotListener {
+        void snapshotSaved(Snapshot newSnapshot);
+        void snapshotSavingFailed(String pError);
     }
 }

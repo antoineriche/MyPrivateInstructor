@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/vertical_lv_margin"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Identifiants Firebase"
+                android:textStyle="bold"
+                android:textColor="@color/themPrimaryDark"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/lv_inter_margin">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="Adresse mail"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tv_user_mail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/lv_inter_margin">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="Firebase ID"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tv_user_firebase_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/lv_inter_margin">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="Mot de passe oublié ?"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tv_user_reset_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:textColor="@color/themPrimary"
+                    android:text="Reset password"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/vertical_lv_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/vertical_lv_margin"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Synchronisation"
+                android:textStyle="bold"
+                android:textColor="@color/themPrimaryDark"/>
+
+            <com.antoineriche.privateinstructor.customviews.SwitchPreferences
+                android:id="@+id/swipref_enable_firebase_synchronization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:preferencesLabel="Autoriser la synchronisation sur Firebase"
+                app:preferencesDescription="Garder les données à jour sur tous vos appareils."
+                app:preferences_key="@string/pref_enable_firebase_synchronization"/>
+
+            <com.antoineriche.privateinstructor.customviews.SwitchPreferences
+                android:id="@+id/swipref_enable_firebase_snapshots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:preferencesLabel="Autoriser les snapshots sur Firebase"
+                app:preferencesDescription="Sauvegarder une copie de vos données une fois par semaine. Vous pouvez revenir à vos données antérieures depuis l'onglet 'Snapshots'."
+                app:preferences_key="@string/pref_enable_firebase_snapshot"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fréquence de synchronisation"
+                android:textColor="@color/black"
+                android:visibility="gone"/>
+
+            <RadioGroup
+                android:id="@+id/rg_sync_freq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <RadioButton
+                    android:id="@+id/rb_sync_daily"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
+                    android:text="Quotidienne"/>
+
+                <RadioButton
+                    android:id="@+id/rb_sync_weekly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hebdomadaire"/>
+
+                <RadioButton
+                    android:id="@+id/rb_sync_monthly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mensuelle"/>
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
+

@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 public class CourseCheckingService extends Service {
 
+    private static final String TAG = CourseCheckingService.class.getSimpleName();
+
     private SQLiteDatabase mDatabase;
 
     @Override
@@ -39,7 +41,7 @@ public class CourseCheckingService extends Service {
         // Update past courses from foreseen to waiting state
         getPastCoursesInForeseenState().forEach(this::putCourseInWaitingState);
 
-        // Schedule next course beginning notification
+        // Schedule next course notification
         Course course = getNextCourse();
         if(course != null){ scheduleAlarmForNextCourse(course); }
 
@@ -92,7 +94,7 @@ public class CourseCheckingService extends Service {
 
         // Schedule start notification
         if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_beginning))) {
-            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
+            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.COURSE_BEGINNING);
 
             calendar.setTimeInMillis(pCourse.getDate());
             calendar.add(Calendar.MINUTE, -10);
@@ -100,30 +102,30 @@ public class CourseCheckingService extends Service {
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
                     PendingIntent.getBroadcast(getApplicationContext(),
-                            CourseNotification.BEGINNING_COURSE_CODE,
+                            CourseNotification.COURSE_BEGINNING,
                             intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
             );
         }
 
         // Schedule end notification
         if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_end))) {
-            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.END_COURSE_CODE);
+            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.COURSE_END);
 
             calendar.setTimeInMillis(pCourse.getEndDate());
             calendar.add(Calendar.MINUTE, +10);
             long alarmTime = calendar.getTimeInMillis();
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime,
-                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.END_COURSE_CODE,
+                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.COURSE_END,
                             intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
             );
         }
 
 //        // Hack
 //        if(PreferencesUtils.getBooleanPreferences(this, getString(R.string.pref_course_beginning))) {
-//            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.BEGINNING_COURSE_CODE);
-//            alarmManager.set(AlarmManager.RTC_WAKEUP, new Date().getTime() + 3 * 1000,
-//                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.BEGINNING_COURSE_CODE,
+//            intentAlarm.putExtra(NotificationReceiver.NOTIFICATION_CODE, CourseNotification.COURSE_BEGINNING);
+//            alarmManager.set(AlarmManager.RTC_WAKEUP, new Date().getTime() + 6 * 1000,
+//                    PendingIntent.getBroadcast(getApplicationContext(), CourseNotification.COURSE_BEGINNING,
 //                            intentAlarm, PendingIntent.FLAG_UPDATE_CURRENT)
 //            );
 //        }

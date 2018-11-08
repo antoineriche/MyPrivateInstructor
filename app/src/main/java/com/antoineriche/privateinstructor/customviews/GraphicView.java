@@ -133,19 +133,27 @@ public class GraphicView extends LinearLayout {
         setValues(values, false);
     }
 
-    public void setValues(Float[] values, boolean dispalyMean){
-        double mean = Arrays.asList(values).stream().mapToDouble(Float::doubleValue).average().getAsDouble();
+    public void setValues(Float[] values, boolean displayMean){
+        double mean;
+        if(values.length > 0) {
+            mean = Arrays.stream(values).mapToDouble(Float::doubleValue).average().getAsDouble();
 
-        if(values.length < minItemCount){
-            Float[] result = new Float[minItemCount];
-            System.arraycopy(values, 0, result, 0, values.length);
-            for(int i = values.length ; i < minItemCount ; i++){ result[i] = 0f; }
-            mValues = result;
+            if (values.length < minItemCount) {
+                Float[] result = new Float[minItemCount];
+                System.arraycopy(values, 0, result, 0, values.length);
+                for (int i = values.length; i < minItemCount; i++) {
+                    result[i] = 0f;
+                }
+                mValues = result;
+            } else {
+                mValues = values;
+            }
         } else {
-            mValues = values;
+            mean = 0;
+            mValues = new Float[]{0f, 0f, 0f, 0f, 0f};
         }
 
-        if(dispalyMean){
+        if(displayMean){
             setExtraData(String.format(Locale.FRANCE, "Moyenne : %.2f", mean));
         }
 

@@ -158,9 +158,8 @@ public class PupilFormFragment extends AbstractFormItemFragment {
             }
         });
 
-        view.findViewById(R.id.fab_address).setOnClickListener(v -> {
-            Intent intent =
-                    null;
+        view.findViewById(R.id.cv_address).setOnClickListener(v -> {
+            Intent intent = null;
             try {
                 intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
                         .setFilter(new AutocompleteFilter.Builder().setCountry("FR").build())

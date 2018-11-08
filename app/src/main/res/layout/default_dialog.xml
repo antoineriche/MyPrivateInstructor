@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/horizontal_lv_margin">
+
+    <RelativeLayout
+        android:id="@+id/rl_dialog_header"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_width="match_parent"
+        android:layout_height="30dp">
+
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:text="Dialog title"
+            android:layout_centerVertical="true"
+            android:maxLines="1"
+            android:layout_toStartOf="@+id/dialog_progress"
+            android:ellipsize="end"/>
+
+        <ProgressBar
+            android:id="@+id/dialog_progress"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_dialog_content"
+        android:layout_below="@+id/rl_dialog_header"
+        android:layout_alignParentStart="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/fab_margin"/>
+
+    <TextView
+        android:id="@+id/tv_dialog_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red500"
+        android:text="Dialog error"
+        android:layout_below="@+id/ll_dialog_content"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_dialog_error">
+
+        <Button
+            android:id="@+id/btn_positive"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Valider"/>
+
+        <Button
+            android:id="@+id/btn_negative"
+            android:layout_toStartOf="@+id/btn_positive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Annuler"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

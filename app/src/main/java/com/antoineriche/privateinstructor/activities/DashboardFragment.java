@@ -27,17 +27,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class DashBoardFragment extends AbstractDatabaseFragment {
+public class DashboardFragment extends AbstractDatabaseFragment {
 
-    private final static String TAG = "DashBoardFragment";
+    private final static String TAG = "DashboardFragment";
 
     private EventItemAdapter mCoursesAdapter, mDevoirsAdapter;
-    private DashBoardListener mDashboardListener;
+    private DashboardListener mDashboardListener;
 
-    public DashBoardFragment(){}
+    public DashboardFragment(){}
 
-    public static DashBoardFragment newInstance(){
-        return new DashBoardFragment();
+    public static DashboardFragment newInstance(){
+        return new DashboardFragment();
     }
 
     @Override
@@ -63,8 +63,8 @@ public class DashBoardFragment extends AbstractDatabaseFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(context instanceof DashBoardListener){
-            mDashboardListener = (DashBoardListener) context;
+        if(context instanceof DashboardListener){
+            mDashboardListener = (DashboardListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement DashBoardListener");
         }
@@ -102,7 +102,6 @@ public class DashBoardFragment extends AbstractDatabaseFragment {
 
         refreshView(view);
     }
-
 
     private void openDialog(EventItem pEventItem){
 
@@ -157,7 +156,7 @@ public class DashBoardFragment extends AbstractDatabaseFragment {
         ((TextView) view.findViewById(R.id.tv_uncompleted_devoirs)).setText(String.format(Locale.FRANCE, "%d devoirs incomplets", mUncompletedDevoirs.size()));
     }
 
-    interface DashBoardListener {
+    interface DashboardListener {
         void onItemComplete(String pItemUuid);
     }
 }

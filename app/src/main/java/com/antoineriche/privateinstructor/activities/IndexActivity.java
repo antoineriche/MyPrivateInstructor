@@ -24,21 +24,30 @@ import com.antoineriche.privateinstructor.activities.item.AbstractFragmentList;
 import com.antoineriche.privateinstructor.activities.item.course.CourseListFragment;
 import com.antoineriche.privateinstructor.activities.item.devoir.DevoirListFragment;
 import com.antoineriche.privateinstructor.activities.item.pupil.PupilListFragment;
+import com.antoineriche.privateinstructor.activities.settings.SettingsFragment;
 import com.antoineriche.privateinstructor.database.CourseTable;
 import com.antoineriche.privateinstructor.database.DevoirTable;
+import com.antoineriche.privateinstructor.dialogs.LogInDialog;
 import com.antoineriche.privateinstructor.services.CourseCheckingService;
 import com.antoineriche.privateinstructor.services.FirebaseIntentService;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.lang.ref.WeakReference;
 
 public class IndexActivity extends AbstractDatabaseActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        AbstractFragmentList.FragmentListListener, DashBoardFragment.DashBoardListener {
+        AbstractFragmentList.FragmentListListener, DashboardFragment.DashboardListener,
+        FirebaseAuth.AuthStateListener {
 
     private static final String TAG = IndexActivity.class.getSimpleName();
 
     Fragment mCurrentFragment;
     NavigationView mNavigationView;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mFirebaseUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,9 @@ public class IndexActivity extends AbstractDatabaseActivity
         setContentView(R.layout.activity_index);
         Toolbar mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+
+        FirebaseApp.initializeApp(getApplicationContext());
+        mAuth = FirebaseAuth.getInstance();
 
         DrawerLayout mDrawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -55,16 +67,31 @@ public class IndexActivity extends AbstractDatabaseActivity
 
         mNavigationView  = findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
-        initMenu(mNavigationView.getMenu());
+        initNavigationView(mNavigationView);
         onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(this);
+        mFirebaseUser = mAuth.getCurrentUser();
+        refreshNavigationMenu(mFirebaseUser);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuth.removeAuthStateListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         startService(new Intent(this, CourseCheckingService.class));
+
         Intent intent = new Intent(this, FirebaseIntentService.class);
-        intent.putExtra(FirebaseIntentService.FIB_TASKS, new String[]{FirebaseIntentService.FIB_CHECK_SNAPSHOT, FirebaseIntentService.FIB_CHECK_SYNCHRONIZATION});
+        intent.putExtra(FirebaseIntentService.FIB_TASKS, new String[]{FirebaseIntentService.FIB_SCHEDULE_SNAPSHOT, FirebaseIntentService.FIB_CHECK_SYNCHRONIZATION});
         startService(intent);
 
         new GetDashboardNotifications(new WeakReference<>(this)).execute();
@@ -76,18 +103,42 @@ public class IndexActivity extends AbstractDatabaseActivity
     }
 
     //FIXME Regex is an ugly way to do the trick
-    private void initMenu(Menu pMenu) {
+    private void initNavigationView(NavigationView pNavigationView) {
 
+        // Deal with header
+//        View header = mNavigationView.getHeaderView(0);
+//        if(mFirebaseUser != null)
+//        header.findViewById(R.id.fab_log_in).setOnClickListener(v -> {
+//            mAuth.createUserWithEmailAndPassword("riche.ant@gmail.com", "Rhomer91").addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                @Override
+//                public void onComplete(@NonNull Task<AuthResult> task) {
+//                    if (task.isSuccessful()) {
+//                        // Sign in success, update UI with the signed-in user's information
+//                        Log.e(TAG, "signInWithEmail:success");
+//                        mFirebaseUser = mAuth.getCurrentUser();
+//                    } else {
+//                        // If sign in fails, display a message to the user.
+//                        Log.e(TAG, "signInWithEmail:failure", task.getException());
+//                        Toast.makeText(IndexActivity.this, "Authentication failed.",
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            });
+//        });
+
+        // Deal with menu
+        Menu menu = pNavigationView.getMenu();
         String[] sections = getResources().getStringArray(R.array.drawer_sections);
-        int index = 0;
+        View actionView;
 
-        View actionView = pMenu.findItem(R.id.nav_home).getActionView();
+        int index = 0;
+        actionView = menu.findItem(R.id.nav_home).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_home_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_dashboard).getActionView();
+        actionView = menu.findItem(R.id.nav_dashboard).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.baseline_dashboard_white_48));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
@@ -95,49 +146,49 @@ public class IndexActivity extends AbstractDatabaseActivity
         ((TextView) actionView.findViewById(R.id.menu_badge)).setText("2");
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_pupil).getActionView();
+        actionView = menu.findItem(R.id.nav_pupil).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_supervisor_account_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_course).getActionView();
+        actionView = menu.findItem(R.id.nav_course).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_book_open_page_variant_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_devoir).getActionView();
+        actionView = menu.findItem(R.id.nav_devoir).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_assignment_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_calendar).getActionView();
+        actionView = menu.findItem(R.id.nav_calendar).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_today_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_money).getActionView();
+        actionView = menu.findItem(R.id.nav_money).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_account_balance_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_snapshots).getActionView();
+        actionView = menu.findItem(R.id.nav_snapshots).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.baseline_storage_white_48));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_stats).getActionView();
+        actionView = menu.findItem(R.id.nav_stats).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_equalizer_white_48dp));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
 
         index++;
-        actionView = pMenu.findItem(R.id.nav_settings).getActionView();
+        actionView = menu.findItem(R.id.nav_settings).getActionView();
         ((ImageView) actionView.findViewById(R.id.menu_icon)).setImageDrawable(getDrawable(R.drawable.ic_menu_manage));
         ((TextView) actionView.findViewById(R.id.menu_label)).setText(sections[index].split(";")[0]);
         ((TextView) actionView.findViewById(R.id.menu_details)).setText(sections[index].split(";")[1]);
@@ -170,7 +221,7 @@ public class IndexActivity extends AbstractDatabaseActivity
                 title = "Accueil";
                 break;
             case R.id.nav_dashboard:
-                pFragment = DashBoardFragment.newInstance();
+                pFragment = DashboardFragment.newInstance();
                 title = "Dashboard";
                 break;
             case R.id.nav_pupil:
@@ -250,12 +301,43 @@ public class IndexActivity extends AbstractDatabaseActivity
 
     private void updateDashboardNotif(Integer integer){
         MenuItem a = mNavigationView.getMenu().findItem(R.id.nav_dashboard);
-        ((TextView) a.getActionView().findViewById(R.id.menu_badge)).setText(""+integer);
+        ((TextView) a.getActionView().findViewById(R.id.menu_badge)).setText(String.valueOf(integer));
     }
 
     @Override
     public void onItemComplete(String pItemUuid) {
         new GetDashboardNotifications(new WeakReference<>(this)).execute();
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        if(firebaseAuth.getCurrentUser() != null){
+            mFirebaseUser = firebaseAuth.getCurrentUser();
+        } else {
+            mFirebaseUser = null;
+            if(mCurrentFragment instanceof SnapshotFragment){
+                onNavigationItemSelected(mNavigationView.getMenu().getItem(0));
+            }
+        }
+        refreshNavigationMenu(mFirebaseUser);
+    }
+
+    private void refreshNavigationMenu(FirebaseUser user){
+        boolean userConnected = user != null;
+
+        if(userConnected){
+            mNavigationView.getHeaderView(0).findViewById(R.id.fab_log_in).setOnClickListener(
+                    v -> mAuth.signOut());
+        } else {
+            mNavigationView.getHeaderView(0).findViewById(R.id.fab_log_in).setOnClickListener(
+                    v -> new LogInDialog(this, mAuth, this::refreshNavigationMenu).show());
+        }
+
+        mNavigationView.getMenu().findItem(R.id.nav_snapshots).setVisible(userConnected);
+        ((TextView) mNavigationView.getHeaderView(0).findViewById(R.id.textView))
+                .setText(userConnected ? "Connected as " + user.getEmail() : "Not connected");
+
+
     }
 
     public static class GetDashboardNotifications extends AsyncTask<Void, Void, Integer> {
@@ -282,4 +364,5 @@ public class IndexActivity extends AbstractDatabaseActivity
             this.mActivity.get().updateDashboardNotif(integer);
         }
     }
+
 }
